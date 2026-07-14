@@ -221,7 +221,9 @@ h3 {
 }
 
 .hero-profile {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .portrait-wrap {
@@ -241,22 +243,36 @@ h3 {
 }
 
 .portrait {
+  display: block;
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
 }
 
 .profile-card {
-  position: absolute;
-  right: -18px;
-  bottom: 22px;
-  width: min(310px, 86%);
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(10, 13, 18, 0.84);
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
+}
+
+@media (min-width: 981px) {
+  .hero-profile {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .portrait-wrap {
+    flex: 0 0 45%;
+  }
+
+  .profile-card {
+    flex: 1;
+    min-width: 0;
+    align-self: center;
+  }
 }
 
 .profile-card p:last-child {
@@ -537,14 +553,6 @@ h3 {
 
   .button {
     width: 100%;
-  }
-
-  .profile-card {
-    position: relative;
-    right: auto;
-    bottom: auto;
-    width: 100%;
-    margin-top: 12px;
   }
 
   .site-footer {
