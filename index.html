@@ -22,6 +22,7 @@
           <a href="#about">About</a>
           <a href="#experience">Experience</a>
           <a href="#skills">Skills</a>
+          <a href="#how-i-build">Approach</a>
           <a href="#projects">Projects</a>
           <a href="#education">Education</a>
         </nav>
@@ -41,7 +42,7 @@
             </p>
             <div class="hero-actions" aria-label="Primary actions">
               <a class="button primary" href="#projects">View project space</a>
-              <a class="button secondary" href="#experience">See background</a>
+              <a class="button secondary" href="#how-i-build">See how I build</a>
             </div>
           </div>
 
@@ -61,6 +62,123 @@
               </p>
             </div>
           </aside>
+        </section>
+
+        <section class="how-i-build section-pad" id="how-i-build">
+          <div class="section-heading reveal">
+            <p class="eyebrow">How I build</p>
+            <h2>Start with the system, then make the work useful.</h2>
+          </div>
+          <div class="thought-network reveal" data-thought-network>
+            <div
+              class="thought-map"
+              role="tablist"
+              aria-label="Wil's approach to building"
+            >
+              <canvas class="thought-canvas" aria-hidden="true"></canvas>
+              <p class="thought-map-label" aria-hidden="true">AI systems</p>
+              <p class="thought-map-hint">Select a node to trace the approach.</p>
+              <button
+                class="thought-node is-active"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="thought-detail"
+                data-step="01"
+                data-x="18"
+                data-y="57"
+                data-title="Understand"
+                data-description="Clarify the real need, the people involved, and the constraints before choosing a solution."
+                data-link="#about"
+                data-link-label="Read about my approach"
+              >
+                <span class="thought-node-index">01</span>
+                <span>Understand</span>
+              </button>
+              <button
+                class="thought-node"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="thought-detail"
+                data-step="02"
+                data-x="32"
+                data-y="22"
+                data-title="Map"
+                data-description="Break the system into inputs, logic, outputs, and failure cases so the moving parts are visible."
+                data-link="#experience"
+                data-link-label="See systems background"
+              >
+                <span class="thought-node-index">02</span>
+                <span>Map</span>
+              </button>
+              <button
+                class="thought-node"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="thought-detail"
+                data-step="03"
+                data-x="56"
+                data-y="80"
+                data-title="Build"
+                data-description="Use Claude Code and Codex to move from a clear plan to a working version, with the intended workflow in view."
+                data-link="#projects"
+                data-link-label="View projects"
+              >
+                <span class="thought-node-index">03</span>
+                <span>Build</span>
+              </button>
+              <button
+                class="thought-node"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="thought-detail"
+                data-step="04"
+                data-x="74"
+                data-y="28"
+                data-title="Test"
+                data-description="Check behavior, edge cases, and the human experience before treating the work as finished."
+                data-link="#skills"
+                data-link-label="See current tools"
+              >
+                <span class="thought-node-index">04</span>
+                <span>Test</span>
+              </button>
+              <button
+                class="thought-node"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="thought-detail"
+                data-step="05"
+                data-x="87"
+                data-y="62"
+                data-title="Explain"
+                data-description="Document the result clearly so the people using it can understand what it does and why it works."
+                data-link="#experience"
+                data-link-label="See communication experience"
+              >
+                <span class="thought-node-index">05</span>
+                <span>Explain</span>
+              </button>
+            </div>
+            <div
+              class="thought-detail"
+              id="thought-detail"
+              role="tabpanel"
+              aria-live="polite"
+            >
+              <p class="thought-detail-step">01 / 05</p>
+              <h3>Understand</h3>
+              <p class="thought-detail-description">
+                Clarify the real need, the people involved, and the constraints
+                before choosing a solution.
+              </p>
+              <a class="thought-detail-link" href="#about">Read about my approach</a>
+            </div>
+          </div>
         </section>
 
         <section class="content-band section-pad" id="about">
