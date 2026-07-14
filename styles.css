@@ -258,23 +258,6 @@ h3 {
   backdrop-filter: blur(16px);
 }
 
-@media (min-width: 981px) {
-  .hero-profile {
-    flex-direction: row;
-    align-items: flex-start;
-  }
-
-  .portrait-wrap {
-    flex: 0 0 45%;
-  }
-
-  .profile-card {
-    flex: 1;
-    min-width: 0;
-    align-self: center;
-  }
-}
-
 .profile-card p:last-child {
   margin-bottom: 0;
   color: var(--muted);
