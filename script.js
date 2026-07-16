@@ -15,6 +15,20 @@ const footerNextLabel = document.querySelector("[data-footer-next-label]");
 const transitionFrom = document.querySelector("[data-transition-from]");
 const transitionTo = document.querySelector("[data-transition-to]");
 const controlToast = document.querySelector("[data-control-toast]");
+const presetStatus = document.querySelector("[data-preset-status]");
+const presetName = document.querySelector("[data-preset-name]");
+const presetProgress = document.querySelector("[data-preset-progress]");
+const presetPosition = document.querySelector("[data-preset-position]");
+
+function loadReviewedModules() {
+  try {
+    return JSON.parse(window.localStorage.getItem("wiltobuild-reviewed-modules") || "[]");
+  } catch {
+    return [];
+  }
+}
+
+const reviewedModules = new Set(loadReviewedModules());
 
 const SOCIAL_URLS = {
   github: "https://github.com/wiltobuild",
@@ -113,6 +127,29 @@ const SKILL_FOCUS = {
   communicate: "Explain technical decisions clearly to users, clients, and collaborators."
 };
 
+const CREDENTIALS = {
+  crestron: {
+    issuer: "Crestron",
+    status: "Completed",
+    title: "Silver Programmer",
+    description: "Programming training focused on control logic, device behavior, interfaces, and deployable automation.",
+    practice: "I used this training to build and support control programs whose behavior had to remain understandable in real rooms.",
+    area: "Control programming",
+    demonstrates: "Structured logic and system behavior",
+    applied: "Software state, dependencies, and testing"
+  },
+  cts: {
+    issuer: "AVIXA",
+    status: "Certified",
+    title: "Certified Technology Specialist",
+    description: "AV industry training covering system principles, requirements, installation context, and client communication.",
+    practice: "I applied this foundation while translating client needs into systems that technicians could install, test, and support.",
+    area: "AV systems integration",
+    demonstrates: "Requirements, signal flow, and technical communication",
+    applied: "System mapping, implementation context, and support"
+  }
+};
+
 const PROJECTS = [
   {
     id: "slot-1",
@@ -162,6 +199,22 @@ function showControlToast(message) {
   toastTimer = window.setTimeout(() => controlToast.classList.remove("is-visible"), 2200);
 }
 
+function updateReviewedModules() {
+  stateNavigationButtons.forEach((button) => {
+    button.classList.toggle("is-reviewed", reviewedModules.has(button.dataset.nav));
+  });
+  const reviewedInPreset = PRESETS[activePreset].filter((moduleName) => reviewedModules.has(moduleName)).length;
+  presetStatus.dataset.reviewed = `${reviewedInPreset}/${PRESETS[activePreset].length}`;
+}
+
+function markModuleReviewed(moduleName, message) {
+  if (!MODULES[moduleName] || reviewedModules.has(moduleName)) return;
+  reviewedModules.add(moduleName);
+  window.localStorage.setItem("wiltobuild-reviewed-modules", JSON.stringify([...reviewedModules]));
+  updateReviewedModules();
+  if (message) showControlToast(message);
+}
+
 function playPanelTone(frequency = 520, duration = 0.045) {
   if (!audioEnabled) return;
   audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
@@ -188,6 +241,7 @@ function configureSocialLinks() {
   document.querySelectorAll("[data-social]").forEach((link) => {
     const url = SOCIAL_URLS[link.dataset.social];
     if (url) link.href = url;
+    link.addEventListener("click", () => markModuleReviewed("contact", "Contact channel opened"));
   });
 }
 
@@ -236,7 +290,15 @@ function updateInterface(moduleName) {
   footerNextButton.setAttribute("aria-label", `${NEXT_PROMPTS[nextName]}. Open ${nextModule.label}.`);
   document.title = moduleName === "home" ? "Wil Sheppard | WilToBuild" : `${module.label} | WilToBuild`;
   controller.dataset.module = moduleName;
+  const sequence = PRESETS[activePreset];
+  const sequenceIndex = Math.max(0, sequence.indexOf(moduleName));
+  const label = activePreset === "hiring" ? "Hiring manager" : activePreset[0].toUpperCase() + activePreset.slice(1);
+  presetName.textContent = label;
+  presetPosition.textContent = `${String(sequenceIndex + 1).padStart(2, "0")} / ${String(sequence.length).padStart(2, "0")}`;
+  presetProgress.style.width = `${((sequenceIndex + 1) / sequence.length) * 100}%`;
+  presetStatus.setAttribute("aria-label", `${label} preset, step ${sequenceIndex + 1} of ${sequence.length}. Open preset controls.`);
   setNavigationState(moduleName);
+  updateReviewedModules();
 }
 
 async function activateModule(moduleName, options = {}) {
@@ -359,6 +421,8 @@ function createTransferConsole() {
   const count = document.querySelector("[data-transfer-count]");
   const output = document.querySelector(".transfer-output");
   const signal = document.querySelector("[data-transfer-signal]");
+  const completion = document.querySelector("[data-transfer-complete]");
+  const revealItems = Array.from(document.querySelectorAll("[data-home-reveal]"));
 
   function select(stepName, focus = false) {
     const step = TRANSFER_STEPS[stepName];
@@ -384,6 +448,12 @@ function createTransferConsole() {
     output.classList.remove("is-updating");
     void output.offsetWidth;
     if (!reduceMotion.matches) output.classList.add("is-updating");
+    revealItems.forEach((item) => item.classList.toggle("is-revealed", activeIndex + 1 >= Number(item.dataset.homeReveal)));
+    const isComplete = activeIndex === buttons.length - 1;
+    completion.hidden = !isComplete;
+    completion.classList.toggle("is-visible", isComplete);
+    document.querySelector(".transfer-console").classList.toggle("is-complete", isComplete);
+    if (isComplete) markModuleReviewed("home", "Home system route verified");
     playPanelTone(500 + (activeIndex * 45));
   }
 
@@ -398,6 +468,26 @@ function createTransferConsole() {
     });
   });
   select("understand");
+}
+
+function createHomePanels() {
+  const buttons = Array.from(document.querySelectorAll("[data-home-panel-button]"));
+  const panels = Array.from(document.querySelectorAll("[data-home-panel]"));
+  const openProcessButton = document.querySelector("[data-home-open-process]");
+
+  function select(panelName) {
+    buttons.forEach((button) => {
+      const isActive = button.dataset.homePanelButton === panelName;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+    panels.forEach((panel) => panel.classList.toggle("is-mobile-active", panel.dataset.homePanel === panelName));
+    document.querySelector(".home-view").scrollTop = 0;
+  }
+
+  buttons.forEach((button) => button.addEventListener("click", () => select(button.dataset.homePanelButton)));
+  openProcessButton.addEventListener("click", () => select("process"));
+  select("identity");
 }
 
 function createExperienceWorkbench() {
@@ -437,6 +527,7 @@ function createExperienceWorkbench() {
     detail.classList.remove("is-updating");
     void detail.offsetWidth;
     if (!reduceMotion.matches) detail.classList.add("is-updating");
+    if (activeIndex === buttons.length - 1) markModuleReviewed("experience", "Experience system path verified");
     playPanelTone(470 + (activeIndex * 55));
   }
 
@@ -460,7 +551,6 @@ function createUtilityControls() {
   const panels = Array.from(document.querySelectorAll("[data-utility-panel]"));
   const sceneButtons = Array.from(document.querySelectorAll("[data-scene]"));
   const presetButtons = Array.from(document.querySelectorAll("[data-preset]"));
-  const audioButton = document.querySelector('[data-utility="audio"]');
   let openPanel = "";
 
   function closeDrawer() {
@@ -468,7 +558,7 @@ function createUtilityControls() {
     openPanel = "";
     utilityButtons.forEach((button) => {
       if (button.dataset.utility !== "audio") button.setAttribute("aria-expanded", "false");
-      button.classList.remove("is-active");
+      if (button.dataset.utility !== "audio") button.classList.remove("is-active");
     });
     panels.forEach((panel) => { panel.hidden = true; });
   }
@@ -506,6 +596,7 @@ function createUtilityControls() {
 
   function applyPreset(presetName, announce = true) {
     activePreset = PRESETS[presetName] ? presetName : "explore";
+    window.localStorage.setItem("wiltobuild-preset", activePreset);
     presetButtons.forEach((button) => {
       const isActive = button.dataset.preset === activePreset;
       button.classList.toggle("is-active", isActive);
@@ -537,13 +628,419 @@ function createUtilityControls() {
 
   sceneButtons.forEach((button) => button.addEventListener("click", () => applyScene(button.dataset.scene)));
   presetButtons.forEach((button) => button.addEventListener("click", () => applyPreset(button.dataset.preset)));
+  presetStatus.addEventListener("click", () => openDrawer("presets"));
   closeButton.addEventListener("click", closeDrawer);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !drawer.hidden) closeDrawer();
   });
 
   applyScene(window.localStorage.getItem("wiltobuild-scene") || "work", false);
-  applyPreset("explore", false);
+  applyPreset(window.localStorage.getItem("wiltobuild-preset") || "explore", false);
+}
+
+function createCredentialTerminal() {
+  const buttons = Array.from(document.querySelectorAll("[data-credential]"));
+  const record = document.querySelector(".credential-record");
+  const fields = {
+    issuer: document.querySelector("[data-credential-issuer]"),
+    status: document.querySelector("[data-credential-status]"),
+    title: document.querySelector("[data-credential-title]"),
+    description: document.querySelector("[data-credential-description]"),
+    practice: document.querySelector("[data-credential-practice]"),
+    area: document.querySelector("[data-credential-area]"),
+    demonstrates: document.querySelector("[data-credential-demonstrates]"),
+    applied: document.querySelector("[data-credential-applied]")
+  };
+  const reviewedCredentials = new Set();
+
+  function select(credentialName, focus = false) {
+    const credential = CREDENTIALS[credentialName];
+    const activeIndex = buttons.findIndex((button) => button.dataset.credential === credentialName);
+    if (!credential || activeIndex < 0) return;
+    buttons.forEach((button, index) => {
+      const isSelected = index === activeIndex;
+      button.setAttribute("aria-selected", String(isSelected));
+      button.tabIndex = isSelected ? 0 : -1;
+      if (isSelected && focus) button.focus();
+    });
+    Object.entries(fields).forEach(([name, field]) => { field.textContent = credential[name]; });
+    reviewedCredentials.add(credentialName);
+    record.setAttribute("aria-labelledby", buttons[activeIndex].id);
+    record.classList.remove("is-updating");
+    void record.offsetWidth;
+    if (!reduceMotion.matches) record.classList.add("is-updating");
+    if (reviewedCredentials.size === buttons.length) markModuleReviewed("credentials", "Training records reviewed");
+    playPanelTone(560 + (activeIndex * 70));
+  }
+
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", () => select(button.dataset.credential));
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+      const nextIndex = (index + direction + buttons.length) % buttons.length;
+      select(buttons[nextIndex].dataset.credential, true);
+    });
+  });
+  select("crestron");
+}
+
+function createServiceMode() {
+  const serviceMode = document.querySelector("[data-service-mode]");
+  const serviceTitle = document.querySelector("[data-service-title]");
+  const launchButtons = Array.from(document.querySelectorAll("[data-service-launch]"));
+  const appButtons = Array.from(document.querySelectorAll("[data-service-app]"));
+  const appViews = Array.from(document.querySelectorAll("[data-service-view]"));
+  const exitButton = document.querySelector("[data-service-exit]");
+  const utilityDrawer = document.querySelector("[data-utility-drawer]");
+  const serviceLoaderTitle = document.querySelector("[data-service-loader-title]");
+  const navigationSurfaces = [
+    document.querySelector(".control-rail"),
+    document.querySelector(".mobile-dock-shell")
+  ].filter(Boolean);
+  let activeApp = "routing";
+  let serviceLoaderTimer;
+
+  function selectApp(appName) {
+    if (activeApp === "snake" && appName !== "snake" && snakeRunning) {
+      stopSnake();
+      setSnakeState("paused");
+    }
+    activeApp = appName;
+    appButtons.forEach((button) => button.classList.toggle("is-active", button.dataset.serviceApp === appName));
+    appViews.forEach((view) => { view.hidden = view.dataset.serviceView !== appName; });
+    serviceTitle.textContent = appName === "routing" ? "Signal routing" : "WTB Snake";
+    if (appName === "snake") drawSnake();
+  }
+
+  function openService(appName) {
+    utilityDrawer.hidden = true;
+    document.querySelectorAll("[data-utility]").forEach((button) => {
+      if (button.dataset.utility !== "audio") {
+        button.setAttribute("aria-expanded", "false");
+        button.classList.remove("is-active");
+      }
+    });
+    serviceMode.hidden = false;
+    displayScreen.inert = true;
+    footerNextButton.inert = true;
+    navigationSurfaces.forEach((surface) => { surface.inert = true; });
+    controller.classList.add("is-servicing");
+    serviceMode.classList.add("is-initializing");
+    serviceLoaderTitle.textContent = appName === "routing" ? "Signal routing" : "WTB Snake";
+    selectApp(appName);
+    window.clearTimeout(serviceLoaderTimer);
+    serviceLoaderTimer = window.setTimeout(() => {
+      serviceMode.classList.remove("is-initializing");
+      exitButton.focus();
+    }, reduceMotion.matches ? 0 : 680);
+    playPanelTone(780, 0.08);
+  }
+
+  function closeService() {
+    window.clearTimeout(serviceLoaderTimer);
+    if (snakeRunning) {
+      stopSnake();
+      setSnakeState("paused");
+    }
+    serviceMode.classList.remove("is-initializing");
+    serviceMode.hidden = true;
+    displayScreen.inert = false;
+    footerNextButton.inert = false;
+    navigationSurfaces.forEach((surface) => { surface.inert = false; });
+    controller.classList.remove("is-servicing");
+    document.querySelector('[data-utility="auxiliary"]').focus();
+  }
+
+  launchButtons.forEach((button) => button.addEventListener("click", () => openService(button.dataset.serviceLaunch)));
+  appButtons.forEach((button) => button.addEventListener("click", () => selectApp(button.dataset.serviceApp)));
+  exitButton.addEventListener("click", closeService);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !serviceMode.hidden) closeService();
+  });
+
+  const routingBoard = document.querySelector("[data-routing-board]");
+  const routingMoves = document.querySelector("[data-routing-moves]");
+  const routingStatus = document.querySelector("[data-routing-status]");
+  const routingReset = document.querySelector("[data-routing-reset]");
+  const routingModules = ["Source", "Switch", "Logic", "Output", "Room"];
+  const routingTargets = [0, 0, 0, 0, 0];
+  let routingRotations = [];
+  let moves = 0;
+  let routingEnergyTimers = [];
+
+  function isRouteSolved() {
+    return routingRotations.every((rotation, index) => rotation % 4 === routingTargets[index]);
+  }
+
+  function renderRoute() {
+    routingEnergyTimers.forEach((timer) => window.clearTimeout(timer));
+    routingEnergyTimers = [];
+    const solved = isRouteSolved();
+    routingBoard.innerHTML = routingModules.map((moduleName, index) => `
+      <button type="button" class="routing-tile" data-routing-tile="${index}" data-rotation="${routingRotations[index]}" aria-label="Rotate ${moduleName} module">
+        <span>${String(index + 1).padStart(2, "0")}</span>
+        <div class="routing-hardware" aria-hidden="true">
+          <i class="routing-port routing-port-in"></i>
+          <b class="routing-dial" style="--route-rotation: ${routingRotations[index] * 90}deg"><i></i></b>
+          <i class="routing-port routing-port-out"></i>
+        </div>
+        <strong>${moduleName}</strong>
+        <small>${solved ? "Signal verified" : "Rotate module"}</small>
+      </button>
+    `).join("");
+    routingMoves.textContent = String(moves).padStart(2, "0");
+    routingStatus.textContent = solved ? "System verified / route complete" : "Route incomplete";
+    routingStatus.classList.toggle("is-complete", solved);
+    routingBoard.classList.toggle("is-complete", solved);
+    if (solved) {
+      routingBoard.querySelectorAll("[data-routing-tile]").forEach((button, index) => {
+        const energize = () => button.classList.add("is-energized");
+        if (reduceMotion.matches) {
+          energize();
+        } else {
+          routingEnergyTimers.push(window.setTimeout(energize, index * 115));
+        }
+      });
+    }
+    routingBoard.querySelectorAll("[data-routing-tile]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const index = Number(button.dataset.routingTile);
+        routingRotations[index] = (routingRotations[index] + 1) % 4;
+        moves += 1;
+        renderRoute();
+        if (isRouteSolved()) {
+          showControlToast("Signal route verified");
+          playPanelTone(880, 0.12);
+        } else {
+          playPanelTone(430 + (index * 35));
+        }
+      });
+    });
+  }
+
+  function resetRoute() {
+    routingRotations = routingTargets.map((target) => (target + 1 + Math.floor(Math.random() * 3)) % 4);
+    moves = 0;
+    renderRoute();
+  }
+  routingReset.addEventListener("click", resetRoute);
+  resetRoute();
+
+  const canvas = document.querySelector("[data-snake-canvas]");
+  const context = canvas.getContext("2d");
+  const scoreOutput = document.querySelector("[data-snake-score]");
+  const highOutput = document.querySelector("[data-snake-high]");
+  const highInlineOutput = document.querySelector("[data-snake-high-inline]");
+  const snakeStatus = document.querySelector("[data-snake-status]");
+  const snakeToggle = document.querySelector("[data-snake-toggle]");
+  const snakeCommand = document.querySelector("[data-snake-command]");
+  const snakeCommandHint = document.querySelector("[data-snake-command-hint]");
+  const snakeFlash = document.querySelector("[data-snake-flash]");
+  const snakeConsole = document.querySelector(".snake-console");
+  const directionButtons = Array.from(document.querySelectorAll("[data-snake-direction]"));
+  const gridSize = 18;
+  const cellSize = canvas.width / gridSize;
+  let snake = [];
+  let food = { x: 13, y: 9 };
+  let direction = { x: 1, y: 0 };
+  let pendingDirection = direction;
+  let snakeTimer;
+  let snakeRunning = false;
+  let snakeScore = 0;
+  let foodPulse = 0;
+  let highScore = Number(window.localStorage.getItem("wiltobuild-snake-high") || 0);
+
+  function setSnakeState(state) {
+    const states = {
+      ready: ["Ready", "Start game", "Space bar"],
+      running: ["Running", "Pause game", "Space bar"],
+      paused: ["Paused", "Resume game", "Continue"],
+      halted: ["Game over", "Restart game", "New round"]
+    };
+    const [status, command, hint] = states[state];
+    snakeStatus.textContent = status;
+    snakeCommand.textContent = command;
+    snakeCommandHint.textContent = hint;
+    snakeToggle.dataset.state = state;
+    snakeConsole.dataset.state = state;
+  }
+
+  function placeFood() {
+    do {
+      food = { x: Math.floor(Math.random() * gridSize), y: Math.floor(Math.random() * gridSize) };
+    } while (snake.some((segment) => segment.x === food.x && segment.y === food.y));
+  }
+
+  function resetSnake() {
+    stopSnake();
+    snake = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }];
+    direction = { x: 1, y: 0 };
+    pendingDirection = direction;
+    snakeScore = 0;
+    scoreOutput.textContent = "00";
+    highOutput.textContent = String(highScore).padStart(2, "0");
+    highInlineOutput.textContent = String(highScore).padStart(2, "0");
+    snakeConsole.classList.remove("is-scoring", "is-faulted");
+    setSnakeState("ready");
+    placeFood();
+    drawSnake();
+  }
+
+  function drawSnake() {
+    foodPulse = (foodPulse + 1) % 8;
+    context.fillStyle = "#07100d";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = "#0b1512";
+    for (let row = 0; row < gridSize; row += 1) {
+      for (let column = 0; column < gridSize; column += 1) {
+        if ((row + column) % 2 === 0) {
+          context.fillRect(column * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    context.strokeStyle = "#1b2a25";
+    context.lineWidth = 1;
+    for (let index = 0; index <= gridSize; index += 1) {
+      context.beginPath();
+      context.moveTo(index * cellSize, 0);
+      context.lineTo(index * cellSize, canvas.height);
+      context.stroke();
+      context.beginPath();
+      context.moveTo(0, index * cellSize);
+      context.lineTo(canvas.width, index * cellSize);
+      context.stroke();
+    }
+
+    context.strokeStyle = "#315046";
+    context.lineWidth = 2;
+    context.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+
+    const foodCenterX = (food.x * cellSize) + (cellSize / 2);
+    const foodCenterY = (food.y * cellSize) + (cellSize / 2);
+    const foodRadius = 5 + (foodPulse * 0.35);
+    context.save();
+    context.translate(foodCenterX, foodCenterY);
+    context.rotate(Math.PI / 4);
+    context.shadowColor = "#d7a45c";
+    context.shadowBlur = 14;
+    context.fillStyle = "#d7a45c";
+    context.fillRect(-foodRadius, -foodRadius, foodRadius * 2, foodRadius * 2);
+    context.restore();
+
+    snake.forEach((segment, index) => {
+      const inset = index === 0 ? 2 : 3;
+      const x = (segment.x * cellSize) + inset;
+      const y = (segment.y * cellSize) + inset;
+      const size = cellSize - (inset * 2);
+      context.save();
+      context.shadowColor = index === 0 ? "#f1f4ed" : "#b7ef5b";
+      context.shadowBlur = index < 4 ? 9 - index : 2;
+      context.fillStyle = index === 0 ? "#f1f4ed" : index % 2 === 0 ? "#b7ef5b" : "#91c94b";
+      context.beginPath();
+      context.roundRect(x, y, size, size, index === 0 ? 5 : 3);
+      context.fill();
+      context.restore();
+
+      if (index === 0) {
+        const eyeOffsetX = direction.x === 0 ? 4 : direction.x * 4;
+        const eyeOffsetY = direction.y === 0 ? 4 : direction.y * 4;
+        context.fillStyle = "#07100d";
+        if (direction.x !== 0) {
+          context.fillRect(x + (size / 2) + eyeOffsetX - 1, y + 3, 2, 2);
+          context.fillRect(x + (size / 2) + eyeOffsetX - 1, y + size - 5, 2, 2);
+        } else {
+          context.fillRect(x + 3, y + (size / 2) + eyeOffsetY - 1, 2, 2);
+          context.fillRect(x + size - 5, y + (size / 2) + eyeOffsetY - 1, 2, 2);
+        }
+      }
+    });
+  }
+
+  function stopSnake() {
+    window.clearInterval(snakeTimer);
+    snakeRunning = false;
+  }
+
+  function endSnake() {
+    stopSnake();
+    setSnakeState("halted");
+    snakeConsole.classList.add("is-faulted");
+    if (snakeScore > highScore) {
+      highScore = snakeScore;
+      window.localStorage.setItem("wiltobuild-snake-high", String(highScore));
+      highOutput.textContent = String(highScore).padStart(2, "0");
+      highInlineOutput.textContent = String(highScore).padStart(2, "0");
+    }
+    playPanelTone(240, 0.15);
+  }
+
+  function tickSnake() {
+    direction = pendingDirection;
+    const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+    const hitWall = head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize;
+    const hitSelf = snake.some((segment) => segment.x === head.x && segment.y === head.y);
+    if (hitWall || hitSelf) {
+      endSnake();
+      return;
+    }
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      snakeScore += 1;
+      scoreOutput.textContent = String(snakeScore).padStart(2, "0");
+      placeFood();
+      snakeConsole.classList.remove("is-scoring");
+      snakeFlash.classList.remove("is-active");
+      void snakeConsole.offsetWidth;
+      snakeConsole.classList.add("is-scoring");
+      snakeFlash.classList.add("is-active");
+      window.setTimeout(() => snakeFlash.classList.remove("is-active"), 260);
+      showControlToast("Snake target collected");
+      playPanelTone(690);
+    } else {
+      snake.pop();
+    }
+    drawSnake();
+  }
+
+  function startSnake() {
+    if (snakeToggle.dataset.state === "halted") resetSnake();
+    if (snakeRunning) {
+      stopSnake();
+      setSnakeState("paused");
+      return;
+    }
+    snakeRunning = true;
+    snakeConsole.classList.remove("is-faulted");
+    setSnakeState("running");
+    snakeTimer = window.setInterval(tickSnake, 125);
+  }
+
+  function setSnakeDirection(name) {
+    const directions = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+    const next = directions[name];
+    if (!next || (next.x === -direction.x && next.y === -direction.y)) return;
+    pendingDirection = next;
+  }
+
+  snakeToggle.addEventListener("click", startSnake);
+  directionButtons.forEach((button) => button.addEventListener("click", () => setSnakeDirection(button.dataset.snakeDirection)));
+  document.addEventListener("keydown", (event) => {
+    if (serviceMode.hidden || activeApp !== "snake") return;
+    const keys = { ArrowUp: "up", w: "up", W: "up", ArrowDown: "down", s: "down", S: "down", ArrowLeft: "left", a: "left", A: "left", ArrowRight: "right", d: "right", D: "right" };
+    if (keys[event.key]) {
+      event.preventDefault();
+      setSnakeDirection(keys[event.key]);
+    }
+    if (event.code === "Space") {
+      event.preventDefault();
+      startSnake();
+    }
+  });
+  resetSnake();
 }
 
 function createSkillFilter() {
@@ -551,6 +1048,7 @@ function createSkillFilter() {
   const routes = Array.from(document.querySelectorAll("[data-supports]"));
   const summary = document.querySelector("[data-skill-summary]");
   const status = document.querySelector("[data-skill-status]");
+  const reviewedFocuses = new Set();
 
   function select(focusName) {
     buttons.forEach((button) => {
@@ -567,6 +1065,8 @@ function createSkillFilter() {
     });
     summary.textContent = SKILL_FOCUS[focusName];
     status.textContent = `${supportedCount} connected capabilities`;
+    reviewedFocuses.add(focusName);
+    if (reviewedFocuses.size === buttons.length) markModuleReviewed("skills", "Skills routes reviewed");
   }
 
   buttons.forEach((button) => button.addEventListener("click", () => select(button.dataset.skillFocus)));
@@ -578,6 +1078,7 @@ function createProjectCarousel() {
   const workspace = document.querySelector("[data-project-workspace]");
   const status = document.querySelector("[data-project-status]");
   let currentIndex = 2;
+  const reviewedProjects = new Set();
 
   queue.innerHTML = PROJECTS.map((project, index) => `
     <button type="button" class="project-queue-item" data-project-id="${project.id}" data-project-index="${index}" aria-label="Show project slot ${index + 1}: ${project.title}">
@@ -620,6 +1121,8 @@ function createProjectCarousel() {
       }
     });
     status.textContent = `Slot ${String(currentIndex + 1).padStart(2, "0")} of ${String(PROJECTS.length).padStart(2, "0")} / ${PROJECTS[currentIndex].status}`;
+    reviewedProjects.add(currentIndex);
+    if (reviewedProjects.size >= Math.min(3, PROJECTS.length)) markModuleReviewed("projects", "Future project queue reviewed");
   }
 
   function goTo(index) {
@@ -671,10 +1174,13 @@ reduceMotion.addEventListener("change", () => controller.classList.remove("is-sw
 document.querySelector("#year").textContent = new Date().getFullYear();
 configureSocialLinks();
 createUtilityControls();
+createHomePanels();
 createTransferConsole();
 createExperienceWorkbench();
 createSkillFilter();
 createProjectCarousel();
+createCredentialTerminal();
+createServiceMode();
 createMobileDockCue();
 updateClock();
 window.setInterval(updateClock, 30000);

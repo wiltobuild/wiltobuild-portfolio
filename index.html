@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://wiltobuild.github.io/wiltobuild-portfolio/" />
     <link rel="icon" href="./assets/wil-sheppard-headshot.png" type="image/png" />
     <title>Wil Sheppard | WilToBuild</title>
-    <link rel="stylesheet" href="./styles.css?v=20260716-controller5" />
+    <link rel="stylesheet" href="./styles.css?v=20260716-controller7" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -69,6 +69,11 @@
       <section class="display-bezel" aria-label="WilToBuild portfolio display">
         <div class="display-header">
           <p><span data-view-kicker>System overview</span><b data-view-title>Home</b></p>
+          <button class="preset-status" type="button" data-preset-status aria-label="Open portfolio preset controls">
+            <span data-preset-name>Explore</span>
+            <i><b data-preset-progress></b></i>
+            <small data-preset-position>01 / 06</small>
+          </button>
           <div class="utility-strip" aria-label="Panel controls">
             <button type="button" data-utility="lighting" aria-expanded="false" aria-controls="lighting-panel" title="Lighting scenes">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 22h4M8.5 14.5A7 7 0 1 1 15.5 14.5C14.5 15.3 14 16.2 14 17h-4c0-.8-.5-1.7-1.5-2.5Z" /></svg>
@@ -102,6 +107,7 @@
           </section>
           <section id="preset-panel" data-utility-panel="presets" hidden>
             <p>Exploration presets</p>
+            <span class="utility-note">Choose which portfolio screens appear in the Continue sequence. Direct navigation remains available.</span>
             <div class="preset-options" role="group" aria-label="Choose a portfolio sequence">
               <button type="button" class="is-active" data-preset="explore" aria-pressed="true"><strong>Explore</strong><small>Full portfolio sequence</small></button>
               <button type="button" data-preset="hiring" aria-pressed="false"><strong>Hiring manager</strong><small>Background, skills, and contact</small></button>
@@ -109,10 +115,10 @@
             </div>
           </section>
           <section id="auxiliary-panel" data-utility-panel="auxiliary" hidden>
-            <p>Auxiliary program</p>
-            <div class="auxiliary-reserve">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h4M8 9v4M15.5 12h.01M18 10h.01M6.5 5h11A4.5 4.5 0 0 1 22 9.5v5a4.5 4.5 0 0 1-7.7 3.2L12 15.5l-2.3 2.2A4.5 4.5 0 0 1 2 14.5v-5A4.5 4.5 0 0 1 6.5 5Z" /></svg>
-              <div><strong>Game module reserved</strong><span>A small panel game will be installed in a future pass.</span></div>
+            <p>Service applications</p>
+            <div class="auxiliary-programs">
+              <button type="button" data-service-launch="routing"><span>01</span><strong>Signal routing</strong><small>Complete a control path</small></button>
+              <button type="button" data-service-launch="snake"><span>02</span><strong>WTB Snake</strong><small>Classic auxiliary program</small></button>
             </div>
           </section>
         </aside>
@@ -121,16 +127,21 @@
           <div class="screen-transition" aria-hidden="true"><span data-transition-from>Home</span><i></i><b data-transition-to>Experience</b></div>
 
           <section class="screen-view home-view is-active" data-view="home" aria-labelledby="home-title">
-            <div class="home-intro">
+            <div class="home-mobile-switch" role="group" aria-label="Home screen view">
+              <button type="button" class="is-active" data-home-panel-button="identity" aria-pressed="true">Identity</button>
+              <button type="button" data-home-panel-button="process" aria-pressed="false">Process</button>
+            </div>
+            <div class="home-intro" data-home-panel="identity">
               <div class="home-copy">
                 <p class="eyebrow">AI development / AV systems background</p>
                 <h1 id="home-title" tabindex="-1">Wil<br />Sheppard</h1>
                 <p class="home-lede">I am moving into AI development after a career designing, programming, and supporting Crestron automation systems.</p>
                 <div class="home-supporting">
-                  <p>My background in AV integration taught me how to connect complex parts, diagnose behavior under real constraints, and explain technical work clearly to the people who rely on it.</p>
-                  <p>I now apply that experience while building with Claude Code and Codex, with an emphasis on clear requirements, careful testing, and useful software.</p>
+                  <p data-home-reveal="2">My background in AV integration taught me how to connect complex parts, diagnose behavior under real constraints, and explain technical work clearly to the people who rely on it.</p>
+                  <p data-home-reveal="4">I now apply that experience while building with Claude Code and Codex, with an emphasis on clear requirements, careful testing, and useful software.</p>
                 </div>
                 <p class="credential-line">Crestron Silver Programmer <i></i> AVIXA CTS <i></i> Claude Code + Codex</p>
+                <button class="home-process-cta" type="button" data-home-open-process>See how the experience transfers <span>&#8594;</span></button>
               </div>
               <figure class="identity-feed">
                 <img src="./assets/wil-sheppard-headshot.png" alt="Headshot of Wil Sheppard" />
@@ -138,7 +149,7 @@
               </figure>
             </div>
 
-            <div class="home-dashboard">
+            <div class="home-dashboard" data-home-panel="process">
               <div class="availability-card"><span>Current focus</span><strong>AI development and software engineering</strong><i>Seeking an entry-level AI or software role</i></div>
               <div class="transfer-console" data-transfer-console>
                 <div class="transfer-console-heading"><span>From AV systems to software</span><b data-transfer-count>01 / 05</b></div>
@@ -155,6 +166,10 @@
                   <i aria-hidden="true"></i>
                   <div><span>Software practice</span><p data-transfer-software>Define the user, task, expected behavior, and limits before choosing tools.</p></div>
                 </article>
+                <div class="transfer-complete" data-transfer-complete hidden>
+                  <div><span>Route complete</span><strong>Systems practice connected to software development.</strong></div>
+                  <button type="button" data-nav="experience">Trace the full system <b>&#8594;</b></button>
+                </div>
               </div>
             </div>
           </section>
@@ -216,9 +231,25 @@
 
           <section class="screen-view credentials-view" data-view="credentials" aria-labelledby="credentials-title" hidden>
             <header class="view-heading"><p>04 / Training record</p><h2 id="credentials-title" tabindex="-1">Credentials grounded in practical AV work.</h2><span>Select a record to see what it covers and where it applies.</span></header>
-            <div class="credential-console">
-              <details open><summary><span>CRESTRON</span><strong>Silver Programmer</strong><i>COMPLETED</i></summary><div><p>Programming training focused on control logic, device behavior, interfaces, and deployable automation.</p><dl><div><dt>Area</dt><dd>Control programming</dd></div><div><dt>Applied to</dt><dd>System logic and behavior</dd></div></dl></div></details>
-              <details><summary><span>AVIXA</span><strong>CTS certification</strong><i>COMPLETED</i></summary><div><p>AV industry training covering system principles, requirements, installation context, and client communication.</p><dl><div><dt>Area</dt><dd>AV systems</dd></div><div><dt>Applied to</dt><dd>Design, installation, and support</dd></div></dl></div></details>
+            <div class="credential-terminal">
+              <div class="credential-index" role="tablist" aria-label="Credential records">
+                <button id="credential-tab-crestron" type="button" role="tab" aria-selected="true" aria-controls="credential-record" tabindex="0" data-credential="crestron"><span>01</span><strong>Crestron Silver Programmer</strong><small>Programming</small></button>
+                <button id="credential-tab-cts" type="button" role="tab" aria-selected="false" aria-controls="credential-record" tabindex="-1" data-credential="cts"><span>02</span><strong>AVIXA CTS</strong><small>Systems</small></button>
+              </div>
+              <article class="credential-record" id="credential-record" role="tabpanel" aria-labelledby="credential-tab-crestron" tabindex="0" aria-live="polite">
+                <header><span data-credential-issuer>Crestron</span><b data-credential-status>Completed</b></header>
+                <div>
+                  <p>Credential record</p>
+                  <h3 data-credential-title>Silver Programmer</h3>
+                  <span data-credential-description>Programming training focused on control logic, device behavior, interfaces, and deployable automation.</span>
+                  <p class="credential-practice"><b>In practice</b><span data-credential-practice>I used this training to build and support control programs whose behavior had to remain understandable in real rooms.</span></p>
+                  <dl>
+                    <div><dt>Area</dt><dd data-credential-area>Control programming</dd></div>
+                    <div><dt>Demonstrates</dt><dd data-credential-demonstrates>Structured logic and system behavior</dd></div>
+                    <div><dt>Applied now</dt><dd data-credential-applied>Software state, dependencies, and testing</dd></div>
+                  </dl>
+                </div>
+              </article>
             </div>
           </section>
 
@@ -234,6 +265,68 @@
             </div>
           </section>
         </div>
+
+        <section class="service-mode" data-service-mode aria-label="Auxiliary service applications" hidden>
+          <div class="service-loader" data-service-loader aria-hidden="true">
+            <span>WilToBuild / Service mode</span>
+            <strong data-service-loader-title>Signal routing</strong>
+            <i><b></b></i>
+            <small>Initializing auxiliary application</small>
+          </div>
+          <header>
+            <div><span>WilToBuild / Service mode</span><strong data-service-title>Signal routing</strong></div>
+            <button type="button" data-service-exit>Exit service mode</button>
+          </header>
+          <nav aria-label="Service applications">
+            <button type="button" class="is-active" data-service-app="routing">Signal routing</button>
+            <button type="button" data-service-app="snake">WTB Snake</button>
+          </nav>
+          <div class="service-app routing-game" data-service-view="routing">
+            <div class="service-heading">
+              <div><span>Commissioning challenge</span><h2>Complete the signal path.</h2><p>Rotate each module until every connection carries the source signal to the room.</p></div>
+              <div><small>Moves</small><strong data-routing-moves>00</strong></div>
+            </div>
+            <div class="routing-board" data-routing-board aria-label="Signal routing puzzle"></div>
+            <div class="service-actions">
+              <p data-routing-status>Route incomplete</p>
+              <button type="button" data-routing-reset>New route</button>
+            </div>
+          </div>
+          <div class="service-app snake-game" data-service-view="snake" hidden>
+            <div class="service-heading">
+              <div><span>Auxiliary program / Classic game</span><h2>WTB Snake</h2><p>Collect the amber targets, extend the snake, and avoid the walls and your own path.</p></div>
+              <div><small>High score</small><strong data-snake-high>00</strong></div>
+            </div>
+            <div class="snake-console">
+              <div class="snake-cabinet">
+                <div class="snake-cabinet-header"><span><i></i> Game channel online</span><b>WTB-AUX-02</b></div>
+                <div class="snake-screen">
+                  <canvas width="360" height="360" data-snake-canvas aria-label="Snake game board"></canvas>
+                  <div class="snake-scanline" aria-hidden="true"></div>
+                  <div class="snake-flash" data-snake-flash aria-hidden="true"></div>
+                </div>
+                <div class="snake-readout">
+                  <span>Score <b data-snake-score>00</b></span>
+                  <strong data-snake-status>Ready</strong>
+                  <span>Best <b data-snake-high-inline>00</b></span>
+                </div>
+              </div>
+              <div class="snake-control-panel" aria-label="Snake controls">
+                <div class="snake-command">
+                  <span>Game control</span>
+                  <button type="button" data-snake-toggle data-state="ready"><i aria-hidden="true"></i><strong data-snake-command>Start game</strong><small data-snake-command-hint>Space bar</small></button>
+                </div>
+                <div class="snake-dpad" role="group" aria-label="Direction controls">
+                  <button type="button" data-snake-direction="up" aria-label="Move up">&#8593;</button>
+                  <button type="button" data-snake-direction="left" aria-label="Move left">&#8592;</button>
+                  <i aria-hidden="true"></i>
+                  <button type="button" data-snake-direction="right" aria-label="Move right">&#8594;</button>
+                  <button type="button" data-snake-direction="down" aria-label="Move down">&#8595;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <footer class="display-footer">
           <span>WilToBuild / Portfolio Controller</span>
@@ -255,6 +348,6 @@
     </main>
 
     <div class="control-toast" data-control-toast role="status" aria-live="polite"></div>
-    <script src="./script.js?v=20260716-controller5"></script>
+    <script src="./script.js?v=20260716-controller7"></script>
   </body>
 </html>
