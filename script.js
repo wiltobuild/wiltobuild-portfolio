@@ -12,6 +12,9 @@ const systemStatus = document.querySelector("[data-system-status]");
 const clock = document.querySelector("[data-clock]");
 const footerNextButton = document.querySelector("[data-footer-next]");
 const footerNextLabel = document.querySelector("[data-footer-next-label]");
+const transitionFrom = document.querySelector("[data-transition-from]");
+const transitionTo = document.querySelector("[data-transition-to]");
+const controlToast = document.querySelector("[data-control-toast]");
 
 const SOCIAL_URLS = {
   github: "https://github.com/wiltobuild",
@@ -20,12 +23,27 @@ const SOCIAL_URLS = {
 };
 
 const MODULES = {
-  home: { number: "00", label: "Home", kicker: "System overview", next: "experience" },
-  experience: { number: "01", label: "Experience", kicker: "Systems practice", next: "skills" },
-  skills: { number: "02", label: "Skills", kicker: "Applied tools", next: "projects" },
-  projects: { number: "03", label: "Projects", kicker: "Future case studies", next: "credentials" },
-  credentials: { number: "04", label: "Credentials", kicker: "Training record", next: "contact" },
-  contact: { number: "05", label: "Contact", kicker: "Profiles and contact", next: "home" }
+  home: { number: "00", label: "Home", kicker: "System overview" },
+  experience: { number: "01", label: "Experience", kicker: "Systems practice" },
+  skills: { number: "02", label: "Skills", kicker: "Applied tools" },
+  projects: { number: "03", label: "Projects", kicker: "Future case studies" },
+  credentials: { number: "04", label: "Credentials", kicker: "Training record" },
+  contact: { number: "05", label: "Contact", kicker: "Profiles and contact" }
+};
+
+const PRESETS = {
+  explore: ["home", "experience", "skills", "projects", "credentials", "contact"],
+  hiring: ["home", "experience", "skills", "contact"],
+  technical: ["experience", "skills", "credentials", "contact"]
+};
+
+const NEXT_PROMPTS = {
+  home: "Return to the system overview",
+  experience: "Trace my systems experience",
+  skills: "See how I apply development tools",
+  projects: "Review future case study slots",
+  credentials: "Review my technical training",
+  contact: "Open my contact channels"
 };
 
 const EXPERIENCE_STEPS = {
@@ -33,22 +51,29 @@ const EXPERIENCE_STEPS = {
     title: "Clarify what the client needs the system to do.",
     application: "Define the user, task, constraints, and expected behavior before choosing tools.",
     state: "Requirement confirmed",
+    activeNodes: ["client"],
+    activeLinks: []
+  },
+  interface: {
+    title: "Shape controls and feedback around the person using the room.",
+    application: "Design interface states and feedback so the user can understand what the software is doing.",
+    state: "Interface behavior mapped",
     activeNodes: ["client", "interface"],
     activeLinks: ["1"]
   },
-  systems: {
-    title: "Connect devices, interfaces, networks, and control logic.",
+  logic: {
+    title: "Connect interface commands to system state and device behavior.",
     application: "Map inputs, dependencies, state changes, outputs, and failure cases before implementation.",
-    state: "Dependencies mapped",
-    activeNodes: ["interface", "processor", "devices"],
-    activeLinks: ["2", "3"]
+    state: "Control path mapped",
+    activeNodes: ["client", "interface", "processor"],
+    activeLinks: ["1", "2"]
   },
   troubleshooting: {
     title: "Trace faults through a working system under real constraints.",
     application: "Reproduce the problem, isolate variables, test assumptions, and verify the correction.",
     state: "Behavior verified",
-    activeNodes: ["processor", "devices", "room"],
-    activeLinks: ["3", "4"]
+    activeNodes: ["client", "interface", "processor", "devices"],
+    activeLinks: ["1", "2", "3"]
   },
   handoff: {
     title: "Explain behavior to clients, technicians, and support teams.",
@@ -121,9 +146,42 @@ const PROJECTS = [
 
 let activeModule = "home";
 let transitionRun = 0;
+let activePreset = "explore";
+let audioEnabled = false;
+let audioContext;
+let toastTimer;
 
 function wait(duration) {
   return new Promise((resolve) => window.setTimeout(resolve, duration));
+}
+
+function showControlToast(message) {
+  window.clearTimeout(toastTimer);
+  controlToast.textContent = message;
+  controlToast.classList.add("is-visible");
+  toastTimer = window.setTimeout(() => controlToast.classList.remove("is-visible"), 2200);
+}
+
+function playPanelTone(frequency = 520, duration = 0.045) {
+  if (!audioEnabled) return;
+  audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = "sine";
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.025, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start();
+  oscillator.stop(audioContext.currentTime + duration);
+}
+
+function getNextModule(moduleName) {
+  const sequence = PRESETS[activePreset];
+  const currentIndex = sequence.indexOf(moduleName);
+  if (currentIndex < 0) return sequence[0];
+  return sequence[(currentIndex + 1) % sequence.length];
 }
 
 function configureSocialLinks() {
@@ -166,15 +224,18 @@ function setNavigationState(moduleName) {
 
 function updateInterface(moduleName) {
   const module = MODULES[moduleName];
-  const nextModule = MODULES[module.next];
+  const nextName = getNextModule(moduleName);
+  const nextModule = MODULES[nextName];
   screenNumber.textContent = module.number;
   screenName.textContent = module.label;
   viewKicker.textContent = module.kicker;
   viewTitle.textContent = module.label;
-  footerNextButton.dataset.nextModule = module.next;
-  footerNextLabel.textContent = moduleName === "contact" ? "Return home" : nextModule.label;
-  footerNextButton.setAttribute("aria-label", moduleName === "contact" ? "Return to Home" : `Open ${nextModule.label}`);
+  footerNextButton.dataset.nextModule = nextName;
+  footerNextLabel.textContent = NEXT_PROMPTS[nextName];
+  footerNextLabel.dataset.mobileLabel = nextModule.label;
+  footerNextButton.setAttribute("aria-label", `${NEXT_PROMPTS[nextName]}. Open ${nextModule.label}.`);
   document.title = moduleName === "home" ? "Wil Sheppard | WilToBuild" : `${module.label} | WilToBuild`;
+  controller.dataset.module = moduleName;
   setNavigationState(moduleName);
 }
 
@@ -189,8 +250,11 @@ async function activateModule(moduleName, options = {}) {
 
   const runId = ++transitionRun;
   const module = MODULES[moduleName];
+  transitionFrom.textContent = MODULES[activeModule].label;
+  transitionTo.textContent = module.label;
   systemStatus.textContent = `Opening ${module.label}`;
   controller.classList.toggle("is-switching", animate && !reduceMotion.matches);
+  playPanelTone(420);
 
   if (animate && !reduceMotion.matches) await wait(190);
   if (runId !== transitionRun) return;
@@ -294,6 +358,7 @@ function createTransferConsole() {
   const softwareOutput = document.querySelector("[data-transfer-software]");
   const count = document.querySelector("[data-transfer-count]");
   const output = document.querySelector(".transfer-output");
+  const signal = document.querySelector("[data-transfer-signal]");
 
   function select(stepName, focus = false) {
     const step = TRANSFER_STEPS[stepName];
@@ -311,10 +376,15 @@ function createTransferConsole() {
     avOutput.textContent = step.av;
     softwareOutput.textContent = step.software;
     count.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(buttons.length).padStart(2, "0")}`;
+    signal.style.width = `${((activeIndex + 1) / buttons.length) * 100}%`;
+    signal.classList.remove("is-routing");
+    void signal.offsetWidth;
+    if (!reduceMotion.matches) signal.classList.add("is-routing");
     output.setAttribute("aria-labelledby", buttons[activeIndex].id);
     output.classList.remove("is-updating");
     void output.offsetWidth;
     if (!reduceMotion.matches) output.classList.add("is-updating");
+    playPanelTone(500 + (activeIndex * 45));
   }
 
   buttons.forEach((button, index) => {
@@ -367,6 +437,7 @@ function createExperienceWorkbench() {
     detail.classList.remove("is-updating");
     void detail.offsetWidth;
     if (!reduceMotion.matches) detail.classList.add("is-updating");
+    playPanelTone(470 + (activeIndex * 55));
   }
 
   buttons.forEach((button, index) => {
@@ -380,6 +451,99 @@ function createExperienceWorkbench() {
     });
   });
   select("requirements");
+}
+
+function createUtilityControls() {
+  const drawer = document.querySelector("[data-utility-drawer]");
+  const utilityButtons = Array.from(document.querySelectorAll("[data-utility]"));
+  const closeButton = document.querySelector("[data-utility-close]");
+  const panels = Array.from(document.querySelectorAll("[data-utility-panel]"));
+  const sceneButtons = Array.from(document.querySelectorAll("[data-scene]"));
+  const presetButtons = Array.from(document.querySelectorAll("[data-preset]"));
+  const audioButton = document.querySelector('[data-utility="audio"]');
+  let openPanel = "";
+
+  function closeDrawer() {
+    drawer.hidden = true;
+    openPanel = "";
+    utilityButtons.forEach((button) => {
+      if (button.dataset.utility !== "audio") button.setAttribute("aria-expanded", "false");
+      button.classList.remove("is-active");
+    });
+    panels.forEach((panel) => { panel.hidden = true; });
+  }
+
+  function openDrawer(panelName) {
+    const isSamePanel = !drawer.hidden && openPanel === panelName;
+    if (isSamePanel) {
+      closeDrawer();
+      return;
+    }
+    openPanel = panelName;
+    drawer.hidden = false;
+    panels.forEach((panel) => { panel.hidden = panel.dataset.utilityPanel !== panelName; });
+    utilityButtons.forEach((button) => {
+      const isActive = button.dataset.utility === panelName;
+      if (button.dataset.utility !== "audio") button.setAttribute("aria-expanded", String(isActive));
+      button.classList.toggle("is-active", isActive);
+    });
+    playPanelTone(620);
+  }
+
+  function applyScene(sceneName, announce = true) {
+    document.documentElement.dataset.scene = sceneName;
+    window.localStorage.setItem("wiltobuild-scene", sceneName);
+    sceneButtons.forEach((button) => {
+      const isActive = button.dataset.scene === sceneName;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+    if (announce) {
+      showControlToast(`${sceneName[0].toUpperCase()}${sceneName.slice(1)} lighting scene recalled`);
+      playPanelTone(680);
+    }
+  }
+
+  function applyPreset(presetName, announce = true) {
+    activePreset = PRESETS[presetName] ? presetName : "explore";
+    presetButtons.forEach((button) => {
+      const isActive = button.dataset.preset === activePreset;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+    updateInterface(activeModule);
+    if (announce) {
+      const presetLabel = activePreset === "hiring" ? "Hiring manager" : activePreset[0].toUpperCase() + activePreset.slice(1);
+      showControlToast(`${presetLabel} sequence recalled`);
+      playPanelTone(720);
+    }
+  }
+
+  utilityButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const controlName = button.dataset.utility;
+      if (controlName === "audio") {
+        audioEnabled = !audioEnabled;
+        button.classList.toggle("is-active", audioEnabled);
+        button.setAttribute("aria-pressed", String(audioEnabled));
+        button.title = audioEnabled ? "Disable interface audio" : "Enable interface audio";
+        showControlToast(`Interface audio ${audioEnabled ? "enabled" : "muted"}`);
+        playPanelTone(760, 0.07);
+        return;
+      }
+      openDrawer(controlName);
+    });
+  });
+
+  sceneButtons.forEach((button) => button.addEventListener("click", () => applyScene(button.dataset.scene)));
+  presetButtons.forEach((button) => button.addEventListener("click", () => applyPreset(button.dataset.preset)));
+  closeButton.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !drawer.hidden) closeDrawer();
+  });
+
+  applyScene(window.localStorage.getItem("wiltobuild-scene") || "work", false);
+  applyPreset("explore", false);
 }
 
 function createSkillFilter() {
@@ -506,6 +670,7 @@ reduceMotion.addEventListener("change", () => controller.classList.remove("is-sw
 
 document.querySelector("#year").textContent = new Date().getFullYear();
 configureSocialLinks();
+createUtilityControls();
 createTransferConsole();
 createExperienceWorkbench();
 createSkillFilter();
