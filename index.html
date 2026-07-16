@@ -3,344 +3,185 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Wil Sheppard is moving into AI development after a career designing, programming, and supporting Crestron automation systems."
-    />
+    <meta name="description" content="Wil Sheppard is moving into AI development after a career designing, programming, and supporting Crestron automation systems." />
     <meta property="og:title" content="Wil Sheppard | WilToBuild" />
-    <meta
-      property="og:description"
-      content="AI development informed by practical experience in Crestron programming, AV automation, troubleshooting, and client support."
-    />
+    <meta property="og:description" content="AI development informed by practical experience in Crestron programming, AV automation, troubleshooting, and client support." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://wiltobuild.github.io/wiltobuild-portfolio/" />
-    <meta
-      property="og:image"
-      content="https://wiltobuild.github.io/wiltobuild-portfolio/assets/wil-sheppard-headshot.png"
-    />
-    <meta name="theme-color" content="#0b0e0e" />
+    <meta property="og:image" content="https://wiltobuild.github.io/wiltobuild-portfolio/assets/wil-sheppard-headshot.png" />
+    <meta name="theme-color" content="#111715" />
     <link rel="canonical" href="https://wiltobuild.github.io/wiltobuild-portfolio/" />
     <link rel="icon" href="./assets/wil-sheppard-headshot.png" type="image/png" />
     <title>Wil Sheppard | WilToBuild</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260716-controller1" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
-  <body data-mode="hero" data-active-module="none">
-    <a class="skip-link" href="#portfolio-content">Skip to portfolio content</a>
+  <body>
+    <a class="skip-link" href="#active-screen">Skip to portfolio screen</a>
 
-    <header class="site-header">
-      <button class="wordmark" type="button" data-home-action aria-label="Return to introduction">
-        WilToBuild
-      </button>
+    <div class="boot-screen" data-boot-screen role="dialog" aria-modal="true" aria-label="WilToBuild system starting">
+      <div class="boot-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <p class="boot-brand">WilToBuild</p>
+      <div class="boot-readout" aria-live="polite">
+        <span data-boot-status>Initializing portfolio system</span>
+        <b data-boot-percent>00%</b>
+      </div>
+      <div class="boot-track" aria-hidden="true"><i data-boot-progress></i></div>
+      <button class="boot-skip" type="button" data-boot-skip>Skip intro</button>
+    </div>
 
-      <p class="header-context" aria-live="polite" data-header-context>
-        Wil Sheppard / Portfolio
-      </p>
+    <main class="controller-shell" data-controller>
+      <header class="controller-header">
+        <button class="wordmark" type="button" data-nav="home" aria-label="Open home screen">WilToBuild</button>
+        <div class="system-readout" aria-live="polite">
+          <span class="status-light" aria-hidden="true"></span>
+          <span data-system-status>System ready</span>
+        </div>
+        <p class="screen-location"><span data-screen-number>00</span> / <b data-screen-name>Home</b></p>
+        <nav class="header-socials" aria-label="Social profiles">
+          <a data-social="github" href="https://github.com/wiltobuild" target="_blank" rel="noreferrer" aria-label="GitHub profile" title="GitHub">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.24c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.75.11 3.04.74.8 1.19 1.83 1.19 3.08 0 4.4-2.71 5.39-5.29 5.68.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z" /></svg>
+          </a>
+          <a data-social="linkedin" href="https://www.linkedin.com/" target="_blank" rel="noreferrer" aria-label="LinkedIn profile" title="LinkedIn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.3 7.9H1.6V22h3.7V7.9ZM3.45 2A2.17 2.17 0 1 0 3.5 6.34 2.17 2.17 0 0 0 3.45 2ZM22.4 13.9c0-4.25-2.27-6.22-5.3-6.22a4.58 4.58 0 0 0-4.16 2.29V7.9H9.25V22h3.69v-6.98c0-1.84.35-3.63 2.64-3.63 2.26 0 2.29 2.11 2.29 3.75V22h3.69l.84-8.1Z" /></svg>
+          </a>
+          <a data-social="x" href="https://x.com/" target="_blank" rel="noreferrer" aria-label="X profile" title="X">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.77 7.74L23.2 22h-6.24l-4.89-6.39L6.48 22H3.36l7.26-8.3L2.98 2h6.4l4.42 5.84L18.9 2Zm-1.1 17.84h1.72L8.44 4.05H6.59L17.8 19.84Z" /></svg>
+          </a>
+        </nav>
+      </header>
 
-      <nav class="social-links social-links-header" aria-label="Social profiles">
-        <a data-social="github" href="https://github.com/wiltobuild" target="_blank" rel="noreferrer" aria-label="GitHub profile" title="GitHub">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.24c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.75.11 3.04.74.8 1.19 1.83 1.19 3.08 0 4.4-2.71 5.39-5.29 5.68.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z" /></svg>
-        </a>
-        <a data-social="linkedin" href="https://www.linkedin.com/" target="_blank" rel="noreferrer" aria-label="LinkedIn profile" title="LinkedIn">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.3 7.9H1.6V22h3.7V7.9ZM3.45 2A2.17 2.17 0 1 0 3.5 6.34 2.17 2.17 0 0 0 3.45 2ZM22.4 13.9c0-4.25-2.27-6.22-5.3-6.22a4.58 4.58 0 0 0-4.16 2.29V7.9H9.25V22h3.69v-6.98c0-1.84.35-3.63 2.64-3.63 2.26 0 2.29 2.11 2.29 3.75V22h3.69l.84-8.1Z" /></svg>
-        </a>
-        <a data-social="x" href="https://x.com/" target="_blank" rel="noreferrer" aria-label="X profile" title="X">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.77 7.74L23.2 22h-6.24l-4.89-6.39L6.48 22H3.36l7.26-8.3L2.98 2h6.4l4.42 5.84L18.9 2Zm-1.1 17.84h1.72L8.44 4.05H6.59L17.8 19.84Z" /></svg>
-        </a>
-      </nav>
-    </header>
+      <aside class="control-rail" aria-label="Portfolio modules">
+        <div class="rail-label"><span>Portfolio control</span><b>ONLINE</b></div>
+        <nav class="module-nav">
+          <button type="button" class="is-active" data-nav="home" aria-current="page"><span>00</span><strong>Home</strong><small>System overview</small></button>
+          <button type="button" data-nav="experience"><span>01</span><strong>Experience</strong><small>Systems practice</small></button>
+          <button type="button" data-nav="skills"><span>02</span><strong>Skills</strong><small>Applied tools</small></button>
+          <button type="button" data-nav="projects"><span>03</span><strong>Projects</strong><small>Reserved bays</small></button>
+          <button type="button" data-nav="credentials"><span>04</span><strong>Credentials</strong><small>Training record</small></button>
+          <button type="button" data-nav="contact"><span>05</span><strong>Contact</strong><small>Open channels</small></button>
+        </nav>
+        <div class="rail-footer"><span>WTB-C01</span><span>v1.0</span></div>
+      </aside>
 
-    <main class="portfolio-frame" id="top">
-      <div class="portfolio-stage" data-system-stage>
-        <section class="identity-panel" aria-labelledby="identity-title">
-          <div class="identity-copy">
-            <p class="eyebrow">AI development / AV systems background</p>
-            <h1 id="identity-title">Wil<br />Sheppard</h1>
-            <p class="identity-role">
-              I am moving into AI development after a career designing, programming, and supporting
-              Crestron automation systems.
-            </p>
-            <div class="identity-bio">
-              <p>
-                My background in AV integration taught me how to connect complex parts, diagnose
-                behavior under real constraints, and explain technical work clearly to the people who
-                rely on it.
-              </p>
-              <p>
-                I now apply that experience while building with Claude Code and Codex, with an emphasis
-                on clear requirements, careful testing, and useful software.
-              </p>
+      <section class="display-bezel" aria-label="WilToBuild portfolio display">
+        <div class="display-header">
+          <p><span data-view-kicker>System overview</span><b data-view-title>Home</b></p>
+          <div><span data-clock>--:--</span><i aria-hidden="true"></i></div>
+        </div>
+
+        <div class="display-screen" id="active-screen" tabindex="-1">
+          <div class="screen-transition" aria-hidden="true"><i></i></div>
+
+          <section class="screen-view home-view is-active" data-view="home" aria-labelledby="home-title">
+            <div class="home-intro">
+              <div class="home-copy">
+                <p class="eyebrow">AI development / AV systems background</p>
+                <h1 id="home-title">Wil<br />Sheppard</h1>
+                <p class="home-lede">I am moving into AI development after a career designing, programming, and supporting Crestron automation systems.</p>
+                <p>My background in AV integration taught me how to connect complex parts, diagnose behavior under real constraints, and explain technical work clearly to the people who rely on it.</p>
+                <p>I now apply that experience while building with Claude Code and Codex, with an emphasis on clear requirements, careful testing, and useful software.</p>
+              </div>
+              <figure class="identity-feed">
+                <img src="./assets/wil-sheppard-headshot.png" alt="Headshot of Wil Sheppard" />
+                <figcaption><span>Identity feed</span><strong>Wil Sheppard</strong><small>AI builder in training</small></figcaption>
+              </figure>
             </div>
 
-            <button class="open-button" type="button" data-commission aria-expanded="false">
-              <span>Explore portfolio</span>
-              <span aria-hidden="true">&#8594;</span>
-            </button>
-          </div>
-
-          <figure class="portrait-card">
-            <div class="portrait-frame">
-              <img
-                src="./assets/wil-sheppard-headshot.png"
-                alt="Headshot of Wil Sheppard"
-                class="portrait"
-              />
+            <div class="home-dashboard">
+              <div class="availability-card"><span>Current direction</span><strong>AI development and software engineering</strong><i>Available for the right opportunity</i></div>
+              <div class="activity-trace" aria-label="How systems experience transfers to software">
+                <span>Requirements</span><i></i><span>System map</span><i></i><span>Build</span><i></i><span>Test</span><i></i><span>Explain</span>
+              </div>
+              <div class="module-launchers" aria-label="Choose a portfolio module">
+                <button type="button" data-nav="experience"><span>01</span><strong>Experience</strong><small>See the systems background</small></button>
+                <button type="button" data-nav="skills"><span>02</span><strong>Skills</strong><small>Review applied tools</small></button>
+                <button type="button" data-nav="projects"><span>03</span><strong>Projects</strong><small>Open project bays</small></button>
+              </div>
             </div>
-            <figcaption>
-              <strong>Wil Sheppard</strong>
-              <span>Crestron programmer moving into AI development</span>
-            </figcaption>
-          </figure>
-        </section>
+          </section>
 
-        <section class="route-panel" aria-label="Portfolio sections" data-routing-console>
-          <canvas class="route-canvas" aria-hidden="true"></canvas>
-          <header class="route-heading">
-            <p class="eyebrow">Portfolio map</p>
-            <p data-route-context>Explore the sections</p>
-          </header>
-
-          <div class="route-hub" data-controller-core aria-hidden="true">
-            <strong>Portfolio</strong>
-            <span>Five sections</span>
-          </div>
-
-          <button class="route-node node-experience" type="button" data-module="experience" aria-pressed="false">
-            <span class="node-number">01</span>
-            <span><strong>Experience</strong><small>AV work applied to software</small></span>
-          </button>
-          <button class="route-node node-skills" type="button" data-module="skills" aria-pressed="false">
-            <span class="node-number">02</span>
-            <span><strong>Skills</strong><small>Tools connected to tasks</small></span>
-          </button>
-          <button class="route-node node-projects" type="button" data-module="projects" aria-pressed="false">
-            <span class="node-number">03</span>
-            <span><strong>Projects</strong><small>Reserved case-study space</small></span>
-          </button>
-          <button class="route-node node-credentials" type="button" data-module="credentials" aria-pressed="false">
-            <span class="node-number">04</span>
-            <span><strong>Credentials</strong><small>Crestron and CTS training</small></span>
-          </button>
-          <button class="route-node node-contact" type="button" data-module="contact" aria-pressed="false">
-            <span class="node-number">05</span>
-            <span><strong>Contact</strong><small>Profiles and availability</small></span>
-          </button>
-
-        </section>
-
-        <section
-          class="content-panel"
-          id="portfolio-content"
-          aria-label="Portfolio content"
-          aria-live="polite"
-          tabindex="-1"
-          data-content-dock
-        >
-          <div class="content-signal" aria-hidden="true"><i></i></div>
-          <header class="content-toolbar">
-            <p data-dock-route>Portfolio overview</p>
-            <button type="button" class="content-close" aria-label="Return to portfolio overview" title="Portfolio overview" data-close-module>
-              &times;
-            </button>
-          </header>
-
-          <div class="content-panels">
-            <section class="content-section overview-section is-active" data-panel="idle" aria-labelledby="overview-title">
-              <header class="section-heading">
-                <p class="section-label">Overview</p>
-                <h2 id="overview-title">Practical systems experience, applied to software.</h2>
-                <p>
-                  This portfolio connects the work I have done in AV automation with the way I now
-                  approach AI development: understand the requirement, map dependencies, test the
-                  behavior, and explain the result.
-                </p>
-              </header>
-              <div class="overview-grid">
-                <article><span>Background</span><strong>Crestron programming and AV automation</strong></article>
-                <article><span>Current tools</span><strong>Claude Code, Codex, HTML, CSS, and JavaScript</strong></article>
-                <article><span>Working approach</span><strong>Clear requirements, testing, troubleshooting, and documentation</strong></article>
+          <section class="screen-view experience-view" data-view="experience" aria-labelledby="experience-title" hidden>
+            <header class="view-heading"><p>01 / Systems practice</p><h2 id="experience-title">AV systems work informs how I design and test software.</h2><span>Crestron integration required technical decisions to work in real rooms, on real networks, for clients who needed reliable systems.</span></header>
+            <div class="signal-workbench">
+              <div class="signal-stages" role="tablist" aria-label="Experience stages">
+                <button type="button" role="tab" aria-selected="true" data-experience-step="requirements"><span>01</span><strong>Requirements</strong></button>
+                <button type="button" role="tab" aria-selected="false" data-experience-step="systems"><span>02</span><strong>System design</strong></button>
+                <button type="button" role="tab" aria-selected="false" data-experience-step="troubleshooting"><span>03</span><strong>Troubleshooting</strong></button>
+                <button type="button" role="tab" aria-selected="false" data-experience-step="handoff"><span>04</span><strong>Handoff</strong></button>
               </div>
-              <button class="text-action" type="button" data-overview-action="experience">
-                Start with experience <span aria-hidden="true">&#8594;</span>
-              </button>
-            </section>
+              <article class="signal-detail" role="tabpanel" tabindex="0">
+                <span>AV responsibility</span><h3 data-experience-title>Clarify what the client needs the system to do.</h3>
+                <div class="transfer-line"><i></i><b>Applied to software</b></div>
+                <p data-experience-application>Define the user, task, constraints, and expected behavior before choosing tools.</p>
+              </article>
+            </div>
+          </section>
 
-            <section class="content-section experience-section" data-panel="experience" aria-labelledby="experience-title" hidden>
-              <header class="section-heading">
-                <p class="section-label">01 / Experience</p>
-                <h2 id="experience-title">How AV systems work informs how I design and test software.</h2>
-                <p>
-                  Crestron integration required technical decisions to work in real rooms, on real
-                  networks, for clients who needed reliable and understandable systems.
-                </p>
-              </header>
-
-              <div class="experience-workbench">
-                <div class="experience-steps" role="tablist" aria-label="Experience areas">
-                  <button type="button" role="tab" aria-selected="true" data-experience-step="requirements">
-                    <span>01</span><strong>Requirements</strong>
-                  </button>
-                  <button type="button" role="tab" aria-selected="false" data-experience-step="systems">
-                    <span>02</span><strong>System design</strong>
-                  </button>
-                  <button type="button" role="tab" aria-selected="false" data-experience-step="troubleshooting">
-                    <span>03</span><strong>Troubleshooting</strong>
-                  </button>
-                  <button type="button" role="tab" aria-selected="false" data-experience-step="handoff">
-                    <span>04</span><strong>Handoff</strong>
-                  </button>
-                </div>
-                <article class="experience-detail" role="tabpanel" tabindex="0" data-experience-detail>
-                  <p data-experience-source>AV responsibility</p>
-                  <h3 data-experience-title>Clarify what the client needs the system to do.</h3>
-                  <div>
-                    <span>Applied to software</span>
-                    <p data-experience-application>Define the user, task, constraints, and expected behavior before choosing tools.</p>
-                  </div>
-                </article>
-              </div>
-            </section>
-
-            <section class="content-section skills-section" data-panel="skills" aria-labelledby="skills-title" hidden>
-              <header class="section-heading">
-                <p class="section-label">02 / Skills</p>
-                <h2 id="skills-title">Tools are useful when they support a specific task.</h2>
-                <p>Select a task to see the skills I use to approach it.</p>
-              </header>
-
-              <div class="skill-focus" role="group" aria-label="Filter skills by task">
+          <section class="screen-view skills-view" data-view="skills" aria-labelledby="skills-title" hidden>
+            <header class="view-heading"><p>02 / Applied tools</p><h2 id="skills-title">Capabilities connected to practical work.</h2><span>Choose a task to see which tools support it and how I use them.</span></header>
+            <div class="skill-console">
+              <div class="segmented-control" role="group" aria-label="Filter skills by task">
                 <button type="button" class="is-active" aria-pressed="true" data-skill-focus="develop">Develop</button>
                 <button type="button" aria-pressed="false" data-skill-focus="troubleshoot">Troubleshoot</button>
                 <button type="button" aria-pressed="false" data-skill-focus="communicate">Communicate</button>
               </div>
-              <p class="skill-summary" data-skill-summary>
-                Turn a defined requirement into a working interface or small application.
-              </p>
-
-              <div class="skill-grid">
-                <article data-supports="develop troubleshoot">
-                  <span>Development tools</span>
-                  <h3>Claude Code and Codex</h3>
-                  <p>Planning changes, writing code, reviewing implementation, and checking behavior.</p>
-                </article>
-                <article data-supports="develop communicate">
-                  <span>Web development</span>
-                  <h3>HTML, CSS, and JavaScript</h3>
-                  <p>Building accessible structure, responsive interfaces, and browser-based behavior.</p>
-                </article>
-                <article data-supports="troubleshoot develop">
-                  <span>Control systems</span>
-                  <h3>Crestron programming</h3>
-                  <p>Control logic, device communication, interface behavior, and system dependencies.</p>
-                </article>
-                <article data-supports="troubleshoot communicate">
-                  <span>AV practice</span>
-                  <h3>CTS and systems integration</h3>
-                  <p>Requirements, signal flow, installation context, support, and client communication.</p>
-                </article>
-                <article data-supports="develop communicate">
-                  <span>AI instruction</span>
-                  <h3>Prompt design</h3>
-                  <p>Writing clear instructions, supplying useful context, and reviewing generated work.</p>
-                </article>
-                <article data-supports="communicate troubleshoot">
-                  <span>Communication</span>
-                  <h3>Documentation and explanation</h3>
-                  <p>Making technical decisions understandable to clients, collaborators, and future maintainers.</p>
-                </article>
+              <p class="skill-summary" data-skill-summary>Turn a defined requirement into a working interface or small application.</p>
+              <div class="capability-matrix">
+                <article data-supports="develop troubleshoot"><span>Development tools</span><h3>Claude Code and Codex</h3><p>Planning changes, writing code, reviewing implementation, and checking behavior.</p></article>
+                <article data-supports="develop communicate"><span>Web development</span><h3>HTML, CSS, and JavaScript</h3><p>Building accessible structure, responsive interfaces, and browser behavior.</p></article>
+                <article data-supports="troubleshoot develop"><span>Control systems</span><h3>Crestron programming</h3><p>Control logic, device communication, interface behavior, and dependencies.</p></article>
+                <article data-supports="troubleshoot communicate"><span>AV practice</span><h3>CTS and systems integration</h3><p>Requirements, signal flow, installation context, support, and communication.</p></article>
+                <article data-supports="develop communicate"><span>AI instruction</span><h3>Prompt design</h3><p>Writing clear instructions, supplying context, and reviewing generated work.</p></article>
+                <article data-supports="communicate troubleshoot"><span>Communication</span><h3>Documentation and explanation</h3><p>Making technical decisions understandable to clients and collaborators.</p></article>
               </div>
-            </section>
+            </div>
+          </section>
 
-            <section class="content-section projects-section" data-panel="projects" aria-labelledby="projects-title" hidden>
-              <header class="section-heading projects-heading">
-                <div>
-                  <p class="section-label">03 / Projects</p>
-                  <h2 id="projects-title">Projects in development.</h2>
-                  <p>Reserved spaces will become case studies as the work is ready to publish.</p>
-                </div>
-                <div class="carousel-controls">
-                  <button type="button" aria-label="Previous project placeholder" title="Previous project" data-carousel-previous>&#8592;</button>
-                  <button type="button" aria-label="Next project placeholder" title="Next project" data-carousel-next>&#8594;</button>
-                </div>
-              </header>
+          <section class="screen-view projects-view" data-view="projects" aria-labelledby="projects-title" hidden>
+            <header class="view-heading project-heading"><div><p>03 / Project bays</p><h2 id="projects-title">Reserved for work in development.</h2><span>Each bay is ready to become a case study when the work is ready to publish.</span></div><div class="project-controls"><button type="button" data-project-previous aria-label="Previous project">&#8592;</button><button type="button" data-project-next aria-label="Next project">&#8594;</button></div></header>
+            <div class="project-bay" data-project-bay tabindex="0" aria-label="Project placeholder carousel">
+              <div class="project-track" data-project-track></div>
+            </div>
+            <div class="project-status"><div data-project-indicators></div><p aria-live="polite" data-project-status></p></div>
+          </section>
 
-              <div class="project-carousel" aria-label="Project placeholders" data-project-carousel>
-                <div class="project-track" data-project-track></div>
+          <section class="screen-view credentials-view" data-view="credentials" aria-labelledby="credentials-title" hidden>
+            <header class="view-heading"><p>04 / Training record</p><h2 id="credentials-title">Credentials grounded in practical AV work.</h2><span>Select a record to see what it covers and where it applies.</span></header>
+            <div class="credential-console">
+              <details open><summary><span>CRESTRON</span><strong>Silver Programmer</strong><i>VERIFIED</i></summary><div><p>Programming training focused on control logic, device behavior, interfaces, and deployable automation.</p><dl><div><dt>Area</dt><dd>Control programming</dd></div><div><dt>Applied to</dt><dd>System logic and behavior</dd></div></dl></div></details>
+              <details><summary><span>AVIXA</span><strong>CTS certification</strong><i>VERIFIED</i></summary><div><p>AV industry training covering system principles, requirements, installation context, and client communication.</p><dl><div><dt>Area</dt><dd>AV systems</dd></div><div><dt>Applied to</dt><dd>Design, installation, and support</dd></div></dl></div></details>
+            </div>
+          </section>
+
+          <section class="screen-view contact-view" data-view="contact" aria-labelledby="contact-title" hidden>
+            <header class="view-heading"><p>05 / Open channels</p><h2 id="contact-title">See my work and connect.</h2><span>I am interested in AI development and software engineering opportunities where careful problem definition, testing, and clear communication matter.</span></header>
+            <div class="contact-console">
+              <div class="contact-status"><span>Availability</span><strong>Open to relevant opportunities</strong><p>AI development / Software engineering</p><i>ONLINE</i></div>
+              <div class="contact-channels">
+                <a data-social="github" href="https://github.com/wiltobuild" target="_blank" rel="noreferrer"><span>01</span><strong>GitHub</strong><small>Public repositories</small><b>&#8599;</b></a>
+                <a data-social="linkedin" href="https://www.linkedin.com/" target="_blank" rel="noreferrer"><span>02</span><strong>LinkedIn</strong><small>Professional profile</small><b>&#8599;</b></a>
+                <a data-social="x" href="https://x.com/" target="_blank" rel="noreferrer"><span>03</span><strong>X</strong><small>Profile</small><b>&#8599;</b></a>
               </div>
-              <div class="carousel-footer">
-                <div class="carousel-indicators" aria-label="Choose project placeholder" data-carousel-indicators></div>
-                <p class="carousel-status" role="status" aria-live="polite" data-carousel-status></p>
-              </div>
-            </section>
+            </div>
+          </section>
+        </div>
 
-            <section class="content-section credentials-section" data-panel="credentials" aria-labelledby="credentials-title" hidden>
-              <header class="section-heading">
-                <p class="section-label">04 / Credentials</p>
-                <h2 id="credentials-title">Training grounded in practical AV work.</h2>
-                <p>Open each credential to see how its subject matter applies to my work.</p>
-              </header>
+        <footer class="display-footer"><span>WilToBuild / Portfolio Controller</span><span>&copy; <b id="year"></b> Wil Sheppard</span></footer>
+      </section>
 
-              <div class="credential-list">
-                <details open>
-                  <summary>
-                    <span>Crestron</span>
-                    <strong>Silver Programmer</strong>
-                    <i aria-hidden="true"></i>
-                  </summary>
-                  <div>
-                    <p>Programming training focused on control logic, device behavior, interfaces, and deployable automation.</p>
-                    <dl><div><dt>Area</dt><dd>Control programming</dd></div><div><dt>Used for</dt><dd>System logic and behavior</dd></div></dl>
-                  </div>
-                </details>
-                <details>
-                  <summary>
-                    <span>AVIXA</span>
-                    <strong>CTS certification</strong>
-                    <i aria-hidden="true"></i>
-                  </summary>
-                  <div>
-                    <p>AV industry training covering system principles, requirements, installation context, and client communication.</p>
-                    <dl><div><dt>Area</dt><dd>AV systems</dd></div><div><dt>Used for</dt><dd>Design, installation, and support</dd></div></dl>
-                  </div>
-                </details>
-              </div>
-            </section>
-
-            <section class="content-section contact-section" data-panel="contact" aria-labelledby="contact-title" hidden>
-              <header class="section-heading">
-                <p class="section-label">05 / Contact</p>
-                <h2 id="contact-title">See my work and connect.</h2>
-                <p>
-                  I am interested in AI development and software engineering opportunities where
-                  careful problem definition, testing, and clear communication matter.
-                </p>
-              </header>
-
-              <div class="contact-links">
-                <a data-social="github" href="https://github.com/wiltobuild" target="_blank" rel="noreferrer">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.24c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.16 1.18a10.9 10.9 0 0 1 5.76 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.75.11 3.04.74.8 1.19 1.83 1.19 3.08 0 4.4-2.71 5.39-5.29 5.68.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z" /></svg>
-                  <span><strong>GitHub</strong><small>View public repositories</small></span><b aria-hidden="true">&#8599;</b>
-                </a>
-                <a data-social="linkedin" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.3 7.9H1.6V22h3.7V7.9ZM3.45 2A2.17 2.17 0 1 0 3.5 6.34 2.17 2.17 0 0 0 3.45 2ZM22.4 13.9c0-4.25-2.27-6.22-5.3-6.22a4.58 4.58 0 0 0-4.16 2.29V7.9H9.25V22h3.69v-6.98c0-1.84.35-3.63 2.64-3.63 2.26 0 2.29 2.11 2.29 3.75V22h3.69l.84-8.1Z" /></svg>
-                  <span><strong>LinkedIn</strong><small>View professional profile</small></span><b aria-hidden="true">&#8599;</b>
-                </a>
-                <a data-social="x" href="https://x.com/" target="_blank" rel="noreferrer">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.77 7.74L23.2 22h-6.24l-4.89-6.39L6.48 22H3.36l7.26-8.3L2.98 2h6.4l4.42 5.84L18.9 2Zm-1.1 17.84h1.72L8.44 4.05H6.59L17.8 19.84Z" /></svg>
-                  <span><strong>X</strong><small>View profile</small></span><b aria-hidden="true">&#8599;</b>
-                </a>
-              </div>
-            </section>
-          </div>
-        </section>
-
-        <footer class="site-footer">
-          <p>&copy; <span id="year"></span> Wil Sheppard</p>
-          <p>WilToBuild</p>
-        </footer>
-      </div>
+      <nav class="mobile-dock" aria-label="Portfolio modules">
+        <button type="button" class="is-active" data-nav="home" aria-current="page"><span>00</span><strong>Home</strong></button>
+        <button type="button" data-nav="experience"><span>01</span><strong>Experience</strong></button>
+        <button type="button" data-nav="skills"><span>02</span><strong>Skills</strong></button>
+        <button type="button" data-nav="projects"><span>03</span><strong>Projects</strong></button>
+        <button type="button" data-nav="credentials"><span>04</span><strong>Credentials</strong></button>
+        <button type="button" data-nav="contact"><span>05</span><strong>Contact</strong></button>
+      </nav>
     </main>
 
-    <script src="./script.js"></script>
+    <script src="./script.js?v=20260716-controller1"></script>
   </body>
 </html>
