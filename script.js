@@ -3,12 +3,15 @@ const controller = document.querySelector("[data-controller]");
 const displayScreen = document.querySelector(".display-screen");
 const views = Array.from(document.querySelectorAll("[data-view]"));
 const navigationButtons = Array.from(document.querySelectorAll("[data-nav]"));
+const stateNavigationButtons = Array.from(document.querySelectorAll(".wordmark, .module-nav [data-nav], .mobile-dock [data-nav]"));
 const screenNumber = document.querySelector("[data-screen-number]");
 const screenName = document.querySelector("[data-screen-name]");
 const viewKicker = document.querySelector("[data-view-kicker]");
 const viewTitle = document.querySelector("[data-view-title]");
 const systemStatus = document.querySelector("[data-system-status]");
 const clock = document.querySelector("[data-clock]");
+const footerNextButton = document.querySelector("[data-footer-next]");
+const footerNextLabel = document.querySelector("[data-footer-next-label]");
 
 const SOCIAL_URLS = {
   github: "https://github.com/wiltobuild",
@@ -17,36 +20,42 @@ const SOCIAL_URLS = {
 };
 
 const MODULES = {
-  home: { number: "00", label: "Home", kicker: "System overview" },
-  experience: { number: "01", label: "Experience", kicker: "Systems practice" },
-  skills: { number: "02", label: "Skills", kicker: "Applied tools" },
-  projects: { number: "03", label: "Projects", kicker: "Future case studies" },
-  credentials: { number: "04", label: "Credentials", kicker: "Training record" },
-  contact: { number: "05", label: "Contact", kicker: "Profiles and contact" }
+  home: { number: "00", label: "Home", kicker: "System overview", next: "experience" },
+  experience: { number: "01", label: "Experience", kicker: "Systems practice", next: "skills" },
+  skills: { number: "02", label: "Skills", kicker: "Applied tools", next: "projects" },
+  projects: { number: "03", label: "Projects", kicker: "Future case studies", next: "credentials" },
+  credentials: { number: "04", label: "Credentials", kicker: "Training record", next: "contact" },
+  contact: { number: "05", label: "Contact", kicker: "Profiles and contact", next: "home" }
 };
-
-const MODULE_ORDER = Object.keys(MODULES);
 
 const EXPERIENCE_STEPS = {
   requirements: {
     title: "Clarify what the client needs the system to do.",
     application: "Define the user, task, constraints, and expected behavior before choosing tools.",
-    state: "Requirement confirmed"
+    state: "Requirement confirmed",
+    activeNodes: ["client", "interface"],
+    activeLinks: ["1"]
   },
   systems: {
     title: "Connect devices, interfaces, networks, and control logic.",
     application: "Map inputs, dependencies, state changes, outputs, and failure cases before implementation.",
-    state: "Dependencies mapped"
+    state: "Dependencies mapped",
+    activeNodes: ["interface", "processor", "devices"],
+    activeLinks: ["2", "3"]
   },
   troubleshooting: {
     title: "Trace faults through a working system under real constraints.",
     application: "Reproduce the problem, isolate variables, test assumptions, and verify the correction.",
-    state: "Behavior verified"
+    state: "Behavior verified",
+    activeNodes: ["processor", "devices", "room"],
+    activeLinks: ["3", "4"]
   },
   handoff: {
     title: "Explain behavior to clients, technicians, and support teams.",
     application: "Document decisions clearly so the software can be understood, used, and maintained.",
-    state: "System ready"
+    state: "System ready",
+    activeNodes: ["client", "interface", "processor", "devices", "room"],
+    activeLinks: ["1", "2", "3", "4"]
   }
 };
 
@@ -96,9 +105,9 @@ const PROJECTS = [
   },
   {
     id: "slot-3",
-    status: "Next to publish",
+    status: "Planned first case study",
     title: "Primary project",
-    description: "The first complete case study will document the problem, decisions, implementation, testing, and result.",
+    description: "This slot is reserved for the first complete case study documenting the problem, decisions, implementation, testing, and result.",
     evidence: ["Problem and constraints", "Implementation decisions", "Testing and result"]
   },
   {
@@ -106,7 +115,7 @@ const PROJECTS = [
     status: "Reserved",
     title: "Systems utility",
     description: "Space for a small software tool informed by automation, diagnostics, or support work.",
-    evidence: ["Operational problem", "Diagnostic logic", "Verified improvement"]
+    evidence: ["Operational problem", "Diagnostic logic", "Observed result"]
   }
 ];
 
@@ -137,7 +146,7 @@ function updateHistory(moduleName, method = "push") {
 }
 
 function setNavigationState(moduleName) {
-  navigationButtons.forEach((button) => {
+  stateNavigationButtons.forEach((button) => {
     const isActive = button.dataset.nav === moduleName;
     button.classList.toggle("is-active", isActive);
     if (isActive) {
@@ -157,10 +166,14 @@ function setNavigationState(moduleName) {
 
 function updateInterface(moduleName) {
   const module = MODULES[moduleName];
+  const nextModule = MODULES[module.next];
   screenNumber.textContent = module.number;
   screenName.textContent = module.label;
   viewKicker.textContent = module.kicker;
   viewTitle.textContent = module.label;
+  footerNextButton.dataset.nextModule = module.next;
+  footerNextLabel.textContent = moduleName === "contact" ? "Return home" : nextModule.label;
+  footerNextButton.setAttribute("aria-label", moduleName === "contact" ? "Return to Home" : `Open ${nextModule.label}`);
   document.title = moduleName === "home" ? "Wil Sheppard | WilToBuild" : `${module.label} | WilToBuild`;
   setNavigationState(moduleName);
 }
@@ -202,7 +215,9 @@ async function activateModule(moduleName, options = {}) {
   if (runId !== transitionRun) return;
   controller.classList.remove("is-switching");
   systemStatus.textContent = `${module.label} active`;
-  if (focusScreen) displayScreen.focus({ preventScroll: true });
+  if (focusScreen) {
+    document.querySelector(`[data-view="${moduleName}"] h1, [data-view="${moduleName}"] h2`)?.focus({ preventScroll: true });
+  }
 }
 
 function createBootSequence() {
@@ -231,7 +246,7 @@ function createBootSequence() {
     completed = true;
     window.cancelAnimationFrame(animationFrame);
     bootProgress.style.width = "100%";
-    bootPercent.textContent = "100%";
+    bootPercent.textContent = "03 / 03";
     bootStatus.textContent = "Portfolio ready";
     window.sessionStorage.setItem("wiltobuild-booted", "true");
     window.setTimeout(() => {
@@ -248,21 +263,20 @@ function createBootSequence() {
     return;
   }
 
-  const duration = 1550;
+  const duration = 1250;
   const startedAt = performance.now();
   const statuses = [
-    [0, "Initializing portfolio system"],
-    [26, "Loading identity and experience"],
-    [58, "Connecting project modules"],
-    [82, "Verifying interface states"]
+    [0, "Starting WilToBuild", "01 / 03"],
+    [38, "Loading portfolio modules", "02 / 03"],
+    [78, "Preparing interface", "03 / 03"]
   ];
 
   function render(time) {
     const progress = Math.min(100, Math.round(((time - startedAt) / duration) * 100));
-    const currentStatus = statuses.reduce((label, item) => progress >= item[0] ? item[1] : label, statuses[0][1]);
+    const currentStatus = statuses.reduce((current, item) => progress >= item[0] ? item : current, statuses[0]);
     bootProgress.style.width = `${progress}%`;
-    bootPercent.textContent = `${String(progress).padStart(2, "0")}%`;
-    bootStatus.textContent = currentStatus;
+    bootPercent.textContent = currentStatus[2];
+    bootStatus.textContent = currentStatus[1];
     if (progress >= 100) {
       complete();
       return;
@@ -290,13 +304,14 @@ function createTransferConsole() {
       const isSelected = index === activeIndex;
       button.setAttribute("aria-selected", String(isSelected));
       button.tabIndex = isSelected ? 0 : -1;
-      button.classList.toggle("is-complete", index < activeIndex);
+      button.classList.toggle("is-upstream", index < activeIndex);
       if (isSelected && focus) button.focus();
     });
 
     avOutput.textContent = step.av;
     softwareOutput.textContent = step.software;
     count.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(buttons.length).padStart(2, "0")}`;
+    output.setAttribute("aria-labelledby", buttons[activeIndex].id);
     output.classList.remove("is-updating");
     void output.offsetWidth;
     if (!reduceMotion.matches) output.classList.add("is-updating");
@@ -312,6 +327,7 @@ function createTransferConsole() {
       select(buttons[nextIndex].dataset.transferStep, true);
     });
   });
+  select("understand");
 }
 
 function createExperienceWorkbench() {
@@ -321,6 +337,8 @@ function createExperienceWorkbench() {
   const counter = document.querySelector("[data-experience-counter]");
   const state = document.querySelector("[data-experience-state]");
   const detail = document.querySelector(".signal-detail");
+  const systemNodes = Array.from(document.querySelectorAll("[data-system-node]"));
+  const systemLinks = Array.from(document.querySelectorAll("[data-system-link]"));
 
   function select(stepName, focus = false) {
     const step = EXPERIENCE_STEPS[stepName];
@@ -330,13 +348,22 @@ function createExperienceWorkbench() {
       const isSelected = index === activeIndex;
       button.setAttribute("aria-selected", String(isSelected));
       button.tabIndex = isSelected ? 0 : -1;
-      button.classList.toggle("is-complete", index < activeIndex);
+      button.classList.toggle("is-upstream", index < activeIndex);
       if (isSelected && focus) button.focus();
+    });
+    systemNodes.forEach((node) => {
+      const isActive = step.activeNodes.includes(node.dataset.systemNode);
+      node.classList.toggle("is-active", isActive);
+      node.querySelector("[data-node-state]").textContent = isActive ? "Active" : "Standby";
+    });
+    systemLinks.forEach((link) => {
+      link.classList.toggle("is-active", step.activeLinks.includes(link.dataset.systemLink));
     });
     title.textContent = step.title;
     application.textContent = step.application;
     counter.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(buttons.length).padStart(2, "0")}`;
     state.textContent = step.state;
+    detail.setAttribute("aria-labelledby", buttons[activeIndex].id);
     detail.classList.remove("is-updating");
     void detail.offsetWidth;
     if (!reduceMotion.matches) detail.classList.add("is-updating");
@@ -352,11 +379,12 @@ function createExperienceWorkbench() {
       select(buttons[nextIndex].dataset.experienceStep, true);
     });
   });
+  select("requirements");
 }
 
 function createSkillFilter() {
   const buttons = Array.from(document.querySelectorAll("[data-skill-focus]"));
-  const cards = Array.from(document.querySelectorAll("[data-supports]"));
+  const routes = Array.from(document.querySelectorAll("[data-supports]"));
   const summary = document.querySelector("[data-skill-summary]");
   const status = document.querySelector("[data-skill-status]");
 
@@ -367,9 +395,10 @@ function createSkillFilter() {
       button.setAttribute("aria-pressed", String(isActive));
     });
     let supportedCount = 0;
-    cards.forEach((card) => {
-      const isSupported = card.dataset.supports.split(" ").includes(focusName);
-      card.classList.toggle("is-supported", isSupported);
+    routes.forEach((route) => {
+      const isSupported = route.dataset.supports.split(" ").includes(focusName);
+      route.classList.toggle("is-routed", isSupported);
+      route.querySelector("[data-route-state]").textContent = isSupported ? "Connected" : "Standby";
       if (isSupported) supportedCount += 1;
     });
     summary.textContent = SKILL_FOCUS[focusName];
@@ -381,70 +410,71 @@ function createSkillFilter() {
 }
 
 function createProjectCarousel() {
-  const track = document.querySelector("[data-project-track]");
-  const previousButton = document.querySelector("[data-project-previous]");
-  const nextButton = document.querySelector("[data-project-next]");
-  const indicators = document.querySelector("[data-project-indicators]");
+  const queue = document.querySelector("[data-project-track]");
+  const workspace = document.querySelector("[data-project-workspace]");
   const status = document.querySelector("[data-project-status]");
   let currentIndex = 2;
-  let scrollTimer = 0;
 
-  track.innerHTML = PROJECTS.map((project, index) => `
-    <article class="project-card" data-project-id="${project.id}" aria-label="Project placeholder ${index + 1}: ${project.title}">
-      <div class="project-card-header"><span>${project.status}</span><b>Bay ${String(index + 1).padStart(2, "0")}</b></div>
-      <h3>${project.title}</h3>
-      <p>${project.description}</p>
-      <dl class="project-template" aria-label="Planned case study evidence">
-        <div><dt>Context</dt><dd>${project.evidence[0]}</dd></div>
-        <div><dt>Decisions</dt><dd>${project.evidence[1]}</dd></div>
-        <div><dt>Evidence</dt><dd>${project.evidence[2]}</dd></div>
-      </dl>
-    </article>
+  queue.innerHTML = PROJECTS.map((project, index) => `
+    <button type="button" class="project-queue-item" data-project-id="${project.id}" data-project-index="${index}" aria-label="Show project slot ${index + 1}: ${project.title}">
+      <span>${String(index + 1).padStart(2, "0")}</span>
+      <strong>${project.title}</strong>
+      <small>${project.status}</small>
+    </button>
   `).join("");
 
-  indicators.innerHTML = PROJECTS.map((project, index) => `<button type="button" data-project-index="${index}" aria-label="Show ${project.title}"></button>`).join("");
-  const cards = Array.from(track.querySelectorAll("[data-project-id]"));
-  const indicatorButtons = Array.from(indicators.querySelectorAll("[data-project-index]"));
+  const queueButtons = Array.from(queue.querySelectorAll("[data-project-id]"));
+
+  function renderWorkspace(project, index) {
+    workspace.innerHTML = `
+      <div class="project-card-header"><span>${project.status}</span><b>Slot ${String(index + 1).padStart(2, "0")}</b></div>
+      <div class="project-workspace-body">
+        <div>
+          <p>Future case study</p>
+          <h3>${project.title}</h3>
+          <span>${project.description}</span>
+        </div>
+        <dl class="project-template" aria-label="Planned case study evidence">
+          <div><dt>Context</dt><dd>${project.evidence[0]}</dd></div>
+          <div><dt>Decisions</dt><dd>${project.evidence[1]}</dd></div>
+          <div><dt>Evidence</dt><dd>${project.evidence[2]}</dd></div>
+        </dl>
+      </div>
+    `;
+  }
 
   function setActive(index) {
     currentIndex = Math.max(0, Math.min(PROJECTS.length - 1, index));
-    cards.forEach((card, cardIndex) => card.setAttribute("aria-current", String(cardIndex === currentIndex)));
-    indicatorButtons.forEach((button, buttonIndex) => button.setAttribute("aria-current", String(buttonIndex === currentIndex)));
-    previousButton.disabled = currentIndex === 0;
-    nextButton.disabled = currentIndex === PROJECTS.length - 1;
+    renderWorkspace(PROJECTS[currentIndex], currentIndex);
+    queueButtons.forEach((button, buttonIndex) => {
+      const isActive = buttonIndex === currentIndex;
+      button.classList.toggle("is-active", isActive);
+      if (isActive) {
+        button.setAttribute("aria-current", "true");
+      } else {
+        button.removeAttribute("aria-current");
+      }
+    });
     status.textContent = `Slot ${String(currentIndex + 1).padStart(2, "0")} of ${String(PROJECTS.length).padStart(2, "0")} / ${PROJECTS[currentIndex].status}`;
   }
 
-  function goTo(index, behavior = reduceMotion.matches ? "auto" : "smooth") {
+  function goTo(index) {
     const safeIndex = Math.max(0, Math.min(PROJECTS.length - 1, index));
-    const card = cards[safeIndex];
-    const left = card.offsetLeft - (track.clientWidth - card.clientWidth) / 2;
-    track.scrollTo({ left, behavior });
     setActive(safeIndex);
+    queueButtons[safeIndex].scrollIntoView({
+      behavior: reduceMotion.matches ? "auto" : "smooth",
+      block: "nearest",
+      inline: "center"
+    });
   }
 
-  function nearestIndex() {
-    const center = track.scrollLeft + track.clientWidth / 2;
-    return cards.reduce((closest, card, index) => {
-      const distance = Math.abs(card.offsetLeft + card.clientWidth / 2 - center);
-      return distance < closest.distance ? { index, distance } : closest;
-    }, { index: 0, distance: Number.POSITIVE_INFINITY }).index;
-  }
-
-  track.addEventListener("scroll", () => {
-    window.clearTimeout(scrollTimer);
-    scrollTimer = window.setTimeout(() => setActive(nearestIndex()), 100);
-  }, { passive: true });
-  track.addEventListener("keydown", (event) => {
+  workspace.addEventListener("keydown", (event) => {
     if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
     event.preventDefault();
     goTo(currentIndex + (event.key === "ArrowRight" ? 1 : -1));
   });
-  previousButton.addEventListener("click", () => goTo(currentIndex - 1));
-  nextButton.addEventListener("click", () => goTo(currentIndex + 1));
-  indicatorButtons.forEach((button, index) => button.addEventListener("click", () => goTo(index)));
-  new ResizeObserver(() => goTo(currentIndex, "auto")).observe(track);
-  window.setTimeout(() => goTo(currentIndex, "auto"), 0);
+  queueButtons.forEach((button, index) => button.addEventListener("click", () => goTo(index)));
+  setActive(currentIndex);
 }
 
 function createMobileDockCue() {
@@ -462,37 +492,14 @@ function createMobileDockCue() {
   update();
 }
 
-function createMobileSwipeNavigation() {
-  let startX = 0;
-  let startY = 0;
-  let ignoreGesture = false;
-
-  displayScreen.addEventListener("touchstart", (event) => {
-    const touch = event.changedTouches[0];
-    startX = touch.clientX;
-    startY = touch.clientY;
-    ignoreGesture = Boolean(event.target.closest(".project-bay, .segmented-control, .signal-stages, a, button, summary"));
-  }, { passive: true });
-
-  displayScreen.addEventListener("touchend", (event) => {
-    if (ignoreGesture || window.innerWidth > 800) return;
-    const touch = event.changedTouches[0];
-    const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
-    if (Math.abs(deltaX) < 70 || Math.abs(deltaY) > 55) return;
-    const currentIndex = MODULE_ORDER.indexOf(activeModule);
-    const nextIndex = Math.max(0, Math.min(MODULE_ORDER.length - 1, currentIndex + (deltaX < 0 ? 1 : -1)));
-    if (nextIndex !== currentIndex) activateModule(MODULE_ORDER[nextIndex]);
-  }, { passive: true });
-}
-
 function updateClock() {
   clock.textContent = new Intl.DateTimeFormat([], { hour: "2-digit", minute: "2-digit" }).format(new Date());
 }
 
 navigationButtons.forEach((button) => {
-  button.addEventListener("click", () => activateModule(button.dataset.nav));
+  button.addEventListener("click", () => activateModule(button.dataset.nav, { focusScreen: true }));
 });
+footerNextButton.addEventListener("click", () => activateModule(footerNextButton.dataset.nextModule, { focusScreen: true }));
 
 window.addEventListener("popstate", () => activateModule(moduleFromLocation(), { updateUrl: false }));
 reduceMotion.addEventListener("change", () => controller.classList.remove("is-switching"));
@@ -503,7 +510,6 @@ createTransferConsole();
 createExperienceWorkbench();
 createSkillFilter();
 createProjectCarousel();
-createMobileSwipeNavigation();
 createMobileDockCue();
 updateClock();
 window.setInterval(updateClock, 30000);

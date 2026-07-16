@@ -496,8 +496,48 @@ svg {
 }
 
 .display-footer {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   padding: 0 8px;
   font-size: 0.56rem;
+}
+
+.display-footer > span:last-child {
+  justify-self: end;
+}
+
+.display-footer button {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.display-footer button:hover,
+.display-footer button:focus-visible {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.display-footer button small {
+  color: var(--amber);
+  font: inherit;
+}
+
+.display-footer button strong {
+  color: var(--text);
+  font-size: 0.62rem;
+}
+
+.display-footer button b {
+  color: var(--lime);
 }
 
 .display-footer b {
@@ -602,6 +642,38 @@ svg {
 .home-copy .home-lede {
   color: var(--text);
   font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.home-supporting {
+  display: grid;
+  gap: 10px;
+  max-width: 620px;
+}
+
+.home-supporting p {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(0.82rem, 1.1vw, 0.94rem);
+  line-height: 1.52;
+}
+
+.home-copy > p.credential-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 18px;
+  color: var(--steel);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.62rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.credential-line i {
+  width: 3px;
+  height: 3px;
+  background: var(--amber);
 }
 
 .identity-feed {
@@ -730,7 +802,7 @@ svg {
 
 .transfer-path button:hover,
 .transfer-path button:focus-visible,
-.transfer-path button.is-complete {
+.transfer-path button.is-upstream {
   color: var(--text);
   background: var(--surface-raised);
 }
@@ -743,7 +815,7 @@ svg {
 .transfer-path span {
   color: var(--lime);
   font-family: Consolas, "Courier New", monospace;
-  font-size: 0.58rem;
+  font-size: 0.62rem;
 }
 
 .transfer-path button[aria-selected="true"] span {
@@ -752,7 +824,7 @@ svg {
 
 .transfer-path strong {
   min-width: 0;
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 600;
 }
 
@@ -788,7 +860,7 @@ svg {
 .transfer-output span {
   color: var(--steel);
   font-family: Consolas, "Courier New", monospace;
-  font-size: 0.56rem;
+  font-size: 0.6rem;
   text-transform: uppercase;
 }
 
@@ -815,7 +887,7 @@ svg {
 .view-heading h2 {
   max-width: 840px;
   margin: 0 0 14px;
-  font-size: clamp(2rem, 4.2vw, 4.5rem);
+  font-size: clamp(2rem, 3.8vw, 4rem);
   line-height: 0.98;
 }
 
@@ -828,11 +900,112 @@ svg {
   line-height: 1.55;
 }
 
+.experience-console {
+  display: grid;
+  gap: 16px;
+  max-width: 1120px;
+}
+
+.system-path {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) 22px minmax(110px, 1fr) 22px minmax(110px, 1fr) 22px minmax(110px, 1fr) 22px minmax(110px, 1fr);
+  align-items: stretch;
+}
+
+.system-path article {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-height: 78px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--dim);
+  background: rgba(17, 24, 22, 0.45);
+  transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+}
+
+.system-path article:first-of-type {
+  border-left: 1px solid var(--line);
+}
+
+.system-path article:last-of-type {
+  border-right: 1px solid var(--line);
+}
+
+.system-path article.is-active {
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: inset 0 2px var(--lime);
+}
+
+.system-path article span {
+  color: var(--steel);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.58rem;
+}
+
+.system-path article strong {
+  margin-top: 6px;
+  font-size: 0.78rem;
+}
+
+.system-path article small {
+  margin-top: 3px;
+  color: currentColor;
+  font-size: 0.65rem;
+}
+
+.system-path article > b {
+  justify-self: start;
+  margin-top: 7px;
+  padding: 2px 5px;
+  color: var(--dim);
+  background: var(--line-soft);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.system-path article.is-active > b {
+  color: #0a0d0c;
+  background: var(--lime);
+}
+
+.system-path > i {
+  position: relative;
+  align-self: center;
+  height: 1px;
+  background: var(--line);
+  transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.system-path > i::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: 0;
+  width: 5px;
+  height: 5px;
+  background: var(--line);
+  transition: background 180ms ease;
+}
+
+.system-path > i.is-active {
+  background: var(--steel);
+  box-shadow: 0 0 9px rgba(120, 174, 190, 0.42);
+}
+
+.system-path > i.is-active::after {
+  background: var(--lime);
+}
+
 .signal-workbench {
   display: grid;
   grid-template-columns: minmax(240px, 0.7fr) minmax(360px, 1.3fr);
-  max-width: 1080px;
-  border: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
   background: var(--surface);
 }
 
@@ -863,7 +1036,7 @@ svg {
   background: var(--lime);
 }
 
-.signal-stages button.is-complete {
+.signal-stages button.is-upstream {
   color: var(--text);
   box-shadow: inset 3px 0 var(--steel);
 }
@@ -919,7 +1092,7 @@ svg {
 .signal-detail h3 {
   max-width: 650px;
   margin: 14px 0 34px;
-  font-size: clamp(1.7rem, 3vw, 3.1rem);
+  font-size: clamp(1.55rem, 2.6vw, 2.65rem);
   line-height: 1.05;
 }
 
@@ -942,7 +1115,7 @@ svg {
   line-height: 1.55;
 }
 
-.skill-console {
+.skill-router {
   max-width: 1120px;
 }
 
@@ -991,48 +1164,118 @@ svg {
   text-transform: uppercase;
 }
 
-.capability-matrix {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.routing-matrix {
   border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
 }
 
-.capability-matrix article {
-  min-height: 155px;
-  padding: 20px;
-  border-right: 1px solid var(--line);
+.routing-heading,
+.routing-matrix article {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(320px, 1.28fr) 120px;
+  align-items: center;
+}
+
+.routing-heading {
+  min-height: 34px;
+  padding: 0 16px 0 50px;
+  color: var(--dim);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+}
+
+.routing-matrix article {
+  position: relative;
+  min-height: 64px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--line);
-  background: rgba(17, 24, 22, 0.5);
-  opacity: 0.38;
-  transition: opacity 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  color: var(--muted);
+  background: rgba(17, 24, 22, 0.38);
+  transition: color 180ms ease, background 180ms ease;
 }
 
-.capability-matrix article.is-supported {
+.routing-matrix article > span {
+  position: absolute;
+  left: 16px;
+  color: var(--steel);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.62rem;
+}
+
+.routing-matrix article > div {
+  grid-column: 1 / 3;
+  display: grid;
+  grid-template-columns: minmax(200px, 0.72fr) minmax(300px, 1.28fr);
+  gap: 24px;
+  padding-left: 34px;
+}
+
+.routing-matrix article h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.88rem;
+}
+
+.routing-matrix article p {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.routing-matrix article > i {
+  grid-column: 3;
+  position: relative;
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+
+.routing-matrix article > i::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: 0;
+  width: 5px;
+  height: 5px;
+  background: var(--line);
+}
+
+.routing-matrix article > b {
+  grid-column: 3;
+  justify-self: end;
+  margin-top: -16px;
+  color: var(--dim);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.58rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.routing-matrix article.is-routed {
+  color: var(--text);
   background: var(--surface);
-  box-shadow: inset 0 2px var(--lime);
-  opacity: 1;
+  box-shadow: inset 3px 0 var(--lime);
 }
 
-.capability-matrix span,
+.routing-matrix article.is-routed > i {
+  background: var(--steel);
+  box-shadow: 0 0 8px rgba(120, 174, 190, 0.35);
+}
+
+.routing-matrix article.is-routed > i::after {
+  background: var(--lime);
+}
+
+.routing-matrix article.is-routed > b {
+  color: var(--lime);
+}
+
 .project-card-header,
 .project-template dt {
   color: var(--steel);
   font-family: Consolas, "Courier New", monospace;
   font-size: 0.62rem;
   text-transform: uppercase;
-}
-
-.capability-matrix h3 {
-  margin: 10px 0 8px;
-  font-size: 1rem;
-}
-
-.capability-matrix p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.5;
 }
 
 .project-heading {
@@ -1046,68 +1289,48 @@ svg {
   max-width: 820px;
 }
 
-.project-controls {
-  display: flex;
-  align-self: end;
-  gap: 8px;
-}
-
-.project-controls button {
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  cursor: pointer;
-}
-
-.project-controls button:hover:not(:disabled),
-.project-controls button:focus-visible:not(:disabled) {
-  color: #0a0d0c;
-  background: var(--lime);
-}
-
-.project-controls button:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
 .project-bay {
-  max-width: 1160px;
-  overflow: hidden;
-}
-
-.project-track {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
   gap: 16px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+  max-width: 1160px;
 }
 
-.project-track::-webkit-scrollbar {
-  display: none;
-}
-
-.project-card {
-  flex: 0 0 min(680px, 82%);
-  min-height: 330px;
-  padding: clamp(24px, 4vw, 46px);
-  border: 1px solid var(--line);
+.project-workspace {
+  min-height: 300px;
+  border-top: 1px solid var(--lime);
+  border-bottom: 1px solid var(--line);
   background: var(--surface);
-  scroll-snap-align: center;
-  opacity: 0.42;
-  transition: opacity 220ms ease, border-color 220ms ease;
 }
 
-.project-card[aria-current="true"] {
-  border-color: var(--lime);
-  opacity: 1;
+.project-workspace-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.85fr);
+  gap: 34px;
+  align-items: end;
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.project-workspace-body > div > p {
+  margin: 0 0 12px;
+  color: var(--steel);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.project-workspace-body > div > span {
+  display: block;
+  max-width: 620px;
+  color: var(--muted);
+  line-height: 1.55;
 }
 
 .project-card-header {
   display: flex;
   justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .project-card-header b {
@@ -1115,32 +1338,25 @@ svg {
   font-weight: 500;
 }
 
-.project-card h3 {
-  margin: 48px 0 12px;
+.project-workspace h3 {
+  margin: 0 0 12px;
   font-size: clamp(2rem, 4vw, 3.8rem);
   line-height: 1;
 }
 
-.project-card > p {
-  max-width: 650px;
-  color: var(--muted);
-  line-height: 1.55;
-}
-
 .project-template {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin: 38px 0 0;
+  margin: 0;
   border-top: 1px solid var(--line);
 }
 
 .project-template div {
-  padding: 16px;
-  border-right: 1px solid var(--line);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .project-template div:last-child {
-  border-right: 0;
+  border-bottom: 0;
 }
 
 .project-template dd {
@@ -1149,29 +1365,60 @@ svg {
   font-size: 0.8rem;
 }
 
+.project-queue {
+  display: grid;
+  align-content: start;
+  border-top: 1px solid var(--line);
+}
+
+.project-queue-item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 3px 10px;
+  min-height: 66px;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  background: rgba(17, 24, 22, 0.45);
+  cursor: pointer;
+  text-align: left;
+}
+
+.project-queue-item:hover,
+.project-queue-item:focus-visible {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.project-queue-item.is-active {
+  color: var(--text);
+  background: var(--surface-raised);
+  box-shadow: inset 3px 0 var(--amber);
+}
+
+.project-queue-item span {
+  grid-row: 1 / 3;
+  color: var(--steel);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.6rem;
+}
+
+.project-queue-item strong {
+  font-size: 0.72rem;
+}
+
+.project-queue-item small {
+  color: var(--dim);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
 .project-status {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   max-width: 1160px;
   margin-top: 18px;
-}
-
-.project-status > div {
-  display: flex;
-  gap: 7px;
-}
-
-.project-status button {
-  width: 28px;
-  height: 4px;
-  padding: 0;
-  background: var(--line);
-  cursor: pointer;
-}
-
-.project-status button[aria-current="true"] {
-  background: var(--lime);
 }
 
 .project-status p {
@@ -1269,12 +1516,10 @@ svg {
   border-right: 1px solid var(--line);
 }
 
-.contact-status span,
-.contact-status i {
+.contact-status span {
   color: var(--steel);
   font-family: Consolas, "Courier New", monospace;
   font-size: 0.65rem;
-  font-style: normal;
   text-transform: uppercase;
 }
 
@@ -1288,8 +1533,10 @@ svg {
   color: var(--muted);
 }
 
-.contact-status i {
-  color: var(--lime);
+.contact-status small {
+  max-width: 260px;
+  color: var(--dim);
+  line-height: 1.45;
 }
 
 .contact-channels {
@@ -1409,8 +1656,36 @@ svg {
     font-size: 1rem;
   }
 
-  .capability-matrix {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .routing-heading,
+  .routing-matrix article {
+    grid-template-columns: minmax(190px, 0.72fr) minmax(260px, 1.28fr) 100px;
+  }
+}
+
+@media (min-width: 801px) and (max-height: 920px) {
+  .skills-view {
+    padding-block: 28px;
+  }
+
+  .skills-view .view-heading {
+    margin-bottom: 18px;
+  }
+
+  .skills-view .view-heading h2 {
+    font-size: clamp(2rem, 3.45vw, 3.45rem);
+  }
+
+  .skills-view .skill-output {
+    margin: 12px 0 16px;
+  }
+
+  .skills-view .routing-heading {
+    min-height: 28px;
+  }
+
+  .skills-view .routing-matrix article {
+    min-height: 55px;
+    padding-block: 7px;
   }
 }
 
@@ -1444,13 +1719,26 @@ svg {
   }
 
   .signal-stages button {
-    min-height: 56px;
+    min-height: 48px;
     padding: 10px 16px;
   }
 
+  .experience-console {
+    gap: 10px;
+  }
+
+  .system-path article {
+    min-height: 60px;
+    padding: 8px 11px;
+  }
+
+  .system-path article small {
+    display: none;
+  }
+
   .signal-detail {
-    min-height: 224px;
-    padding: 26px 36px;
+    min-height: 192px;
+    padding: 20px 30px;
   }
 
   .signal-readout {
@@ -1470,40 +1758,39 @@ svg {
     margin: 10px 0 14px;
   }
 
-  .capability-matrix article {
-    min-height: 126px;
-    padding: 15px 17px;
+  .routing-matrix article {
+    min-height: 52px;
+    padding-block: 7px;
   }
 
-  .capability-matrix h3 {
-    margin: 7px 0 5px;
+  .routing-heading {
+    min-height: 28px;
   }
 
-  .project-card {
-    min-height: 268px;
-    padding: 26px 36px;
+  .project-workspace {
+    min-height: 250px;
   }
 
-  .project-card h3 {
-    margin: 24px 0 9px;
+  .project-workspace-body {
+    padding: 22px 30px;
+  }
+
+  .project-workspace h3 {
     font-size: clamp(2rem, 3.5vw, 3.15rem);
   }
 
-  .project-card > p {
-    margin-block: 8px;
-  }
-
   .project-template {
-    margin-top: 20px;
+    margin-top: 0;
   }
 
   .project-template div {
-    padding: 11px 13px;
+    padding: 8px 0;
   }
 
   .project-status {
     margin-top: 11px;
   }
+
 }
 
 @media (max-width: 800px) {
@@ -1547,7 +1834,7 @@ svg {
 
   .display-bezel {
     grid-row: 2;
-    grid-template-rows: 40px minmax(0, 1fr);
+    grid-template-rows: 40px minmax(0, 1fr) 38px;
     margin: 0;
     padding: 7px;
     border: 0;
@@ -1555,11 +1842,24 @@ svg {
   }
 
   .display-footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .display-footer > span {
     display: none;
   }
 
+  .display-footer button {
+    justify-content: center;
+    border: 0;
+    padding: 0 12px;
+  }
+
   .display-screen {
-    border-bottom: 0;
+    border-bottom: 1px solid var(--line);
   }
 
   .display-header {
@@ -1606,6 +1906,10 @@ svg {
     font-size: 0.95rem;
   }
 
+  .home-supporting p {
+    font-size: 0.9rem;
+  }
+
   .home-dashboard {
     margin-top: 28px;
   }
@@ -1619,7 +1923,7 @@ svg {
   }
 
   .transfer-path strong {
-    font-size: 0.55rem;
+    font-size: 0.58rem;
   }
 
   .experience-view,
@@ -1635,7 +1939,41 @@ svg {
   }
 
   .view-heading h2 {
-    font-size: clamp(2.1rem, 10vw, 3.2rem);
+    font-size: clamp(1.9rem, 9vw, 2.85rem);
+  }
+
+  .experience-console {
+    gap: 18px;
+  }
+
+  .system-path {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .system-path::-webkit-scrollbar {
+    display: none;
+  }
+
+  .system-path article {
+    flex: 0 0 150px;
+    min-height: 62px;
+    border: 1px solid var(--line);
+    scroll-snap-align: start;
+  }
+
+  .system-path > i {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 1px;
+  }
+
+  .system-path > i::after {
+    top: -2px;
+    right: 0;
+    bottom: auto;
   }
 
   .signal-workbench,
@@ -1671,26 +2009,68 @@ svg {
     font-size: 0.8rem;
   }
 
-  .capability-matrix {
+  .routing-heading {
+    display: none;
+  }
+
+  .routing-matrix article {
+    grid-template-columns: minmax(0, 1fr) 84px;
+    min-height: 84px;
+    padding: 12px;
+  }
+
+  .routing-matrix article > div {
+    grid-column: 1;
     grid-template-columns: 1fr;
+    gap: 5px;
+    padding-left: 28px;
+  }
+
+  .routing-matrix article > i,
+  .routing-matrix article > b {
+    grid-column: 2;
+  }
+
+  .routing-matrix article > b {
+    margin-top: -18px;
+  }
+
+  .routing-matrix article > span {
+    left: 12px;
   }
 
   .project-heading {
     display: block;
   }
 
-  .project-controls {
-    margin-top: 20px;
+  .project-bay {
+    grid-template-columns: 1fr;
   }
 
-  .project-card {
-    flex-basis: 92%;
-    min-height: 390px;
+  .project-workspace {
+    min-height: 0;
+  }
+
+  .project-workspace-body {
+    grid-template-columns: 1fr;
+    gap: 24px;
     padding: 24px;
   }
 
-  .project-card h3 {
-    margin-top: 40px;
+  .project-queue {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .project-queue::-webkit-scrollbar {
+    display: none;
+  }
+
+  .project-queue-item {
+    flex: 0 0 180px;
+    scroll-snap-align: start;
   }
 
   .project-template {
@@ -1810,7 +2190,7 @@ svg {
   .mobile-dock span {
     color: var(--steel);
     font-family: Consolas, "Courier New", monospace;
-    font-size: 0.58rem;
+    font-size: 0.62rem;
   }
 
   .mobile-dock button.is-active span {

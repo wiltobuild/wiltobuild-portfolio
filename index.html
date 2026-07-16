@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://wiltobuild.github.io/wiltobuild-portfolio/" />
     <link rel="icon" href="./assets/wil-sheppard-headshot.png" type="image/png" />
     <title>Wil Sheppard | WilToBuild</title>
-    <link rel="stylesheet" href="./styles.css?v=20260716-controller2" />
+    <link rel="stylesheet" href="./styles.css?v=20260716-controller4" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -25,8 +25,8 @@
       </div>
       <p class="boot-brand">WilToBuild</p>
       <div class="boot-readout" aria-live="polite">
-        <span data-boot-status>Initializing portfolio system</span>
-        <b data-boot-percent>00%</b>
+        <span data-boot-status>Starting WilToBuild</span>
+        <b data-boot-percent>01 / 03</b>
       </div>
       <div class="boot-track" aria-hidden="true"><i data-boot-progress></i></div>
       <button class="boot-skip" type="button" data-boot-skip>Skip intro</button>
@@ -79,10 +79,13 @@
             <div class="home-intro">
               <div class="home-copy">
                 <p class="eyebrow">AI development / AV systems background</p>
-                <h1 id="home-title">Wil<br />Sheppard</h1>
+                <h1 id="home-title" tabindex="-1">Wil<br />Sheppard</h1>
                 <p class="home-lede">I am moving into AI development after a career designing, programming, and supporting Crestron automation systems.</p>
-                <p>My background in AV integration taught me how to connect complex parts, diagnose behavior under real constraints, and explain technical work clearly to the people who rely on it.</p>
-                <p>I now apply that experience while building with Claude Code and Codex, with an emphasis on clear requirements, careful testing, and useful software.</p>
+                <div class="home-supporting">
+                  <p>My background in AV integration taught me how to connect complex parts, diagnose behavior under real constraints, and explain technical work clearly to the people who rely on it.</p>
+                  <p>I now apply that experience while building with Claude Code and Codex, with an emphasis on clear requirements, careful testing, and useful software.</p>
+                </div>
+                <p class="credential-line">Crestron Silver Programmer <i></i> AVIXA CTS <i></i> Claude Code + Codex</p>
               </div>
               <figure class="identity-feed">
                 <img src="./assets/wil-sheppard-headshot.png" alt="Headshot of Wil Sheppard" />
@@ -95,13 +98,13 @@
               <div class="transfer-console" data-transfer-console>
                 <div class="transfer-console-heading"><span>From AV systems to software</span><b data-transfer-count>01 / 05</b></div>
                 <div class="transfer-path" role="tablist" aria-label="Select a stage in Wil's working process">
-                  <button type="button" role="tab" aria-selected="true" data-transfer-step="understand"><span>01</span><strong>Understand</strong></button>
-                  <button type="button" role="tab" aria-selected="false" data-transfer-step="map"><span>02</span><strong>Map</strong></button>
-                  <button type="button" role="tab" aria-selected="false" data-transfer-step="build"><span>03</span><strong>Build</strong></button>
-                  <button type="button" role="tab" aria-selected="false" data-transfer-step="test"><span>04</span><strong>Test</strong></button>
-                  <button type="button" role="tab" aria-selected="false" data-transfer-step="explain"><span>05</span><strong>Explain</strong></button>
+                  <button id="transfer-tab-understand" type="button" role="tab" aria-selected="true" aria-controls="transfer-panel" tabindex="0" data-transfer-step="understand"><span>01</span><strong>Understand</strong></button>
+                  <button id="transfer-tab-map" type="button" role="tab" aria-selected="false" aria-controls="transfer-panel" tabindex="-1" data-transfer-step="map"><span>02</span><strong>Map</strong></button>
+                  <button id="transfer-tab-build" type="button" role="tab" aria-selected="false" aria-controls="transfer-panel" tabindex="-1" data-transfer-step="build"><span>03</span><strong>Build</strong></button>
+                  <button id="transfer-tab-test" type="button" role="tab" aria-selected="false" aria-controls="transfer-panel" tabindex="-1" data-transfer-step="test"><span>04</span><strong>Test</strong></button>
+                  <button id="transfer-tab-explain" type="button" role="tab" aria-selected="false" aria-controls="transfer-panel" tabindex="-1" data-transfer-step="explain"><span>05</span><strong>Explain</strong></button>
                 </div>
-                <article class="transfer-output" role="tabpanel" tabindex="0" aria-live="polite">
+                <article class="transfer-output" id="transfer-panel" role="tabpanel" aria-labelledby="transfer-tab-understand" tabindex="0" aria-live="polite">
                   <div><span>Systems practice</span><p data-transfer-av>Clarify the real need, room conditions, and operating constraints.</p></div>
                   <i aria-hidden="true"></i>
                   <div><span>Software practice</span><p data-transfer-software>Define the user, task, expected behavior, and limits before choosing tools.</p></div>
@@ -111,53 +114,68 @@
           </section>
 
           <section class="screen-view experience-view" data-view="experience" aria-labelledby="experience-title" hidden>
-            <header class="view-heading"><p>01 / Systems practice</p><h2 id="experience-title">AV systems work informs how I design and test software.</h2><span>Crestron integration required technical decisions to work in real rooms, on real networks, for clients who needed reliable systems.</span></header>
-            <div class="signal-workbench">
-              <div class="signal-stages" role="tablist" aria-label="Experience stages">
-                <button type="button" role="tab" aria-selected="true" data-experience-step="requirements"><span>01</span><strong>Requirements</strong></button>
-                <button type="button" role="tab" aria-selected="false" data-experience-step="systems"><span>02</span><strong>System design</strong></button>
-                <button type="button" role="tab" aria-selected="false" data-experience-step="troubleshooting"><span>03</span><strong>Troubleshooting</strong></button>
-                <button type="button" role="tab" aria-selected="false" data-experience-step="handoff"><span>04</span><strong>Handoff</strong></button>
+            <header class="view-heading"><p>01 / Systems practice</p><h2 id="experience-title" tabindex="-1">Trace a typical automated-room workflow.</h2><span>This representative workflow shows how I approached requirements, system dependencies, troubleshooting, and handoff during Crestron integration work.</span></header>
+            <div class="experience-console">
+              <div class="system-path" aria-label="Representative automated room signal and control path">
+                <article data-system-node="client"><span>01</span><strong>Client need</strong><small>Expected room behavior</small><b data-node-state>Active</b></article>
+                <i data-system-link="1" aria-hidden="true"></i>
+                <article data-system-node="interface"><span>02</span><strong>User interface</strong><small>Commands and feedback</small><b data-node-state>Active</b></article>
+                <i data-system-link="2" aria-hidden="true"></i>
+                <article data-system-node="processor"><span>03</span><strong>Control logic</strong><small>State and dependencies</small><b data-node-state>Standby</b></article>
+                <i data-system-link="3" aria-hidden="true"></i>
+                <article data-system-node="devices"><span>04</span><strong>Devices + network</strong><small>Sources, displays, endpoints</small><b data-node-state>Standby</b></article>
+                <i data-system-link="4" aria-hidden="true"></i>
+                <article data-system-node="room"><span>05</span><strong>Verified room</strong><small>Usable, documented behavior</small><b data-node-state>Standby</b></article>
               </div>
-              <article class="signal-detail" role="tabpanel" tabindex="0">
-                <div class="signal-readout"><span data-experience-counter>01 / 04</span><i aria-hidden="true"></i><b data-experience-state>Requirement confirmed</b></div>
-                <span>AV responsibility</span><h3 data-experience-title>Clarify what the client needs the system to do.</h3>
-                <div class="transfer-line"><i></i><b>Applied to software</b></div>
-                <p data-experience-application>Define the user, task, constraints, and expected behavior before choosing tools.</p>
-              </article>
+              <div class="signal-workbench">
+                <div class="signal-stages" role="tablist" aria-label="Experience stages">
+                  <button id="experience-tab-requirements" type="button" role="tab" aria-selected="true" aria-controls="experience-panel" tabindex="0" data-experience-step="requirements"><span>01</span><strong>Requirements</strong></button>
+                  <button id="experience-tab-systems" type="button" role="tab" aria-selected="false" aria-controls="experience-panel" tabindex="-1" data-experience-step="systems"><span>02</span><strong>System design</strong></button>
+                  <button id="experience-tab-troubleshooting" type="button" role="tab" aria-selected="false" aria-controls="experience-panel" tabindex="-1" data-experience-step="troubleshooting"><span>03</span><strong>Troubleshooting</strong></button>
+                  <button id="experience-tab-handoff" type="button" role="tab" aria-selected="false" aria-controls="experience-panel" tabindex="-1" data-experience-step="handoff"><span>04</span><strong>Handoff</strong></button>
+                </div>
+                <article class="signal-detail" id="experience-panel" role="tabpanel" aria-labelledby="experience-tab-requirements" tabindex="0">
+                  <div class="signal-readout"><span data-experience-counter>01 / 04</span><i aria-hidden="true"></i><b data-experience-state>Requirement confirmed</b></div>
+                  <span>Systems task</span><h3 data-experience-title>Clarify what the client needs the system to do.</h3>
+                  <div class="transfer-line"><i></i><b>Applied to software</b></div>
+                  <p data-experience-application>Define the user, task, constraints, and expected behavior before choosing tools.</p>
+                </article>
+              </div>
             </div>
           </section>
 
           <section class="screen-view skills-view" data-view="skills" aria-labelledby="skills-title" hidden>
-            <header class="view-heading"><p>02 / Applied tools</p><h2 id="skills-title">Tools I use for specific development tasks.</h2><span>Choose a task to see which tools support it and how I use them.</span></header>
-            <div class="skill-console">
-              <div class="segmented-control" role="group" aria-label="Filter skills by task">
+            <header class="view-heading"><p>02 / Applied tools</p><h2 id="skills-title" tabindex="-1">Tools I use for specific development tasks.</h2><span>Choose a task to see which tools support it and how I use them.</span></header>
+            <div class="skill-router">
+              <div class="segmented-control" role="group" aria-label="Choose a development task">
                 <button type="button" class="is-active" aria-pressed="true" data-skill-focus="develop">Develop</button>
                 <button type="button" aria-pressed="false" data-skill-focus="troubleshoot">Troubleshoot</button>
                 <button type="button" aria-pressed="false" data-skill-focus="communicate">Communicate</button>
               </div>
               <div class="skill-output"><p class="skill-summary" data-skill-summary>Turn a defined requirement into a working interface or small application.</p><span data-skill-status>4 connected capabilities</span></div>
-              <div class="capability-matrix">
-                <article data-supports="develop troubleshoot"><span>Development tools</span><h3>Claude Code and Codex</h3><p>Planning changes, writing code, reviewing implementation, and checking behavior.</p></article>
-                <article data-supports="develop communicate"><span>Web development</span><h3>HTML, CSS, and JavaScript</h3><p>Building accessible structure, responsive interfaces, and browser behavior.</p></article>
-                <article data-supports="troubleshoot develop"><span>Control systems</span><h3>Crestron programming</h3><p>Control logic, device communication, interface behavior, and dependencies.</p></article>
-                <article data-supports="troubleshoot communicate"><span>AV practice</span><h3>CTS and systems integration</h3><p>Requirements, signal flow, installation context, support, and communication.</p></article>
-                <article data-supports="develop communicate"><span>Working with AI tools</span><h3>Prompt design</h3><p>Writing clear instructions, supplying context, and reviewing generated work.</p></article>
-                <article data-supports="communicate troubleshoot"><span>Communication</span><h3>Documentation and explanation</h3><p>Making technical decisions understandable to clients and collaborators.</p></article>
+              <div class="routing-matrix" aria-label="Task-to-tool routing matrix">
+                <div class="routing-heading"><span>Tool</span><span>How it contributes</span><span>Route</span></div>
+                <article data-supports="develop troubleshoot"><span>01</span><div><h3>Claude Code and Codex</h3><p>Plan changes, write code, review implementation, and check behavior.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
+                <article data-supports="develop communicate"><span>02</span><div><h3>HTML, CSS, and JavaScript</h3><p>Build accessible structure, responsive interfaces, and browser behavior.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
+                <article data-supports="troubleshoot develop"><span>03</span><div><h3>Crestron programming</h3><p>Work with control logic, device communication, interface behavior, and dependencies.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
+                <article data-supports="troubleshoot communicate"><span>04</span><div><h3>CTS and systems integration</h3><p>Apply requirements, signal flow, installation context, support, and communication.</p></div><i aria-hidden="true"></i><b data-route-state>Standby</b></article>
+                <article data-supports="develop communicate"><span>05</span><div><h3>Prompt design</h3><p>Write clear instructions, supply context, and review generated work.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
+                <article data-supports="communicate troubleshoot"><span>06</span><div><h3>Documentation and explanation</h3><p>Make technical decisions understandable to clients and collaborators.</p></div><i aria-hidden="true"></i><b data-route-state>Standby</b></article>
               </div>
             </div>
           </section>
 
           <section class="screen-view projects-view" data-view="projects" aria-labelledby="projects-title" hidden>
-            <header class="view-heading project-heading"><div><p>03 / Projects</p><h2 id="projects-title">Prepared for future case studies.</h2><span>Each placeholder shows the evidence that will be documented when the work is ready to publish.</span></div><div class="project-controls"><button type="button" data-project-previous aria-label="Previous project">&#8592;</button><button type="button" data-project-next aria-label="Next project">&#8594;</button></div></header>
-            <div class="project-bay" data-project-bay tabindex="0" aria-label="Future project carousel">
-              <div class="project-track" data-project-track></div>
+            <header class="view-heading project-heading"><div><p>03 / Projects</p><h2 id="projects-title" tabindex="-1">Prepared for future case studies.</h2><span>Each placeholder shows the evidence that will be documented when the work is ready to publish.</span></div></header>
+            <div class="project-bay" data-project-bay aria-label="Future project carousel">
+              <article class="project-workspace" data-project-workspace tabindex="0" aria-live="polite"></article>
+              <div class="project-queue" data-project-track aria-label="Future project queue"></div>
             </div>
-            <div class="project-status"><div data-project-indicators></div><p aria-live="polite" data-project-status></p></div>
+            <div class="project-status"><p aria-live="polite" data-project-status></p></div>
           </section>
 
           <section class="screen-view credentials-view" data-view="credentials" aria-labelledby="credentials-title" hidden>
-            <header class="view-heading"><p>04 / Training record</p><h2 id="credentials-title">Credentials grounded in practical AV work.</h2><span>Select a record to see what it covers and where it applies.</span></header>
+            <header class="view-heading"><p>04 / Training record</p><h2 id="credentials-title" tabindex="-1">Credentials grounded in practical AV work.</h2><span>Select a record to see what it covers and where it applies.</span></header>
             <div class="credential-console">
               <details open><summary><span>CRESTRON</span><strong>Silver Programmer</strong><i>COMPLETED</i></summary><div><p>Programming training focused on control logic, device behavior, interfaces, and deployable automation.</p><dl><div><dt>Area</dt><dd>Control programming</dd></div><div><dt>Applied to</dt><dd>System logic and behavior</dd></div></dl></div></details>
               <details><summary><span>AVIXA</span><strong>CTS certification</strong><i>COMPLETED</i></summary><div><p>AV industry training covering system principles, requirements, installation context, and client communication.</p><dl><div><dt>Area</dt><dd>AV systems</dd></div><div><dt>Applied to</dt><dd>Design, installation, and support</dd></div></dl></div></details>
@@ -165,9 +183,9 @@
           </section>
 
           <section class="screen-view contact-view" data-view="contact" aria-labelledby="contact-title" hidden>
-            <header class="view-heading"><p>05 / Contact</p><h2 id="contact-title">See my work and connect.</h2><span>I am interested in AI development and software engineering opportunities where careful problem definition, testing, and clear communication matter.</span></header>
+            <header class="view-heading"><p>05 / Contact</p><h2 id="contact-title" tabindex="-1">See my work and connect.</h2><span>I am interested in AI development and software engineering opportunities where careful problem definition, testing, and clear communication matter.</span></header>
             <div class="contact-console">
-              <div class="contact-status"><span>Availability</span><strong>Open to entry-level roles</strong><p>AI development / Software engineering</p><i>ONLINE</i></div>
+              <div class="contact-status"><span>Availability</span><strong>Open to entry-level roles</strong><p>AI development / Software engineering</p><small>LinkedIn is the best direct contact channel.</small></div>
               <div class="contact-channels">
                 <a data-social="github" href="https://github.com/wiltobuild" target="_blank" rel="noreferrer"><span>01</span><strong>GitHub</strong><small>Public repositories</small><b>&#8599;</b></a>
                 <a data-social="linkedin" href="https://www.linkedin.com/in/william-sheppard-230a82132/" target="_blank" rel="noreferrer"><span>02</span><strong>LinkedIn</strong><small>Professional profile</small><b>&#8599;</b></a>
@@ -177,7 +195,11 @@
           </section>
         </div>
 
-        <footer class="display-footer"><span>WilToBuild / Portfolio Controller</span><span>&copy; <b id="year"></b> Wil Sheppard</span></footer>
+        <footer class="display-footer">
+          <span>WilToBuild / Portfolio Controller</span>
+          <button type="button" data-footer-next><small>Next module</small><strong data-footer-next-label>Experience</strong><b aria-hidden="true">&#8594;</b></button>
+          <span>&copy; <b id="year"></b> Wil Sheppard</span>
+        </footer>
       </section>
 
       <div class="mobile-dock-shell" data-mobile-dock-shell>
@@ -192,6 +214,6 @@
       </div>
     </main>
 
-    <script src="./script.js?v=20260716-controller2"></script>
+    <script src="./script.js?v=20260716-controller4"></script>
   </body>
 </html>
