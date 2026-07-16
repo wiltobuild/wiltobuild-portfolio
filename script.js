@@ -1,457 +1,754 @@
-const canvas = document.querySelector("#node-canvas");
-const context = canvas.getContext("2d");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const pointer = { x: null, y: null };
+const body = document.body;
+const openButton = document.querySelector("[data-commission]");
+const homeButton = document.querySelector("[data-home-action]");
+const headerContext = document.querySelector("[data-header-context]");
+const routeContext = document.querySelector("[data-route-context]");
+const routeNodes = Array.from(document.querySelectorAll("[data-module]"));
+const contentPanel = document.querySelector("[data-content-dock]");
+const contentRoute = document.querySelector("[data-dock-route]");
+const contentSections = Array.from(document.querySelectorAll("[data-panel]"));
+const closeButton = document.querySelector("[data-close-module]");
+const skipLink = document.querySelector(".skip-link");
 
-let width = 0;
-let height = 0;
-let nodes = [];
-let animationFrame = null;
+const SOCIAL_URLS = {
+  github: "https://github.com/wiltobuild",
+  linkedin: "https://www.linkedin.com/",
+  x: "https://x.com/"
+};
 
-const palette = [
-  "rgba(72, 214, 197, 0.72)",
-  "rgba(242, 184, 75, 0.58)",
-  "rgba(241, 116, 100, 0.42)",
-  "rgba(158, 213, 111, 0.46)"
+const MODULES = {
+  experience: {
+    label: "Experience",
+    preview: "AV work applied to software"
+  },
+  skills: {
+    label: "Skills",
+    preview: "Tools connected to practical tasks"
+  },
+  projects: {
+    label: "Projects",
+    preview: "Reserved space for future case studies"
+  },
+  credentials: {
+    label: "Credentials",
+    preview: "Crestron and CTS training"
+  },
+  contact: {
+    label: "Contact",
+    preview: "Profiles and current availability"
+  }
+};
+
+const EXPERIENCE_STEPS = {
+  requirements: {
+    source: "AV responsibility",
+    title: "Clarify what the client needs the system to do.",
+    application: "Define the user, task, constraints, and expected behavior before choosing tools."
+  },
+  systems: {
+    source: "AV responsibility",
+    title: "Connect devices, interfaces, networks, and control logic.",
+    application: "Map inputs, dependencies, state changes, outputs, and failure cases before implementation."
+  },
+  troubleshooting: {
+    source: "AV responsibility",
+    title: "Trace faults through a working system under real constraints.",
+    application: "Reproduce the problem, isolate variables, test assumptions, and verify the correction."
+  },
+  handoff: {
+    source: "AV responsibility",
+    title: "Explain behavior to clients, technicians, and support teams.",
+    application: "Document decisions clearly so the software can be understood, used, and maintained."
+  }
+};
+
+const SKILL_FOCUS = {
+  develop: "Turn a defined requirement into a working interface or small application.",
+  troubleshoot: "Trace dependencies, isolate faults, test assumptions, and verify behavior.",
+  communicate: "Explain technical decisions clearly to users, clients, and collaborators."
+};
+
+const PROJECTS = [
+  {
+    id: "slot-1",
+    status: "Reserved",
+    title: "AI workflow application",
+    description: "Space for a practical application that uses an AI model to support a defined user task."
+  },
+  {
+    id: "slot-2",
+    status: "Reserved",
+    title: "Interface case study",
+    description: "Space for an interface project documented from requirements through responsive implementation."
+  },
+  {
+    id: "slot-3",
+    status: "Next to publish",
+    title: "Primary project",
+    description: "The first complete case study will document the problem, decisions, implementation, testing, and result."
+  },
+  {
+    id: "slot-4",
+    status: "Reserved",
+    title: "Systems utility",
+    description: "Space for a small software tool informed by automation, diagnostics, or support work."
+  }
 ];
 
-function fitCanvas() {
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-  width = window.innerWidth;
-  height = window.innerHeight;
-  canvas.width = Math.floor(width * pixelRatio);
-  canvas.height = Math.floor(height * pixelRatio);
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
-  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-  createNodes();
+const exploredModules = new Set();
+let currentModule = null;
+let transitionRun = 0;
+let routeRenderer = null;
+let projectCarousel = null;
+
+function wait(duration) {
+  return new Promise((resolve) => window.setTimeout(resolve, duration));
 }
 
-function createNodes() {
-  const count = Math.round(Math.min(96, Math.max(42, (width * height) / 18000)));
-  nodes = Array.from({ length: count }, (_, index) => {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = reduceMotion.matches ? 0 : 0.12 + Math.random() * 0.28;
-
-    return {
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      radius: 1.2 + Math.random() * 2.1,
-      color: palette[index % palette.length]
-    };
+function configureSocialLinks() {
+  document.querySelectorAll("[data-social]").forEach((link) => {
+    const url = SOCIAL_URLS[link.dataset.social];
+    if (url) link.href = url;
   });
 }
 
-function moveNode(node) {
-  node.x += node.vx;
-  node.y += node.vy;
+function getLocationState() {
+  const hash = window.location.hash.replace(/^#/, "");
 
-  if (node.x < -20) node.x = width + 20;
-  if (node.x > width + 20) node.x = -20;
-  if (node.y < -20) node.y = height + 20;
-  if (node.y > height + 20) node.y = -20;
+  if (!hash || hash === "top") return { mode: "hero", module: null, projectId: null };
+  if (hash === "portfolio" || hash === "system") return { mode: "system", module: null, projectId: null };
 
-  if (pointer.x === null || reduceMotion.matches) return;
+  const [moduleName, projectId] = hash.split("/");
+  if (!MODULES[moduleName]) return { mode: "hero", module: null, projectId: null };
 
-  const dx = node.x - pointer.x;
-  const dy = node.y - pointer.y;
-  const distance = Math.hypot(dx, dy);
+  return {
+    mode: "system",
+    module: moduleName,
+    projectId: moduleName === "projects" ? projectId || "slot-3" : null
+  };
+}
 
-  if (distance < 160 && distance > 0) {
-    const force = (160 - distance) / 160;
-    node.x += (dx / distance) * force * 0.8;
-    node.y += (dy / distance) * force * 0.8;
+function hashFor(moduleName, projectId = null) {
+  if (!moduleName) return "#portfolio";
+  if (moduleName === "projects") return `#projects/${projectId || projectCarousel?.currentId || "slot-3"}`;
+  return `#${moduleName}`;
+}
+
+function updateHistory(hash, method = "push") {
+  if (window.location.hash === hash) return;
+  const action = method === "replace" ? "replaceState" : "pushState";
+  window.history[action]({ hash }, "", hash);
+}
+
+function updateInterfaceCopy(moduleName = null) {
+  const label = moduleName ? MODULES[moduleName].label : "Portfolio overview";
+  headerContext.textContent = moduleName ? `${label} / Wil Sheppard` : "Wil Sheppard / Portfolio";
+  contentRoute.textContent = label;
+  routeContext.textContent = moduleName ? MODULES[moduleName].preview : "Explore the sections";
+}
+
+function showSection(sectionName, shouldAnimate = true) {
+  const selected = contentSections.find((section) => section.dataset.panel === sectionName);
+  if (!selected) return;
+
+  contentSections.forEach((section) => {
+    const isSelected = section === selected;
+    section.hidden = !isSelected;
+    section.classList.toggle("is-active", isSelected);
+    section.classList.remove("is-entering");
+  });
+
+  if (shouldAnimate && !reduceMotion.matches) {
+    void selected.offsetWidth;
+    selected.classList.add("is-entering");
+  }
+
+  selected.scrollTop = 0;
+}
+
+function syncModuleState(moduleName) {
+  currentModule = moduleName;
+  body.dataset.activeModule = moduleName || "none";
+
+  routeNodes.forEach((node) => {
+    const isActive = node.dataset.module === moduleName;
+    const isExplored = exploredModules.has(node.dataset.module);
+    node.classList.toggle("is-active", isActive);
+    node.classList.toggle("is-explored", isExplored && !isActive);
+    node.setAttribute("aria-pressed", String(isActive));
+  });
+
+  routeRenderer?.setActiveModule(moduleName, exploredModules);
+}
+
+function enterHero(options = {}) {
+  transitionRun += 1;
+  body.dataset.mode = "hero";
+  body.classList.remove("is-routing");
+  openButton.disabled = false;
+  openButton.setAttribute("aria-expanded", "false");
+  contentPanel.inert = true;
+  syncModuleState(null);
+  showSection("idle", false);
+  updateInterfaceCopy();
+  routeRenderer?.reset();
+
+  if (window.innerWidth <= 900) {
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
+  }
+
+  if (options.updateUrl) updateHistory("#top");
+}
+
+function enterSystem(moduleName = null, options = {}) {
+  const {
+    updateUrl = false,
+    historyMethod = "push",
+    animateSection = true,
+    projectId = null,
+    focusContent = false
+  } = options;
+
+  transitionRun += 1;
+  body.dataset.mode = "system";
+  body.classList.remove("is-routing");
+  openButton.disabled = false;
+  openButton.setAttribute("aria-expanded", "true");
+  contentPanel.inert = false;
+
+  if (moduleName) exploredModules.add(moduleName);
+  syncModuleState(moduleName);
+  showSection(moduleName || "idle", animateSection);
+  updateInterfaceCopy(moduleName);
+
+  if (moduleName === "projects" && projectCarousel) {
+    projectCarousel.goToId(projectId || "slot-3", {
+      behavior: "auto",
+      updateUrl: false,
+      announce: false
+    });
+  }
+
+  if (updateUrl) updateHistory(hashFor(moduleName, projectId), historyMethod);
+
+  if (focusContent) {
+    window.setTimeout(() => contentPanel.focus({ preventScroll: true }), reduceMotion.matches ? 0 : 420);
   }
 }
 
-function drawConnections() {
-  const maxDistance = width < 720 ? 110 : 145;
+async function openPortfolio(moduleName = null, options = {}) {
+  const { updateUrl = true, focusContent = false, projectId = null } = options;
 
-  for (let i = 0; i < nodes.length; i += 1) {
-    for (let j = i + 1; j < nodes.length; j += 1) {
-      const a = nodes[i];
-      const b = nodes[j];
-      const distance = Math.hypot(a.x - b.x, a.y - b.y);
+  if (body.dataset.mode !== "hero") {
+    if (moduleName) activateModule(moduleName, { updateUrl, focusContent, projectId });
+    return;
+  }
 
-      if (distance > maxDistance) continue;
+  const runId = ++transitionRun;
+  openButton.blur();
+  body.dataset.mode = reduceMotion.matches ? "system" : "opening";
+  openButton.disabled = true;
+  openButton.setAttribute("aria-expanded", "true");
+  headerContext.textContent = "Opening portfolio";
+  contentPanel.inert = true;
 
-      const opacity = (1 - distance / maxDistance) * 0.22;
-      context.strokeStyle = `rgba(213, 222, 232, ${opacity})`;
-      context.lineWidth = 1;
-      context.beginPath();
-      context.moveTo(a.x, a.y);
-      context.lineTo(b.x, b.y);
-      context.stroke();
-    }
+  if (moduleName) {
+    routeNodes.find((node) => node.dataset.module === moduleName)?.classList.add("is-routing");
+    routeRenderer?.pulseModule(moduleName);
+  }
+
+  if (updateUrl) updateHistory(hashFor(moduleName, projectId));
+  if (!reduceMotion.matches) await wait(560);
+  if (runId !== transitionRun) return;
+
+  enterSystem(moduleName, {
+    animateSection: true,
+    projectId,
+    focusContent
+  });
+
+  if (window.innerWidth <= 900) {
+    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "auto" }));
+    window.setTimeout(() => window.scrollTo({ top: 0, behavior: "auto" }), 260);
   }
 }
 
-function drawNodes() {
-  nodes.forEach((node) => {
-    moveNode(node);
-    context.beginPath();
-    context.fillStyle = node.color;
-    context.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-    context.fill();
+async function activateModule(moduleName, options = {}) {
+  if (!MODULES[moduleName]) return;
+
+  if (body.dataset.mode === "hero") {
+    await openPortfolio(moduleName, options);
+    return;
+  }
+
+  const {
+    updateUrl = true,
+    focusContent = false,
+    projectId = moduleName === "projects" ? projectCarousel?.currentId || "slot-3" : null
+  } = options;
+
+  if (currentModule === moduleName) {
+    if (focusContent) contentPanel.focus({ preventScroll: true });
+    return;
+  }
+
+  const runId = ++transitionRun;
+  const selectedNode = routeNodes.find((node) => node.dataset.module === moduleName);
+  body.classList.add("is-routing");
+  selectedNode?.classList.add("is-routing");
+  routeRenderer?.pulseModule(moduleName);
+
+  if (updateUrl) updateHistory(hashFor(moduleName, projectId));
+  if (!reduceMotion.matches) await wait(340);
+  if (runId !== transitionRun) return;
+
+  selectedNode?.classList.remove("is-routing");
+  enterSystem(moduleName, {
+    animateSection: true,
+    projectId,
+    focusContent
   });
 }
 
-function render() {
-  context.clearRect(0, 0, width, height);
-  drawConnections();
-  drawNodes();
-  animationFrame = window.requestAnimationFrame(render);
+async function showOverview(options = {}) {
+  if (currentModule === null) return;
+
+  const runId = ++transitionRun;
+  body.classList.add("is-routing");
+  routeRenderer?.setActiveModule(null, exploredModules);
+  if (options.updateUrl !== false) updateHistory("#portfolio");
+  if (!reduceMotion.matches) await wait(220);
+  if (runId !== transitionRun) return;
+  enterSystem(null, { animateSection: true });
 }
 
-function startBackground() {
-  if (animationFrame !== null) {
-    window.cancelAnimationFrame(animationFrame);
+function applyLocationState(options = {}) {
+  const state = getLocationState();
+
+  if (state.mode === "hero") {
+    enterHero();
+    return;
   }
 
-  fitCanvas();
-  render();
+  enterSystem(state.module, {
+    animateSection: options.animate === true,
+    projectId: state.projectId
+  });
 }
 
-function initializeThoughtNetwork() {
-  const network = document.querySelector("[data-thought-network]");
-
-  if (!network) return;
-
-  const map = network.querySelector(".thought-map");
-  const canvas = network.querySelector(".thought-canvas");
+function createRouteRenderer() {
+  const routePanel = document.querySelector("[data-routing-console]");
+  const canvas = routePanel.querySelector(".route-canvas");
   const context = canvas.getContext("2d");
-  const nodes = Array.from(network.querySelectorAll(".thought-node"));
-  const detail = network.querySelector(".thought-detail");
-  const detailStep = network.querySelector(".thought-detail-step");
-  const detailTitle = network.querySelector(".thought-detail h3");
-  const detailDescription = network.querySelector(".thought-detail-description");
-  const detailLink = network.querySelector(".thought-detail-link");
-  const pointerPosition = { x: null, y: null };
-  const core = { x: 0.51, y: 0.48, radius: 42 };
-  const nodeRadii = [48, 39, 59, 42, 46];
-
-  let canvasWidth = 0;
-  let canvasHeight = 0;
-  let activeNodeIndex = 0;
-  let activationTime = 0;
+  const hub = routePanel.querySelector("[data-controller-core]");
+  let width = 0;
+  let height = 0;
+  let activeModule = null;
+  let previewModule = null;
+  let pulseModuleName = null;
+  let pulseStartedAt = 0;
+  let explored = new Set();
   let animationFrame = null;
-  let isVisible = false;
-  let particles = [];
 
-  const networkNodes = nodes.map((node, index) => {
-    node.style.setProperty("--node-x", node.dataset.x);
-    node.style.setProperty("--node-y", node.dataset.y);
-
-    return {
-      element: node,
-      x: Number(node.dataset.x) / 100,
-      y: Number(node.dataset.y) / 100,
-      radius: nodeRadii[index]
-    };
-  });
-
-  function getPosition(node) {
-    return { x: node.x * canvasWidth, y: node.y * canvasHeight };
-  }
-
-  function fitCanvas() {
-    const bounds = map.getBoundingClientRect();
+  function fit() {
+    const bounds = routePanel.getBoundingClientRect();
     const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-
-    canvasWidth = bounds.width;
-    canvasHeight = bounds.height;
-    canvas.width = Math.max(1, Math.floor(canvasWidth * pixelRatio));
-    canvas.height = Math.max(1, Math.floor(canvasHeight * pixelRatio));
+    width = bounds.width;
+    height = bounds.height;
+    canvas.width = Math.max(1, Math.floor(width * pixelRatio));
+    canvas.height = Math.max(1, Math.floor(height * pixelRatio));
     context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    draw(performance.now());
   }
 
-  function drawLine(from, to, color, width, alpha, dashed = false) {
+  function centerOf(element) {
+    const panelBounds = routePanel.getBoundingClientRect();
+    const bounds = element.getBoundingClientRect();
+    return {
+      x: bounds.left - panelBounds.left + bounds.width / 2,
+      y: bounds.top - panelBounds.top + bounds.height / 2
+    };
+  }
+
+  function routePoints(from, to) {
+    const midpointX = from.x + (to.x - from.x) * 0.52;
+    return [from, { x: midpointX, y: from.y }, { x: midpointX, y: to.y }, to];
+  }
+
+  function drawPath(points, color, lineWidth = 1, dashed = false, offset = 0) {
     context.save();
     if (dashed) {
-      context.setLineDash([5, 8]);
-      context.lineDashOffset = reduceMotion.matches ? 0 : -performance.now() / 24;
+      context.setLineDash([7, 8]);
+      context.lineDashOffset = offset;
     }
-
     context.beginPath();
-    context.moveTo(from.x, from.y);
-    context.lineTo(to.x, to.y);
-    context.lineWidth = width;
-    context.strokeStyle = "rgba(" + color + ", " + alpha + ")";
+    context.moveTo(points[0].x, points[0].y);
+    points.slice(1).forEach((point) => context.lineTo(point.x, point.y));
+    context.strokeStyle = color;
+    context.lineWidth = lineWidth;
     context.stroke();
     context.restore();
   }
 
-  function drawCore(time) {
-    const center = { x: core.x * canvasWidth, y: core.y * canvasHeight };
-    const radius = core.radius + (reduceMotion.matches ? 0 : Math.sin(time / 1100) * 2);
+  function pointAlong(points, progress) {
+    const segments = points.slice(1).map((point, index) => ({
+      from: points[index],
+      to: point,
+      length: Math.hypot(point.x - points[index].x, point.y - points[index].y)
+    }));
+    const totalLength = segments.reduce((sum, segment) => sum + segment.length, 0);
+    let remaining = totalLength * progress;
 
-    context.save();
-    context.shadowBlur = 32;
-    context.shadowColor = "rgba(72, 214, 197, 0.52)";
-    context.fillStyle = "rgba(16, 42, 48, 0.9)";
+    for (const segment of segments) {
+      if (remaining <= segment.length) {
+        const ratio = segment.length === 0 ? 0 : remaining / segment.length;
+        return {
+          x: segment.from.x + (segment.to.x - segment.from.x) * ratio,
+          y: segment.from.y + (segment.to.y - segment.from.y) * ratio
+        };
+      }
+      remaining -= segment.length;
+    }
+
+    return points[points.length - 1];
+  }
+
+  function drawSignal(points, progress) {
+    const point = pointAlong(points, progress);
     context.beginPath();
-    context.arc(center.x, center.y, radius, 0, Math.PI * 2);
+    context.arc(point.x, point.y, 4.5, 0, Math.PI * 2);
+    context.fillStyle = "rgba(183, 239, 91, 1)";
+    context.shadowColor = "rgba(183, 239, 91, 0.8)";
+    context.shadowBlur = 14;
     context.fill();
-    context.restore();
-
-    context.strokeStyle = "rgba(72, 214, 197, 0.78)";
-    context.lineWidth = 1.25;
-    context.beginPath();
-    context.arc(center.x, center.y, radius + 11, 0, Math.PI * 2);
-    context.stroke();
-
-    context.strokeStyle = "rgba(242, 184, 75, 0.5)";
-    context.beginPath();
-    context.arc(center.x, center.y, radius + 19, time / 1250, time / 1250 + Math.PI * 1.35);
-    context.stroke();
+    context.shadowBlur = 0;
   }
 
-  function drawNetwork(time) {
-    context.clearRect(0, 0, canvasWidth, canvasHeight);
+  function draw(time) {
+    context.clearRect(0, 0, width, height);
+    if (width < 1 || height < 1 || window.innerWidth <= 900) return;
 
-    const center = { x: core.x * canvasWidth, y: core.y * canvasHeight };
-    const activationAge = activationTime ? time - activationTime : Number.POSITIVE_INFINITY;
-    const activationStrength = Math.max(0, 1 - activationAge / 1200);
+    const hubPosition = centerOf(hub);
+    const pulseProgress = Math.min(1, (time - pulseStartedAt) / 620);
 
-    networkNodes.forEach((node, index) => {
-      const position = getPosition(node);
-      const dx = pointerPosition.x === null ? 0 : position.x - pointerPosition.x;
-      const dy = pointerPosition.y === null ? 0 : position.y - pointerPosition.y;
-      const proximity = pointerPosition.x === null ? 0 : Math.max(0, 1 - Math.hypot(dx, dy) / 145);
+    routeNodes.forEach((node) => {
+      const moduleName = node.dataset.module;
+      const nodePosition = centerOf(node);
+      const isActive = moduleName === activeModule;
+      const isPreviewed = moduleName === previewModule;
+      const isExplored = explored.has(moduleName);
+      const isPulsing = moduleName === pulseModuleName && pulseProgress < 1;
+      const points = routePoints(hubPosition, nodePosition);
 
-      drawLine(center, position, "137, 155, 176", 1, 0.16 + proximity * 0.18);
-      if (index <= activeNodeIndex) {
-        drawLine(center, position, "72, 214, 197", 1.6, 0.22 + activationStrength * 0.62);
+      let color = "rgba(240, 242, 235, 0.1)";
+      let lineWidth = 1;
+      if (isExplored) color = "rgba(120, 174, 190, 0.4)";
+      if (isPreviewed) color = "rgba(255, 121, 84, 0.8)";
+      if (isActive || isPulsing) {
+        color = "rgba(183, 239, 91, 0.9)";
+        lineWidth = 1.8;
       }
 
-      if (proximity > 0) {
-        context.strokeStyle = "rgba(242, 184, 75, " + proximity * 0.45 + ")";
-        context.lineWidth = 1;
-        context.beginPath();
-        context.arc(position.x, position.y, node.radius + 18 + proximity * 10, 0, Math.PI * 2);
-        context.stroke();
+      drawPath(points, color, lineWidth, isActive || isPulsing, -pulseProgress * 42);
+
+      if ((isActive || isPulsing) && body.dataset.mode !== "hero") {
+        const dockPoints = routePoints(nodePosition, { x: width + 12, y: nodePosition.y });
+        drawPath(dockPoints, color, lineWidth, true, -pulseProgress * 42);
+        if (isPulsing) drawSignal(dockPoints, pulseProgress);
+      } else if (isPulsing || isPreviewed) {
+        drawSignal(points, isPulsing ? pulseProgress : 0.72);
       }
     });
-
-    for (let index = 0; index < networkNodes.length - 1; index += 1) {
-      const from = getPosition(networkNodes[index]);
-      const to = getPosition(networkNodes[index + 1]);
-
-      drawLine(from, to, "137, 155, 176", 1, 0.1);
-      if (index < activeNodeIndex) {
-        drawLine(from, to, "242, 184, 75", 1.15, 0.42 + activationStrength * 0.38, true);
-      }
-    }
-
-    if (activationStrength > 0) {
-      const activePosition = getPosition(networkNodes[activeNodeIndex]);
-      const waveRadius = 42 + (1 - activationStrength) * 130;
-
-      context.strokeStyle = "rgba(242, 184, 75, " + activationStrength * 0.48 + ")";
-      context.lineWidth = 1.5;
-      context.beginPath();
-      context.arc(activePosition.x, activePosition.y, waveRadius, 0, Math.PI * 2);
-      context.stroke();
-    }
-
-    particles = particles.filter((particle) => {
-      const progress = (time - particle.start) / particle.duration;
-      if (progress >= 1) return false;
-
-      context.fillStyle = "rgba(" + particle.color + ", " + (1 - progress) * 0.8 + ")";
-      context.beginPath();
-      context.arc(
-        particle.x + particle.vx * progress,
-        particle.y + particle.vy * progress + progress * progress * 14,
-        particle.size * (1 - progress * 0.35),
-        0,
-        Math.PI * 2
-      );
-      context.fill();
-      return true;
-    });
-
-    drawCore(time);
   }
 
-  function renderNetwork(time) {
-    drawNetwork(time);
-    if (isVisible && !reduceMotion.matches) {
-      animationFrame = window.requestAnimationFrame(renderNetwork);
+  function render(time) {
+    draw(time);
+    if (!reduceMotion.matches && time - pulseStartedAt < 720) {
+      animationFrame = window.requestAnimationFrame(render);
+    } else {
+      animationFrame = null;
     }
   }
 
-  function startRendering() {
-    if (!isVisible) return;
+  function startAnimation() {
     if (animationFrame !== null) window.cancelAnimationFrame(animationFrame);
-    animationFrame = window.requestAnimationFrame(renderNetwork);
+    if (reduceMotion.matches) {
+      draw(performance.now());
+      return;
+    }
+    animationFrame = window.requestAnimationFrame(render);
   }
 
-  function createParticles(nodeIndex) {
-    if (reduceMotion.matches) return;
+  const resizeObserver = new ResizeObserver(fit);
+  resizeObserver.observe(routePanel);
 
-    const origin = getPosition(networkNodes[nodeIndex]);
-    const count = window.innerWidth < 640 ? 16 : 28;
-
-    particles = Array.from({ length: count }, (_, index) => {
-      const angle = (Math.PI * 2 * index) / count + Math.random() * 0.28;
-      const speed = 28 + Math.random() * 76;
-
-      return {
-        x: origin.x,
-        y: origin.y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size: 1.4 + Math.random() * 2.2,
-        color: index % 3 === 0 ? "242, 184, 75" : "72, 214, 197",
-        start: performance.now(),
-        duration: 550 + Math.random() * 440
-      };
-    });
-  }
-
-  function triggerActivation(nodeIndex) {
-    activeNodeIndex = nodeIndex;
-    activationTime = performance.now();
-    createParticles(nodeIndex);
-    map.classList.remove("is-activating");
-    window.requestAnimationFrame(() => map.classList.add("is-activating"));
-    window.setTimeout(() => map.classList.remove("is-activating"), 560);
-    startRendering();
-  }
-
-  function activateNode(node, shouldAnimate = true) {
-    const activeStep = Number(node.dataset.step);
-    const nodeIndex = nodes.indexOf(node);
-
-    map.dataset.activeStep = node.dataset.step;
-    detailStep.textContent = node.dataset.step + " / 05";
-    detailTitle.textContent = node.dataset.title;
-    detailDescription.textContent = node.dataset.description;
-    detailLink.href = node.dataset.link;
-    detailLink.textContent = node.dataset.linkLabel;
-    detail.classList.remove("is-updating");
-    void detail.offsetWidth;
-    detail.classList.add("is-updating");
-
-    nodes.forEach((currentNode) => {
-      const isActive = currentNode === node;
-      const isVisited = Number(currentNode.dataset.step) < activeStep;
-
-      currentNode.classList.toggle("is-active", isActive);
-      currentNode.classList.toggle("is-visited", isVisited);
-      currentNode.setAttribute("aria-selected", String(isActive));
-      currentNode.tabIndex = isActive ? 0 : -1;
-    });
-
-    if (shouldAnimate) triggerActivation(nodeIndex);
-  }
-
-  nodes.forEach((node, index) => {
-    node.tabIndex = index === 0 ? 0 : -1;
-    node.addEventListener("click", () => activateNode(node));
-    node.addEventListener("keydown", (event) => {
-      const navigationKeys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"];
-
-      if (!navigationKeys.includes(event.key)) return;
-
-      event.preventDefault();
-      let nextIndex = index;
-
-      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-        nextIndex = (index + 1) % nodes.length;
-      }
-
-      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-        nextIndex = (index - 1 + nodes.length) % nodes.length;
-      }
-
-      if (event.key === "Home") nextIndex = 0;
-      if (event.key === "End") nextIndex = nodes.length - 1;
-
-      nodes[nextIndex].focus();
-      activateNode(nodes[nextIndex]);
-    });
-  });
-
-  function updatePointer(event) {
-    const bounds = map.getBoundingClientRect();
-    pointerPosition.x = event.clientX - bounds.left;
-    pointerPosition.y = event.clientY - bounds.top;
-  }
-
-  map.addEventListener("pointermove", updatePointer);
-  map.addEventListener("pointerleave", () => {
-    pointerPosition.x = null;
-    pointerPosition.y = null;
-  });
-  map.addEventListener("pointerdown", (event) => {
-    if (event.pointerType === "mouse" || event.target.closest(".thought-node")) return;
-
-    updatePointer(event);
-    const closestNode = networkNodes.reduce((closest, node, index) => {
-      const position = getPosition(node);
-      const distance = Math.hypot(position.x - pointerPosition.x, position.y - pointerPosition.y);
-      return distance < closest.distance ? { index, distance } : closest;
-    }, { index: 0, distance: Number.POSITIVE_INFINITY });
-
-    if (closestNode.distance < 74) activateNode(nodes[closestNode.index]);
-  });
-
-  const visibilityObserver = new IntersectionObserver(
-    (entries) => {
-      isVisible = entries[0].isIntersecting;
-      if (isVisible) startRendering();
-      if (!isVisible && animationFrame !== null) {
-        window.cancelAnimationFrame(animationFrame);
-        animationFrame = null;
-      }
+  return {
+    setActiveModule(moduleName, exploredSet) {
+      activeModule = moduleName;
+      explored = new Set(exploredSet);
+      previewModule = null;
+      pulseStartedAt = performance.now();
+      startAnimation();
     },
-    { threshold: 0.1 }
-  );
-
-  visibilityObserver.observe(map);
-  window.addEventListener("resize", () => {
-    fitCanvas();
-    startRendering();
-  });
-  reduceMotion.addEventListener("change", startRendering);
-
-  fitCanvas();
-  activateNode(nodes[0], false);
-  drawNetwork(performance.now());
+    setPreviewModule(moduleName) {
+      previewModule = moduleName;
+      routeNodes.forEach((node) => node.classList.toggle("is-previewed", node.dataset.module === moduleName));
+      pulseStartedAt = performance.now();
+      startAnimation();
+    },
+    pulseModule(moduleName) {
+      pulseModuleName = moduleName;
+      pulseStartedAt = performance.now();
+      startAnimation();
+    },
+    reset() {
+      activeModule = null;
+      previewModule = null;
+      pulseModuleName = null;
+      explored = new Set();
+      pulseStartedAt = performance.now();
+      startAnimation();
+    },
+    fit
+  };
 }
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.15 }
-);
 
-document.querySelectorAll(".reveal").forEach((element) => {
-  revealObserver.observe(element);
+function createExperienceWorkbench() {
+  const buttons = Array.from(document.querySelectorAll("[data-experience-step]"));
+  const source = document.querySelector("[data-experience-source]");
+  const title = document.querySelector("[data-experience-title]");
+  const application = document.querySelector("[data-experience-application]");
+
+  function select(stepName, focus = false) {
+    const step = EXPERIENCE_STEPS[stepName];
+    if (!step) return;
+
+    buttons.forEach((button) => {
+      const isSelected = button.dataset.experienceStep === stepName;
+      button.setAttribute("aria-selected", String(isSelected));
+      button.tabIndex = isSelected ? 0 : -1;
+      if (isSelected && focus) button.focus();
+    });
+
+    source.textContent = step.source;
+    title.textContent = step.title;
+    application.textContent = step.application;
+  }
+
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", () => select(button.dataset.experienceStep));
+    button.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight" && event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+      const nextIndex = (index + direction + buttons.length) % buttons.length;
+      select(buttons[nextIndex].dataset.experienceStep, true);
+    });
+  });
+
+  select("requirements");
+}
+
+function createSkillFilter() {
+  const buttons = Array.from(document.querySelectorAll("[data-skill-focus]"));
+  const cards = Array.from(document.querySelectorAll("[data-supports]"));
+  const summary = document.querySelector("[data-skill-summary]");
+
+  function select(focusName) {
+    buttons.forEach((button) => {
+      const isActive = button.dataset.skillFocus === focusName;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
+    });
+
+    cards.forEach((card) => {
+      const supportedTasks = card.dataset.supports.split(" ");
+      card.classList.toggle("is-supported", supportedTasks.includes(focusName));
+    });
+
+    summary.textContent = SKILL_FOCUS[focusName];
+  }
+
+  buttons.forEach((button) => button.addEventListener("click", () => select(button.dataset.skillFocus)));
+  select("develop");
+}
+
+function createProjectCarousel() {
+  const track = document.querySelector("[data-project-track]");
+  const previousButton = document.querySelector("[data-carousel-previous]");
+  const nextButton = document.querySelector("[data-carousel-next]");
+  const indicators = document.querySelector("[data-carousel-indicators]");
+  const status = document.querySelector("[data-carousel-status]");
+  let currentIndex = 2;
+  let scrollTimer = null;
+  let programmaticScroll = false;
+
+  track.innerHTML = PROJECTS.map((project, index) => `
+    <article class="project-card" data-project-id="${project.id}" aria-label="Project placeholder ${index + 1}: ${project.title}">
+      <div class="project-card-header">
+        <span>${project.status}</span>
+        <b>Project ${String(index + 1).padStart(2, "0")}</b>
+      </div>
+      <h3>${project.title}</h3>
+      <p>${project.description}</p>
+      <dl class="project-template">
+        <div><dt>Problem</dt><dd>To be documented</dd></div>
+        <div><dt>Build</dt><dd>To be documented</dd></div>
+        <div><dt>Result</dt><dd>To be documented</dd></div>
+      </dl>
+    </article>
+  `).join("");
+
+  indicators.innerHTML = PROJECTS.map((project, index) => `
+    <button type="button" data-project-index="${index}" aria-label="Show ${project.title}"></button>
+  `).join("");
+
+  const cards = Array.from(track.querySelectorAll("[data-project-id]"));
+  const indicatorButtons = Array.from(indicators.querySelectorAll("[data-project-index]"));
+
+  function updateActiveState(index, announce = true) {
+    currentIndex = Math.max(0, Math.min(PROJECTS.length - 1, index));
+    const project = PROJECTS[currentIndex];
+
+    cards.forEach((card, cardIndex) => card.setAttribute("aria-current", String(cardIndex === currentIndex)));
+    indicatorButtons.forEach((button, buttonIndex) => button.setAttribute("aria-current", String(buttonIndex === currentIndex)));
+    previousButton.disabled = currentIndex === 0;
+    nextButton.disabled = currentIndex === PROJECTS.length - 1;
+    status.textContent = `${currentIndex + 1} of ${PROJECTS.length} / ${project.status}`;
+
+    if (announce) routeRenderer?.pulseModule("projects");
+  }
+
+  function targetScrollLeft(index) {
+    const card = cards[index];
+    return card.offsetLeft - (track.clientWidth - card.clientWidth) / 2;
+  }
+
+  function goTo(index, options = {}) {
+    const {
+      behavior = reduceMotion.matches ? "auto" : "smooth",
+      updateUrl = true,
+      announce = true
+    } = options;
+    const safeIndex = Math.max(0, Math.min(PROJECTS.length - 1, index));
+
+    programmaticScroll = true;
+    track.scrollTo({ left: targetScrollLeft(safeIndex), behavior });
+    updateActiveState(safeIndex, announce);
+
+    if (updateUrl && currentModule === "projects") {
+      updateHistory(`#projects/${PROJECTS[safeIndex].id}`, "replace");
+    }
+
+    window.clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(() => { programmaticScroll = false; }, behavior === "smooth" ? 420 : 0);
+  }
+
+  function nearestIndex() {
+    const center = track.scrollLeft + track.clientWidth / 2;
+    return cards.reduce((closest, card, index) => {
+      const cardCenter = card.offsetLeft + card.clientWidth / 2;
+      const distance = Math.abs(center - cardCenter);
+      return distance < closest.distance ? { index, distance } : closest;
+    }, { index: 0, distance: Number.POSITIVE_INFINITY }).index;
+  }
+
+  track.addEventListener("scroll", () => {
+    window.clearTimeout(scrollTimer);
+    scrollTimer = window.setTimeout(() => {
+      if (programmaticScroll) return;
+      const index = nearestIndex();
+      updateActiveState(index, true);
+      if (currentModule === "projects") updateHistory(`#projects/${PROJECTS[index].id}`, "replace");
+    }, 120);
+  }, { passive: true });
+
+  track.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    goTo(currentIndex + (event.key === "ArrowRight" ? 1 : -1));
+  });
+
+  previousButton.addEventListener("click", () => goTo(currentIndex - 1));
+  nextButton.addEventListener("click", () => goTo(currentIndex + 1));
+  indicatorButtons.forEach((button, index) => button.addEventListener("click", () => goTo(index)));
+
+  const resizeObserver = new ResizeObserver(() => goTo(currentIndex, {
+    behavior: "auto",
+    updateUrl: false,
+    announce: false
+  }));
+  resizeObserver.observe(track);
+  updateActiveState(currentIndex, false);
+
+  return {
+    get currentId() {
+      return PROJECTS[currentIndex].id;
+    },
+    goToId(projectId, options = {}) {
+      const index = PROJECTS.findIndex((project) => project.id === projectId);
+      goTo(index >= 0 ? index : 2, options);
+    }
+  };
+}
+
+openButton.addEventListener("click", () => openPortfolio());
+homeButton.addEventListener("click", () => enterHero({ updateUrl: true }));
+closeButton.addEventListener("click", () => showOverview({ updateUrl: true }));
+
+skipLink.addEventListener("click", (event) => {
+  event.preventDefault();
+  if (body.dataset.mode === "hero") {
+    openPortfolio(null, { focusContent: true });
+  } else {
+    contentPanel.focus({ preventScroll: true });
+  }
 });
+
+routeNodes.forEach((node, index) => {
+  const moduleName = node.dataset.module;
+
+  node.addEventListener("click", () => activateModule(moduleName));
+  node.addEventListener("pointerenter", () => {
+    routeContext.textContent = MODULES[moduleName].preview;
+    routeRenderer?.setPreviewModule(moduleName);
+  });
+  node.addEventListener("pointerleave", () => {
+    routeContext.textContent = currentModule ? MODULES[currentModule].preview : "Explore the sections";
+    routeRenderer?.setPreviewModule(null);
+  });
+  node.addEventListener("focus", () => {
+    routeContext.textContent = MODULES[moduleName].preview;
+    routeRenderer?.setPreviewModule(moduleName);
+  });
+  node.addEventListener("blur", () => {
+    routeContext.textContent = currentModule ? MODULES[currentModule].preview : "Explore the sections";
+    routeRenderer?.setPreviewModule(null);
+  });
+  node.addEventListener("keydown", (event) => {
+    if (!["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    let nextIndex = index;
+    if (event.key === "ArrowDown" || event.key === "ArrowRight") nextIndex = (index + 1) % routeNodes.length;
+    if (event.key === "ArrowUp" || event.key === "ArrowLeft") nextIndex = (index - 1 + routeNodes.length) % routeNodes.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = routeNodes.length - 1;
+    routeNodes[nextIndex].focus();
+  });
+});
+
+document.querySelector("[data-overview-action]").addEventListener("click", (event) => {
+  activateModule(event.currentTarget.dataset.overviewAction, { focusContent: true });
+});
+
+window.addEventListener("popstate", () => applyLocationState({ animate: true }));
+reduceMotion.addEventListener("change", () => routeRenderer?.fit());
 
 document.querySelector("#year").textContent = new Date().getFullYear();
-
-initializeThoughtNetwork();
-
-window.addEventListener("resize", fitCanvas);
-window.addEventListener("pointermove", (event) => {
-  pointer.x = event.clientX;
-  pointer.y = event.clientY;
-});
-window.addEventListener("pointerleave", () => {
-  pointer.x = null;
-  pointer.y = null;
-});
-reduceMotion.addEventListener("change", startBackground);
-
-startBackground();
+configureSocialLinks();
+routeRenderer = createRouteRenderer();
+createExperienceWorkbench();
+createSkillFilter();
+projectCarousel = createProjectCarousel();
+applyLocationState({ animate: false });
