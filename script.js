@@ -19,6 +19,7 @@ const presetStatus = document.querySelector("[data-preset-status]");
 const presetName = document.querySelector("[data-preset-name]");
 const presetProgress = document.querySelector("[data-preset-progress]");
 const presetPosition = document.querySelector("[data-preset-position]");
+const reviewedSummary = document.querySelector("[data-reviewed-summary]");
 
 function loadReviewedModules() {
   try {
@@ -187,6 +188,7 @@ let activePreset = "explore";
 let audioEnabled = false;
 let audioContext;
 let toastTimer;
+const activeServiceAudio = new Set();
 
 function wait(duration) {
   return new Promise((resolve) => window.setTimeout(resolve, duration));
@@ -205,6 +207,8 @@ function updateReviewedModules() {
   });
   const reviewedInPreset = PRESETS[activePreset].filter((moduleName) => reviewedModules.has(moduleName)).length;
   presetStatus.dataset.reviewed = `${reviewedInPreset}/${PRESETS[activePreset].length}`;
+  reviewedSummary.textContent = `${reviewedInPreset} / ${PRESETS[activePreset].length} reviewed`;
+  presetStatus.classList.toggle("is-complete", reviewedInPreset === PRESETS[activePreset].length);
 }
 
 function markModuleReviewed(moduleName, message) {
@@ -212,7 +216,14 @@ function markModuleReviewed(moduleName, message) {
   reviewedModules.add(moduleName);
   window.localStorage.setItem("wiltobuild-reviewed-modules", JSON.stringify([...reviewedModules]));
   updateReviewedModules();
-  if (message) showControlToast(message);
+  const sequenceComplete = PRESETS[activePreset].every((name) => reviewedModules.has(name));
+  if (sequenceComplete) {
+    const label = { explore: "Full portfolio", hiring: "Hiring manager", technical: "Technical" }[activePreset];
+    showControlToast(`${label} review complete`);
+    systemStatus.textContent = `${label} route verified`;
+  } else if (message) {
+    showControlToast(message);
+  }
 }
 
 function playPanelTone(frequency = 520, duration = 0.045) {
@@ -228,6 +239,42 @@ function playPanelTone(frequency = 520, duration = 0.045) {
   gain.connect(audioContext.destination);
   oscillator.start();
   oscillator.stop(audioContext.currentTime + duration);
+}
+
+function playToneSequence(notes, options = {}) {
+  if (!audioEnabled) return;
+  const { type = "sine", volume = 0.018, service = false } = options;
+  audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+  const startedAt = audioContext.currentTime;
+
+  notes.forEach(([frequency, offset, duration]) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const begins = startedAt + offset;
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, begins);
+    gain.gain.setValueAtTime(volume, begins);
+    gain.gain.exponentialRampToValueAtTime(0.0001, begins + duration);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(begins);
+    oscillator.stop(begins + duration);
+    if (service) {
+      activeServiceAudio.add(oscillator);
+      oscillator.addEventListener("ended", () => activeServiceAudio.delete(oscillator), { once: true });
+    }
+  });
+}
+
+function stopServiceAudio() {
+  activeServiceAudio.forEach((oscillator) => {
+    try {
+      oscillator.stop();
+    } catch {
+      // The oscillator may already have ended.
+    }
+  });
+  activeServiceAudio.clear();
 }
 
 function getNextModule(moduleName) {
@@ -292,7 +339,8 @@ function updateInterface(moduleName) {
   controller.dataset.module = moduleName;
   const sequence = PRESETS[activePreset];
   const sequenceIndex = Math.max(0, sequence.indexOf(moduleName));
-  const label = activePreset === "hiring" ? "Hiring manager" : activePreset[0].toUpperCase() + activePreset.slice(1);
+  const presetLabels = { explore: "Full portfolio", hiring: "Hiring manager", technical: "Technical" };
+  const label = presetLabels[activePreset];
   presetName.textContent = label;
   presetPosition.textContent = `${String(sequenceIndex + 1).padStart(2, "0")} / ${String(sequence.length).padStart(2, "0")}`;
   presetProgress.style.width = `${((sequenceIndex + 1) / sequence.length) * 100}%`;
@@ -422,6 +470,7 @@ function createTransferConsole() {
   const output = document.querySelector(".transfer-output");
   const signal = document.querySelector("[data-transfer-signal]");
   const completion = document.querySelector("[data-transfer-complete]");
+  const instruction = document.querySelector("[data-transfer-instruction]");
   const revealItems = Array.from(document.querySelectorAll("[data-home-reveal]"));
 
   function select(stepName, focus = false) {
@@ -434,6 +483,7 @@ function createTransferConsole() {
       button.setAttribute("aria-selected", String(isSelected));
       button.tabIndex = isSelected ? 0 : -1;
       button.classList.toggle("is-upstream", index < activeIndex);
+      button.classList.toggle("is-next", index === activeIndex + 1);
       if (isSelected && focus) button.focus();
     });
 
@@ -453,6 +503,8 @@ function createTransferConsole() {
     completion.hidden = !isComplete;
     completion.classList.toggle("is-visible", isComplete);
     document.querySelector(".transfer-console").classList.toggle("is-complete", isComplete);
+    instruction.textContent = isComplete ? "Route verified. Continue into the full systems path." : "Select each stage to trace how the experience transfers.";
+    instruction.classList.toggle("is-complete", isComplete);
     if (isComplete) markModuleReviewed("home", "Home system route verified");
     playPanelTone(500 + (activeIndex * 45));
   }
@@ -551,6 +603,7 @@ function createUtilityControls() {
   const panels = Array.from(document.querySelectorAll("[data-utility-panel]"));
   const sceneButtons = Array.from(document.querySelectorAll("[data-scene]"));
   const presetButtons = Array.from(document.querySelectorAll("[data-preset]"));
+  const auxiliaryButton = document.querySelector('[data-utility="auxiliary"]');
   let openPanel = "";
 
   function closeDrawer() {
@@ -604,7 +657,7 @@ function createUtilityControls() {
     });
     updateInterface(activeModule);
     if (announce) {
-      const presetLabel = activePreset === "hiring" ? "Hiring manager" : activePreset[0].toUpperCase() + activePreset.slice(1);
+      const presetLabel = { explore: "Full portfolio", hiring: "Hiring manager", technical: "Technical" }[activePreset];
       showControlToast(`${presetLabel} sequence recalled`);
       playPanelTone(720);
     }
@@ -622,6 +675,10 @@ function createUtilityControls() {
         playPanelTone(760, 0.07);
         return;
       }
+      if (controlName === "auxiliary") {
+        auxiliaryButton.classList.remove("is-discovery");
+        window.localStorage.setItem("wiltobuild-service-discovered", "true");
+      }
       openDrawer(controlName);
     });
   });
@@ -636,6 +693,7 @@ function createUtilityControls() {
 
   applyScene(window.localStorage.getItem("wiltobuild-scene") || "work", false);
   applyPreset(window.localStorage.getItem("wiltobuild-preset") || "explore", false);
+  auxiliaryButton.classList.toggle("is-discovery", window.localStorage.getItem("wiltobuild-service-discovered") !== "true");
 }
 
 function createCredentialTerminal() {
@@ -701,11 +759,17 @@ function createServiceMode() {
   ].filter(Boolean);
   let activeApp = "routing";
   let serviceLoaderTimer;
+  let serviceReturnFocus = null;
+  let serviceReturnScroll = 0;
 
   function selectApp(appName) {
-    if (activeApp === "snake" && appName !== "snake" && snakeRunning) {
-      stopSnake();
-      setSnakeState("paused");
+    if (activeApp === "snake" && appName !== "snake") {
+      if (snakeStarting) cancelSnakeCountdown();
+      if (snakeRunning) {
+        stopSnake();
+        setSnakeState("paused");
+      }
+      stopServiceAudio();
     }
     activeApp = appName;
     appButtons.forEach((button) => button.classList.toggle("is-active", button.dataset.serviceApp === appName));
@@ -715,6 +779,9 @@ function createServiceMode() {
   }
 
   function openService(appName) {
+    controlToast.classList.remove("is-visible");
+    serviceReturnFocus = document.activeElement;
+    serviceReturnScroll = document.querySelector(".screen-view.is-active")?.scrollTop || 0;
     utilityDrawer.hidden = true;
     document.querySelectorAll("[data-utility]").forEach((button) => {
       if (button.dataset.utility !== "audio") {
@@ -740,6 +807,8 @@ function createServiceMode() {
 
   function closeService() {
     window.clearTimeout(serviceLoaderTimer);
+    cancelSnakeCountdown();
+    stopServiceAudio();
     if (snakeRunning) {
       stopSnake();
       setSnakeState("paused");
@@ -750,7 +819,13 @@ function createServiceMode() {
     footerNextButton.inert = false;
     navigationSurfaces.forEach((surface) => { surface.inert = false; });
     controller.classList.remove("is-servicing");
-    document.querySelector('[data-utility="auxiliary"]').focus();
+    const activeView = document.querySelector(".screen-view.is-active");
+    if (activeView) activeView.scrollTop = serviceReturnScroll;
+    const returnTarget = serviceReturnFocus instanceof HTMLElement && serviceReturnFocus.offsetParent !== null
+      ? serviceReturnFocus
+      : document.querySelector('[data-utility="auxiliary"]');
+    returnTarget.focus();
+    showControlToast("Service application closed");
   }
 
   launchButtons.forEach((button) => button.addEventListener("click", () => openService(button.dataset.serviceLaunch)));
@@ -774,12 +849,21 @@ function createServiceMode() {
     return routingRotations.every((rotation, index) => rotation % 4 === routingTargets[index]);
   }
 
+  function getConnectedModuleCount() {
+    let connected = 0;
+    while (connected < routingRotations.length && routingRotations[connected] % 4 === routingTargets[connected]) {
+      connected += 1;
+    }
+    return connected;
+  }
+
   function renderRoute() {
     routingEnergyTimers.forEach((timer) => window.clearTimeout(timer));
     routingEnergyTimers = [];
     const solved = isRouteSolved();
+    const connectedCount = getConnectedModuleCount();
     routingBoard.innerHTML = routingModules.map((moduleName, index) => `
-      <button type="button" class="routing-tile" data-routing-tile="${index}" data-rotation="${routingRotations[index]}" aria-label="Rotate ${moduleName} module">
+      <button type="button" class="routing-tile ${routingRotations[index] === routingTargets[index] ? "is-aligned" : "is-misaligned"} ${index < connectedCount ? "is-connected" : ""}" data-routing-tile="${index}" data-rotation="${routingRotations[index]}" aria-label="Rotate ${moduleName} module">
         <span>${String(index + 1).padStart(2, "0")}</span>
         <div class="routing-hardware" aria-hidden="true">
           <i class="routing-port routing-port-in"></i>
@@ -787,13 +871,15 @@ function createServiceMode() {
           <i class="routing-port routing-port-out"></i>
         </div>
         <strong>${moduleName}</strong>
-        <small>${solved ? "Signal verified" : "Rotate module"}</small>
+        <small>${index < connectedCount ? "Signal active" : routingRotations[index] === routingTargets[index] ? "Aligned / waiting" : "Input misaligned"}</small>
       </button>
     `).join("");
     routingMoves.textContent = String(moves).padStart(2, "0");
-    routingStatus.textContent = solved ? "System verified / route complete" : "Route incomplete";
+    routingStatus.textContent = solved ? "System verified / route complete" : `${connectedCount} of ${routingModules.length} modules carrying signal`;
     routingStatus.classList.toggle("is-complete", solved);
     routingBoard.classList.toggle("is-complete", solved);
+    routingBoard.classList.toggle("has-interacted", moves > 0);
+    routingBoard.style.setProperty("--route-progress", `${(connectedCount / routingModules.length) * 90}%`);
     if (solved) {
       routingBoard.querySelectorAll("[data-routing-tile]").forEach((button, index) => {
         const energize = () => button.classList.add("is-energized");
@@ -814,7 +900,7 @@ function createServiceMode() {
           showControlToast("Signal route verified");
           playPanelTone(880, 0.12);
         } else {
-          playPanelTone(430 + (index * 35));
+          playPanelTone(index < getConnectedModuleCount() ? 610 : 430 + (index * 35));
         }
       });
     });
@@ -838,6 +924,7 @@ function createServiceMode() {
   const snakeCommand = document.querySelector("[data-snake-command]");
   const snakeCommandHint = document.querySelector("[data-snake-command-hint]");
   const snakeFlash = document.querySelector("[data-snake-flash]");
+  const snakeCountdown = document.querySelector("[data-snake-countdown]");
   const snakeConsole = document.querySelector(".snake-console");
   const directionButtons = Array.from(document.querySelectorAll("[data-snake-direction]"));
   const gridSize = 18;
@@ -848,13 +935,17 @@ function createServiceMode() {
   let pendingDirection = direction;
   let snakeTimer;
   let snakeRunning = false;
+  let snakeStarting = false;
   let snakeScore = 0;
   let foodPulse = 0;
+  let countdownRun = 0;
+  let lastDirectionSoundAt = 0;
   let highScore = Number(window.localStorage.getItem("wiltobuild-snake-high") || 0);
 
   function setSnakeState(state) {
     const states = {
       ready: ["Ready", "Start game", "Space bar"],
+      countdown: ["Starting", "Stand by", "3 / 2 / 1"],
       running: ["Running", "Pause game", "Space bar"],
       paused: ["Paused", "Resume game", "Continue"],
       halted: ["Game over", "Restart game", "New round"]
@@ -867,6 +958,33 @@ function createServiceMode() {
     snakeConsole.dataset.state = state;
   }
 
+  function playSnakeSound(soundName) {
+    const sounds = {
+      start: [[440, 0, 0.055], [610, 0.07, 0.07]],
+      direction: [[320, 0, 0.022]],
+      collect: [[720, 0, 0.045], [940, 0.045, 0.075]],
+      pause: [[540, 0, 0.05], [390, 0.06, 0.07]],
+      resume: [[420, 0, 0.05], [590, 0.055, 0.07]],
+      fault: [[210, 0, 0.11], [150, 0.08, 0.15]],
+      high: [[620, 0, 0.055], [780, 0.06, 0.055], [980, 0.12, 0.11]],
+      count: [[500, 0, 0.035]],
+      go: [[760, 0, 0.075]]
+    };
+    playToneSequence(sounds[soundName], {
+      type: soundName === "direction" ? "square" : "sine",
+      volume: soundName === "direction" ? 0.005 : 0.016,
+      service: true
+    });
+  }
+
+  function cancelSnakeCountdown() {
+    countdownRun += 1;
+    snakeStarting = false;
+    snakeCountdown.hidden = true;
+    snakeToggle.disabled = false;
+    if (snakeConsole.dataset.state === "countdown") setSnakeState("ready");
+  }
+
   function placeFood() {
     do {
       food = { x: Math.floor(Math.random() * gridSize), y: Math.floor(Math.random() * gridSize) };
@@ -875,6 +993,7 @@ function createServiceMode() {
 
   function resetSnake() {
     stopSnake();
+    cancelSnakeCountdown();
     snake = [{ x: 8, y: 9 }, { x: 7, y: 9 }, { x: 6, y: 9 }];
     direction = { x: 1, y: 0 };
     pendingDirection = direction;
@@ -882,7 +1001,7 @@ function createServiceMode() {
     scoreOutput.textContent = "00";
     highOutput.textContent = String(highScore).padStart(2, "0");
     highInlineOutput.textContent = String(highScore).padStart(2, "0");
-    snakeConsole.classList.remove("is-scoring", "is-faulted");
+    snakeConsole.classList.remove("is-scoring", "is-faulted", "is-high-score");
     setSnakeState("ready");
     placeFood();
     drawSnake();
@@ -969,13 +1088,15 @@ function createServiceMode() {
     stopSnake();
     setSnakeState("halted");
     snakeConsole.classList.add("is-faulted");
-    if (snakeScore > highScore) {
+    const isNewHighScore = snakeScore > highScore;
+    if (isNewHighScore) {
+      snakeConsole.classList.add("is-high-score");
       highScore = snakeScore;
       window.localStorage.setItem("wiltobuild-snake-high", String(highScore));
       highOutput.textContent = String(highScore).padStart(2, "0");
       highInlineOutput.textContent = String(highScore).padStart(2, "0");
     }
-    playPanelTone(240, 0.15);
+    playSnakeSound(isNewHighScore ? "high" : "fault");
   }
 
   function tickSnake() {
@@ -999,31 +1120,77 @@ function createServiceMode() {
       snakeFlash.classList.add("is-active");
       window.setTimeout(() => snakeFlash.classList.remove("is-active"), 260);
       showControlToast("Snake target collected");
-      playPanelTone(690);
+      playSnakeSound("collect");
     } else {
       snake.pop();
     }
     drawSnake();
   }
 
-  function startSnake() {
-    if (snakeToggle.dataset.state === "halted") resetSnake();
-    if (snakeRunning) {
-      stopSnake();
-      setSnakeState("paused");
-      return;
-    }
+  function runSnake() {
     snakeRunning = true;
+    snakeStarting = false;
     snakeConsole.classList.remove("is-faulted");
     setSnakeState("running");
     snakeTimer = window.setInterval(tickSnake, 125);
+  }
+
+  async function beginSnakeCountdown() {
+    const run = ++countdownRun;
+    snakeStarting = true;
+    snakeToggle.disabled = true;
+    setSnakeState("countdown");
+    playSnakeSound("start");
+    snakeCountdown.hidden = false;
+
+    for (const value of ["3", "2", "1"]) {
+      if (run !== countdownRun || serviceMode.hidden || activeApp !== "snake") return;
+      snakeCountdown.textContent = value;
+      snakeCountdown.classList.remove("is-counting");
+      void snakeCountdown.offsetWidth;
+      snakeCountdown.classList.add("is-counting");
+      playSnakeSound("count");
+      await wait(reduceMotion.matches ? 90 : 520);
+    }
+
+    if (run !== countdownRun || serviceMode.hidden || activeApp !== "snake") return;
+    snakeCountdown.textContent = "GO";
+    playSnakeSound("go");
+    await wait(reduceMotion.matches ? 80 : 260);
+    if (run !== countdownRun) return;
+    snakeCountdown.hidden = true;
+    snakeToggle.disabled = false;
+    runSnake();
+  }
+
+  function startSnake() {
+    if (snakeStarting) return;
+    if (snakeRunning) {
+      stopSnake();
+      setSnakeState("paused");
+      playSnakeSound("pause");
+      return;
+    }
+    if (snakeToggle.dataset.state === "paused") {
+      runSnake();
+      playSnakeSound("resume");
+      return;
+    }
+    if (snakeToggle.dataset.state === "halted") resetSnake();
+    beginSnakeCountdown();
   }
 
   function setSnakeDirection(name) {
     const directions = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
     const next = directions[name];
     if (!next || (next.x === -direction.x && next.y === -direction.y)) return;
+    if (next.x === pendingDirection.x && next.y === pendingDirection.y) return;
     pendingDirection = next;
+    const now = performance.now();
+    if (snakeRunning && now - lastDirectionSoundAt > 80) {
+      playSnakeSound("direction");
+      lastDirectionSoundAt = now;
+    }
   }
 
   snakeToggle.addEventListener("click", startSnake);

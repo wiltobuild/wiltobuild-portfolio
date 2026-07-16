@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://wiltobuild.github.io/wiltobuild-portfolio/" />
     <link rel="icon" href="./assets/wil-sheppard-headshot.png" type="image/png" />
     <title>Wil Sheppard | WilToBuild</title>
-    <link rel="stylesheet" href="./styles.css?v=20260716-controller7" />
+    <link rel="stylesheet" href="./styles.css?v=20260716-controller8" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -70,9 +70,10 @@
         <div class="display-header">
           <p><span data-view-kicker>System overview</span><b data-view-title>Home</b></p>
           <button class="preset-status" type="button" data-preset-status aria-label="Open portfolio preset controls">
-            <span data-preset-name>Explore</span>
+            <span data-preset-name>Full portfolio</span>
             <i><b data-preset-progress></b></i>
             <small data-preset-position>01 / 06</small>
+            <em data-reviewed-summary>0 / 6 reviewed</em>
           </button>
           <div class="utility-strip" aria-label="Panel controls">
             <button type="button" data-utility="lighting" aria-expanded="false" aria-controls="lighting-panel" title="Lighting scenes">
@@ -87,7 +88,7 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h7M15 18h5M14 4v4M6 10v4M11 16v4" /></svg>
               <span>Presets</span>
             </button>
-            <button type="button" data-utility="auxiliary" aria-expanded="false" aria-controls="auxiliary-panel" title="Auxiliary program">
+            <button type="button" data-utility="auxiliary" aria-expanded="false" aria-controls="auxiliary-panel" title="2 service applications">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h4M8 9v4M15.5 12h.01M18 10h.01M6.5 5h11A4.5 4.5 0 0 1 22 9.5v5a4.5 4.5 0 0 1-7.7 3.2L12 15.5l-2.3 2.2A4.5 4.5 0 0 1 2 14.5v-5A4.5 4.5 0 0 1 6.5 5Z" /></svg>
               <span>Auxiliary</span>
             </button>
@@ -109,9 +110,9 @@
             <p>Exploration presets</p>
             <span class="utility-note">Choose which portfolio screens appear in the Continue sequence. Direct navigation remains available.</span>
             <div class="preset-options" role="group" aria-label="Choose a portfolio sequence">
-              <button type="button" class="is-active" data-preset="explore" aria-pressed="true"><strong>Explore</strong><small>Full portfolio sequence</small></button>
-              <button type="button" data-preset="hiring" aria-pressed="false"><strong>Hiring manager</strong><small>Background, skills, and contact</small></button>
-              <button type="button" data-preset="technical" aria-pressed="false"><strong>Technical</strong><small>Experience, tools, and training</small></button>
+              <button type="button" class="is-active" data-preset="explore" aria-pressed="true"><strong>Full portfolio</strong><small>Complete six-screen review</small><i>Home / Experience / Skills / Projects / Credentials / Contact</i></button>
+              <button type="button" data-preset="hiring" aria-pressed="false"><strong>Hiring manager</strong><small>Fast background and fit review</small><i>Home / Experience / Skills / Contact</i></button>
+              <button type="button" data-preset="technical" aria-pressed="false"><strong>Technical</strong><small>Systems, tools, and training</small><i>Experience / Skills / Credentials / Contact</i></button>
             </div>
           </section>
           <section id="auxiliary-panel" data-utility-panel="auxiliary" hidden>
@@ -136,6 +137,11 @@
                 <p class="eyebrow">AI development / AV systems background</p>
                 <h1 id="home-title" tabindex="-1">Wil<br />Sheppard</h1>
                 <p class="home-lede">I am moving into AI development after a career designing, programming, and supporting Crestron automation systems.</p>
+                <div class="home-facts" aria-label="Professional summary">
+                  <span><b>Professional background</b>AV systems integration</span>
+                  <span><b>Current direction</b>AI and software development</span>
+                  <span><b>Building with</b>Claude Code and Codex</span>
+                </div>
                 <div class="home-supporting">
                   <p data-home-reveal="2">My background in AV integration taught me how to connect complex parts, diagnose behavior under real constraints, and explain technical work clearly to the people who rely on it.</p>
                   <p data-home-reveal="4">I now apply that experience while building with Claude Code and Codex, with an emphasis on clear requirements, careful testing, and useful software.</p>
@@ -145,7 +151,7 @@
               </div>
               <figure class="identity-feed">
                 <img src="./assets/wil-sheppard-headshot.png" alt="Headshot of Wil Sheppard" />
-                <figcaption><span>Profile</span><strong>Wil Sheppard</strong><small>AI development + systems integration</small></figcaption>
+                <figcaption><span>Profile</span><strong>Wil Sheppard</strong><small>AV systems / AI development / Claude Code + Codex</small></figcaption>
               </figure>
             </div>
 
@@ -153,6 +159,7 @@
               <div class="availability-card"><span>Current focus</span><strong>AI development and software engineering</strong><i>Seeking an entry-level AI or software role</i></div>
               <div class="transfer-console" data-transfer-console>
                 <div class="transfer-console-heading"><span>From AV systems to software</span><b data-transfer-count>01 / 05</b></div>
+                <p class="transfer-instruction" data-transfer-instruction>Select each stage to trace how the experience transfers.</p>
                 <div class="transfer-signal" aria-hidden="true"><span>Systems</span><i><b data-transfer-signal></b></i><span>Software</span></div>
                 <div class="transfer-path" role="tablist" aria-label="Select a stage in Wil's working process">
                   <button id="transfer-tab-understand" type="button" role="tab" aria-selected="true" aria-controls="transfer-panel" tabindex="0" data-transfer-step="understand"><span>01</span><strong>Understand</strong></button>
@@ -287,8 +294,9 @@
               <div><small>Moves</small><strong data-routing-moves>00</strong></div>
             </div>
             <div class="routing-board" data-routing-board aria-label="Signal routing puzzle"></div>
+            <div class="routing-endpoints" aria-hidden="true"><span>Source signal</span><i></i><span>Verified room</span></div>
             <div class="service-actions">
-              <p data-routing-status>Route incomplete</p>
+              <p data-routing-status>0 of 5 modules carrying signal</p>
               <button type="button" data-routing-reset>New route</button>
             </div>
           </div>
@@ -304,6 +312,7 @@
                   <canvas width="360" height="360" data-snake-canvas aria-label="Snake game board"></canvas>
                   <div class="snake-scanline" aria-hidden="true"></div>
                   <div class="snake-flash" data-snake-flash aria-hidden="true"></div>
+                  <div class="snake-countdown" data-snake-countdown hidden aria-live="assertive"></div>
                 </div>
                 <div class="snake-readout">
                   <span>Score <b data-snake-score>00</b></span>
@@ -348,6 +357,6 @@
     </main>
 
     <div class="control-toast" data-control-toast role="status" aria-live="polite"></div>
-    <script src="./script.js?v=20260716-controller7"></script>
+    <script src="./script.js?v=20260716-controller8"></script>
   </body>
 </html>
