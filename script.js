@@ -12,17 +12,17 @@ const clock = document.querySelector("[data-clock]");
 
 const SOCIAL_URLS = {
   github: "https://github.com/wiltobuild",
-  linkedin: "https://www.linkedin.com/",
-  x: "https://x.com/"
+  linkedin: "https://www.linkedin.com/in/william-sheppard-230a82132/",
+  x: "https://x.com/WillBeBuilding"
 };
 
 const MODULES = {
   home: { number: "00", label: "Home", kicker: "System overview" },
   experience: { number: "01", label: "Experience", kicker: "Systems practice" },
   skills: { number: "02", label: "Skills", kicker: "Applied tools" },
-  projects: { number: "03", label: "Projects", kicker: "Project bays" },
+  projects: { number: "03", label: "Projects", kicker: "Future case studies" },
   credentials: { number: "04", label: "Credentials", kicker: "Training record" },
-  contact: { number: "05", label: "Contact", kicker: "Open channels" }
+  contact: { number: "05", label: "Contact", kicker: "Profiles and contact" }
 };
 
 const MODULE_ORDER = Object.keys(MODULES);
@@ -30,19 +30,46 @@ const MODULE_ORDER = Object.keys(MODULES);
 const EXPERIENCE_STEPS = {
   requirements: {
     title: "Clarify what the client needs the system to do.",
-    application: "Define the user, task, constraints, and expected behavior before choosing tools."
+    application: "Define the user, task, constraints, and expected behavior before choosing tools.",
+    state: "Requirement confirmed"
   },
   systems: {
     title: "Connect devices, interfaces, networks, and control logic.",
-    application: "Map inputs, dependencies, state changes, outputs, and failure cases before implementation."
+    application: "Map inputs, dependencies, state changes, outputs, and failure cases before implementation.",
+    state: "Dependencies mapped"
   },
   troubleshooting: {
     title: "Trace faults through a working system under real constraints.",
-    application: "Reproduce the problem, isolate variables, test assumptions, and verify the correction."
+    application: "Reproduce the problem, isolate variables, test assumptions, and verify the correction.",
+    state: "Behavior verified"
   },
   handoff: {
     title: "Explain behavior to clients, technicians, and support teams.",
-    application: "Document decisions clearly so the software can be understood, used, and maintained."
+    application: "Document decisions clearly so the software can be understood, used, and maintained.",
+    state: "System ready"
+  }
+};
+
+const TRANSFER_STEPS = {
+  understand: {
+    av: "Clarify the real need, room conditions, and operating constraints.",
+    software: "Define the user, task, expected behavior, and limits before choosing tools."
+  },
+  map: {
+    av: "Trace sources, destinations, control paths, networks, and dependencies.",
+    software: "Map inputs, state, logic, outputs, dependencies, and failure cases."
+  },
+  build: {
+    av: "Program control behavior and connect devices into one usable system.",
+    software: "Use Claude Code and Codex to move from a reviewed plan to a working version."
+  },
+  test: {
+    av: "Verify operation in the actual room and isolate faults when behavior differs.",
+    software: "Check expected behavior, edge cases, responsive layouts, and user flow."
+  },
+  explain: {
+    av: "Hand off the system clearly to clients, technicians, and support teams.",
+    software: "Document decisions and behavior so the result can be understood and maintained."
   }
 };
 
@@ -57,25 +84,29 @@ const PROJECTS = [
     id: "slot-1",
     status: "Reserved",
     title: "AI workflow application",
-    description: "Space for a practical application that uses an AI model to support a defined user task."
+    description: "Space for a practical application that uses an AI model to support a defined user task.",
+    evidence: ["User need and limits", "Workflow and model decisions", "Observed task result"]
   },
   {
     id: "slot-2",
     status: "Reserved",
     title: "Interface case study",
-    description: "Space for an interface project documented from requirements through responsive implementation."
+    description: "Space for an interface project documented from requirements through responsive implementation.",
+    evidence: ["Interface requirement", "Responsive implementation", "Usability checks"]
   },
   {
     id: "slot-3",
     status: "Next to publish",
     title: "Primary project",
-    description: "The first complete case study will document the problem, decisions, implementation, testing, and result."
+    description: "The first complete case study will document the problem, decisions, implementation, testing, and result.",
+    evidence: ["Problem and constraints", "Implementation decisions", "Testing and result"]
   },
   {
     id: "slot-4",
     status: "Reserved",
     title: "Systems utility",
-    description: "Space for a small software tool informed by automation, diagnostics, or support work."
+    description: "Space for a small software tool informed by automation, diagnostics, or support work.",
+    evidence: ["Operational problem", "Diagnostic logic", "Verified improvement"]
   }
 ];
 
@@ -145,7 +176,7 @@ async function activateModule(moduleName, options = {}) {
 
   const runId = ++transitionRun;
   const module = MODULES[moduleName];
-  systemStatus.textContent = `Routing to ${module.label}`;
+  systemStatus.textContent = `Opening ${module.label}`;
   controller.classList.toggle("is-switching", animate && !reduceMotion.matches);
 
   if (animate && !reduceMotion.matches) await wait(190);
@@ -186,6 +217,14 @@ function createBootSequence() {
   let animationFrame = 0;
 
   controller.inert = true;
+  controller.classList.add("is-booting");
+
+  function revealController() {
+    bootScreen.hidden = true;
+    controller.inert = false;
+    controller.classList.remove("is-booting");
+    controller.classList.add("is-online");
+  }
 
   function complete() {
     if (completed) return;
@@ -198,20 +237,18 @@ function createBootSequence() {
     window.setTimeout(() => {
       bootScreen.classList.add("is-complete");
       bootScreen.setAttribute("aria-hidden", "true");
-      controller.inert = false;
-      controller.classList.add("is-online");
-    }, reduceMotion.matches ? 0 : 220);
+      window.setTimeout(revealController, reduceMotion.matches ? 0 : 340);
+    }, reduceMotion.matches ? 0 : 140);
   }
 
   if (reduceMotion.matches || (hasBooted && !forceBoot)) {
     bootScreen.classList.add("is-complete");
     bootScreen.setAttribute("aria-hidden", "true");
-    controller.inert = false;
-    controller.classList.add("is-online");
+    revealController();
     return;
   }
 
-  const duration = 1850;
+  const duration = 1550;
   const startedAt = performance.now();
   const statuses = [
     [0, "Initializing portfolio system"],
@@ -237,22 +274,72 @@ function createBootSequence() {
   animationFrame = window.requestAnimationFrame(render);
 }
 
+function createTransferConsole() {
+  const buttons = Array.from(document.querySelectorAll("[data-transfer-step]"));
+  const avOutput = document.querySelector("[data-transfer-av]");
+  const softwareOutput = document.querySelector("[data-transfer-software]");
+  const count = document.querySelector("[data-transfer-count]");
+  const output = document.querySelector(".transfer-output");
+
+  function select(stepName, focus = false) {
+    const step = TRANSFER_STEPS[stepName];
+    const activeIndex = buttons.findIndex((button) => button.dataset.transferStep === stepName);
+    if (!step || activeIndex < 0) return;
+
+    buttons.forEach((button, index) => {
+      const isSelected = index === activeIndex;
+      button.setAttribute("aria-selected", String(isSelected));
+      button.tabIndex = isSelected ? 0 : -1;
+      button.classList.toggle("is-complete", index < activeIndex);
+      if (isSelected && focus) button.focus();
+    });
+
+    avOutput.textContent = step.av;
+    softwareOutput.textContent = step.software;
+    count.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(buttons.length).padStart(2, "0")}`;
+    output.classList.remove("is-updating");
+    void output.offsetWidth;
+    if (!reduceMotion.matches) output.classList.add("is-updating");
+  }
+
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", () => select(button.dataset.transferStep));
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+      const nextIndex = (index + direction + buttons.length) % buttons.length;
+      select(buttons[nextIndex].dataset.transferStep, true);
+    });
+  });
+}
+
 function createExperienceWorkbench() {
   const buttons = Array.from(document.querySelectorAll("[data-experience-step]"));
   const title = document.querySelector("[data-experience-title]");
   const application = document.querySelector("[data-experience-application]");
+  const counter = document.querySelector("[data-experience-counter]");
+  const state = document.querySelector("[data-experience-state]");
+  const detail = document.querySelector(".signal-detail");
 
   function select(stepName, focus = false) {
     const step = EXPERIENCE_STEPS[stepName];
     if (!step) return;
-    buttons.forEach((button) => {
-      const isSelected = button.dataset.experienceStep === stepName;
+    const activeIndex = buttons.findIndex((button) => button.dataset.experienceStep === stepName);
+    buttons.forEach((button, index) => {
+      const isSelected = index === activeIndex;
       button.setAttribute("aria-selected", String(isSelected));
       button.tabIndex = isSelected ? 0 : -1;
+      button.classList.toggle("is-complete", index < activeIndex);
       if (isSelected && focus) button.focus();
     });
     title.textContent = step.title;
     application.textContent = step.application;
+    counter.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(buttons.length).padStart(2, "0")}`;
+    state.textContent = step.state;
+    detail.classList.remove("is-updating");
+    void detail.offsetWidth;
+    if (!reduceMotion.matches) detail.classList.add("is-updating");
   }
 
   buttons.forEach((button, index) => {
@@ -271,6 +358,7 @@ function createSkillFilter() {
   const buttons = Array.from(document.querySelectorAll("[data-skill-focus]"));
   const cards = Array.from(document.querySelectorAll("[data-supports]"));
   const summary = document.querySelector("[data-skill-summary]");
+  const status = document.querySelector("[data-skill-status]");
 
   function select(focusName) {
     buttons.forEach((button) => {
@@ -278,10 +366,14 @@ function createSkillFilter() {
       button.classList.toggle("is-active", isActive);
       button.setAttribute("aria-pressed", String(isActive));
     });
+    let supportedCount = 0;
     cards.forEach((card) => {
-      card.classList.toggle("is-supported", card.dataset.supports.split(" ").includes(focusName));
+      const isSupported = card.dataset.supports.split(" ").includes(focusName);
+      card.classList.toggle("is-supported", isSupported);
+      if (isSupported) supportedCount += 1;
     });
     summary.textContent = SKILL_FOCUS[focusName];
+    status.textContent = `${supportedCount} connected capabilities`;
   }
 
   buttons.forEach((button) => button.addEventListener("click", () => select(button.dataset.skillFocus)));
@@ -302,10 +394,10 @@ function createProjectCarousel() {
       <div class="project-card-header"><span>${project.status}</span><b>Bay ${String(index + 1).padStart(2, "0")}</b></div>
       <h3>${project.title}</h3>
       <p>${project.description}</p>
-      <dl class="project-template">
-        <div><dt>Problem</dt><dd>To be documented</dd></div>
-        <div><dt>Build</dt><dd>To be documented</dd></div>
-        <div><dt>Result</dt><dd>To be documented</dd></div>
+      <dl class="project-template" aria-label="Planned case study evidence">
+        <div><dt>Context</dt><dd>${project.evidence[0]}</dd></div>
+        <div><dt>Decisions</dt><dd>${project.evidence[1]}</dd></div>
+        <div><dt>Evidence</dt><dd>${project.evidence[2]}</dd></div>
       </dl>
     </article>
   `).join("");
@@ -320,7 +412,7 @@ function createProjectCarousel() {
     indicatorButtons.forEach((button, buttonIndex) => button.setAttribute("aria-current", String(buttonIndex === currentIndex)));
     previousButton.disabled = currentIndex === 0;
     nextButton.disabled = currentIndex === PROJECTS.length - 1;
-    status.textContent = `${String(currentIndex + 1).padStart(2, "0")} / ${String(PROJECTS.length).padStart(2, "0")} - ${PROJECTS[currentIndex].status}`;
+    status.textContent = `Slot ${String(currentIndex + 1).padStart(2, "0")} of ${String(PROJECTS.length).padStart(2, "0")} / ${PROJECTS[currentIndex].status}`;
   }
 
   function goTo(index, behavior = reduceMotion.matches ? "auto" : "smooth") {
@@ -353,6 +445,21 @@ function createProjectCarousel() {
   indicatorButtons.forEach((button, index) => button.addEventListener("click", () => goTo(index)));
   new ResizeObserver(() => goTo(currentIndex, "auto")).observe(track);
   window.setTimeout(() => goTo(currentIndex, "auto"), 0);
+}
+
+function createMobileDockCue() {
+  const dock = document.querySelector(".mobile-dock");
+  const shell = document.querySelector("[data-mobile-dock-shell]");
+
+  function update() {
+    const remaining = dock.scrollWidth - dock.clientWidth - dock.scrollLeft;
+    shell.classList.toggle("is-at-start", dock.scrollLeft < 4);
+    shell.classList.toggle("is-at-end", remaining < 4);
+  }
+
+  dock.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  update();
 }
 
 function createMobileSwipeNavigation() {
@@ -392,10 +499,12 @@ reduceMotion.addEventListener("change", () => controller.classList.remove("is-sw
 
 document.querySelector("#year").textContent = new Date().getFullYear();
 configureSocialLinks();
+createTransferConsole();
 createExperienceWorkbench();
 createSkillFilter();
 createProjectCarousel();
 createMobileSwipeNavigation();
+createMobileDockCue();
 updateClock();
 window.setInterval(updateClock, 30000);
 activeModule = moduleFromLocation();
