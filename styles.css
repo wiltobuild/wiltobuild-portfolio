@@ -2522,12 +2522,45 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
   background: var(--surface);
 }
 
+.project-workspace-layout.has-visual {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: clamp(20px, 3vw, 36px);
+  padding: clamp(20px, 3vw, 32px);
+}
+
+.project-visual {
+  width: min(100%, 340px);
+  margin: 0;
+  overflow: hidden;
+  justify-self: center;
+  border: 1px solid rgba(86, 255, 166, 0.36);
+  border-radius: 4px;
+  background: #050f0a;
+  box-shadow: 0 0 24px rgba(57, 255, 138, 0.1);
+}
+
+.project-visual iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  border: 0;
+}
+
 .project-workspace-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(300px, 0.85fr);
   gap: 34px;
   align-items: end;
   padding: clamp(24px, 4vw, 42px);
+}
+
+.project-workspace-layout.has-visual .project-workspace-body {
+  grid-template-columns: 1fr;
+  align-items: start;
+  gap: 22px;
+  padding: 0;
 }
 
 .project-workspace-body > div > p {
@@ -4924,6 +4957,16 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
 
   .project-workspace {
     min-height: 0;
+  }
+
+  .project-workspace-layout.has-visual {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .project-visual {
+    width: min(100%, 420px);
   }
 
   .project-workspace-body {

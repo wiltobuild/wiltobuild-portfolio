@@ -212,6 +212,7 @@ const PROJECTS = [
     kind: "Windows desktop companion",
     title: "iRYS",
     description: "A lightweight Windows companion with an eye-shaped overlay that communicates local application and coding-agent activity through distinct visual states.",
+    visual: "assets/irys-animated-visual/index.html",
     labels: ["Platform", "System boundary", "Current evidence"],
     evidence: ["C# and .NET 8 desktop application", "Local tray controls and secured loopback events", "Interactive overlay states, local settings, and test project"],
     access: "Repository private during active development"
@@ -1439,21 +1440,29 @@ function createProjectCarousel() {
     `).join("") || "";
     const projectAccess = project.access ? `<p class="project-access"><span>Repository</span><b>${project.access}</b></p>` : "";
     const detailLabels = project.labels || ["Context", "Decisions", "Evidence"];
+    const projectVisual = project.visual ? `
+      <figure class="project-visual">
+        <iframe src="${project.visual}" title="Animated iRYS desktop assistant visual" loading="lazy" tabindex="-1"></iframe>
+      </figure>
+    ` : "";
 
     workspace.innerHTML = `
       <div class="project-card-header"><span>${project.status}</span><b>Slot ${String(index + 1).padStart(2, "0")}</b></div>
-      <div class="project-workspace-body">
-        <div>
-          <p>${project.kind}</p>
-          <h3>${project.title}</h3>
-          <span>${project.description}</span>
-          ${projectLinks ? `<div class="project-actions">${projectLinks}</div>` : projectAccess}
+      <div class="project-workspace-layout${projectVisual ? " has-visual" : ""}">
+        ${projectVisual}
+        <div class="project-workspace-body">
+          <div>
+            <p>${project.kind}</p>
+            <h3>${project.title}</h3>
+            <span>${project.description}</span>
+            ${projectLinks ? `<div class="project-actions">${projectLinks}</div>` : projectAccess}
+          </div>
+          <dl class="project-template" aria-label="${project.title} project details">
+            <div><dt>${detailLabels[0]}</dt><dd>${project.evidence[0]}</dd></div>
+            <div><dt>${detailLabels[1]}</dt><dd>${project.evidence[1]}</dd></div>
+            <div><dt>${detailLabels[2]}</dt><dd>${project.evidence[2]}</dd></div>
+          </dl>
         </div>
-        <dl class="project-template" aria-label="${project.title} project details">
-          <div><dt>${detailLabels[0]}</dt><dd>${project.evidence[0]}</dd></div>
-          <div><dt>${detailLabels[1]}</dt><dd>${project.evidence[1]}</dd></div>
-          <div><dt>${detailLabels[2]}</dt><dd>${project.evidence[2]}</dd></div>
-        </dl>
       </div>
     `;
   }

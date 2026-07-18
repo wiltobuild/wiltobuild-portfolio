@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>iRYS animated visual</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body { background: #050f0a; font-family: Arial, sans-serif; }
+
+    .visual {
+      position: relative;
+      display: grid;
+      min-height: 100%;
+      place-items: center;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 45%, #0c2418 0%, #071a11 48%, #04100a 100%);
+    }
+
+    .binary-field, .vignette { position: absolute; inset: 0; overflow: hidden; }
+    .vignette { background: radial-gradient(ellipse at 50% 44%, transparent 26%, #04100a 80%); }
+
+    .binary-column {
+      position: absolute;
+      top: -145%;
+      color: #39ff8a;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: clamp(8px, 1.2vw, 14px);
+      line-height: 1.5;
+      opacity: 0.23;
+      text-shadow: 0 0 8px rgba(57, 255, 138, 0.55);
+      white-space: pre;
+      animation: fall linear infinite;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      justify-items: center;
+      width: 100%;
+      padding: 7% 6% 6%;
+    }
+
+    .eye-shell {
+      width: min(68%, 460px);
+      transform-origin: center;
+      animation: blink 7s ease-in-out infinite;
+    }
+
+    svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .iris-motion { transform-box: fill-box; transform-origin: center; animation: look-around 9s ease-in-out infinite; }
+    .eye-outline { filter: drop-shadow(0 0 24px rgba(57, 255, 138, 0.5)); }
+    .pupil-ring { animation: pulse 3s ease-in-out infinite; }
+
+    .name {
+      margin-top: clamp(10px, 3vw, 34px);
+      color: #eafff2;
+      font-size: clamp(19px, 7.5vw, 64px);
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      line-height: 1;
+      text-indent: 0.2em;
+      text-shadow: 0 0 28px rgba(57, 255, 138, 0.5);
+    }
+
+    .tagline {
+      margin-top: clamp(5px, 1vw, 10px);
+      color: #8cc5a2;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: clamp(6px, 1.65vw, 15px);
+      letter-spacing: 0.26em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    @keyframes fall { from { transform: translateY(-4%); } to { transform: translateY(250%); } }
+    @keyframes look-around {
+      0%, 8%, 100% { transform: translate(0, 0); }
+      18%, 28% { transform: translate(-22px, 10px); }
+      38%, 48% { transform: translate(24px, 8px); }
+      58%, 68% { transform: translate(0, -14px); }
+      78%, 88% { transform: translate(16px, -6px); }
+    }
+    @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.06); } 98% { transform: scaleY(1); } }
+    @keyframes pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="visual" aria-label="Animated iRYS desktop assistant visual">
+    <div class="binary-field" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="content">
+      <div class="eye-shell" aria-hidden="true">
+        <svg viewBox="0 0 460 280" role="presentation">
+          <defs>
+            <radialGradient id="iris-gradient" cx="50%" cy="45%" r="60%">
+              <stop offset="0%" stop-color="#c8ffde"></stop>
+              <stop offset="35%" stop-color="#39ff8a"></stop>
+              <stop offset="75%" stop-color="#0e6b3a"></stop>
+              <stop offset="100%" stop-color="#04100a"></stop>
+            </radialGradient>
+            <clipPath id="eye-clip"><path d="M20,140 C120,20 340,20 440,140 C340,260 120,260 20,140 Z"></path></clipPath>
+          </defs>
+          <path class="eye-outline" d="M20,140 C120,20 340,20 440,140 C340,260 120,260 20,140 Z" fill="#040f09" stroke="#39ff8a" stroke-width="3"></path>
+          <g clip-path="url(#eye-clip)">
+            <g class="iris-motion">
+              <circle cx="230" cy="140" r="95" fill="url(#iris-gradient)"></circle>
+              <g class="iris-lines"></g>
+              <circle cx="230" cy="140" r="95" fill="none" stroke="#04100a" stroke-width="2"></circle>
+              <circle cx="230" cy="140" r="40" fill="#020805"></circle>
+              <circle class="pupil-ring" cx="230" cy="140" r="40" fill="none" stroke="#39ff8a" stroke-width="1.5"></circle>
+              <circle cx="212" cy="120" r="12" fill="#a6ffcb" opacity="0.85"></circle>
+            </g>
+          </g>
+          <path d="M20,140 C120,20 340,20 440,140" fill="none" stroke="#0e6b3a" stroke-width="2" opacity="0.4"></path>
+          <path d="M20,140 C120,260 340,260 440,140" fill="none" stroke="#0e6b3a" stroke-width="2" opacity="0.4"></path>
+          <path d="M20,140 C120,20 340,20 440,140 C340,260 120,260 20,140 Z" fill="none" stroke="#39ff8a" stroke-width="3"></path>
+        </svg>
+      </div>
+      <div class="name">IRYS</div>
+      <div class="tagline">The desktop assistant that sees</div>
+    </div>
+  </main>
+  <script>
+    const binaryField = document.querySelector('.binary-field');
+    const irisLines = document.querySelector('.iris-lines');
+    const svgNamespace = 'http://www.w3.org/2000/svg';
+
+    for (let index = 0; index < 24; index += 1) {
+      const column = document.createElement('span');
+      const length = 13 + (index % 6) * 3;
+      column.className = 'binary-column';
+      column.textContent = Array.from({ length }, (_, glyphIndex) => (index * 7 + glyphIndex * 13) % 2).join('\n');
+      column.style.left = `${(index / 23) * 100}%`;
+      column.style.animationDuration = `${6 + (index % 7) * 1.2}s`;
+      column.style.animationDelay = `${-(index * 1.4)}s`;
+      column.style.opacity = `${0.18 + (index % 4) * 0.05}`;
+      binaryField.append(column);
+    }
+
+    for (let index = 0; index < 32; index += 1) {
+      const angle = (index / 32) * Math.PI * 2;
+      const line = document.createElementNS(svgNamespace, 'line');
+      line.setAttribute('x1', String(230 + Math.cos(angle) * 42));
+      line.setAttribute('y1', String(140 + Math.sin(angle) * 42));
+      line.setAttribute('x2', String(230 + Math.cos(angle) * 94));
+      line.setAttribute('y2', String(140 + Math.sin(angle) * 94));
+      line.setAttribute('stroke', '#0a3a20');
+      line.setAttribute('stroke-width', '1.5');
+      line.setAttribute('opacity', '0.55');
+      irisLines.append(line);
+    }
+  </script>
+</body>
+</html>
