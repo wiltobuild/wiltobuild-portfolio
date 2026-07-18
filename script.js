@@ -40,21 +40,23 @@ const SOCIAL_URLS = {
 const MODULES = {
   home: { number: "00", label: "Home", kicker: "System overview" },
   experience: { number: "01", label: "Experience", kicker: "Systems practice" },
-  skills: { number: "02", label: "Skills", kicker: "Applied tools" },
-  projects: { number: "03", label: "Projects", kicker: "Future case studies" },
-  credentials: { number: "04", label: "Credentials", kicker: "Training record" },
-  contact: { number: "05", label: "Contact", kicker: "Profiles and contact" }
+  agents: { number: "02", label: "Agents", kicker: "Delegation map" },
+  skills: { number: "03", label: "Skills", kicker: "Applied tools" },
+  projects: { number: "04", label: "Projects", kicker: "Future case studies" },
+  credentials: { number: "05", label: "Credentials", kicker: "Training record" },
+  contact: { number: "06", label: "Contact", kicker: "Profiles and contact" }
 };
 
 const PRESETS = {
-  explore: ["home", "experience", "skills", "projects", "credentials", "contact"],
-  hiring: ["home", "experience", "skills", "contact"],
-  technical: ["experience", "skills", "credentials", "contact"]
+  explore: ["home", "experience", "agents", "skills", "projects", "credentials", "contact"],
+  hiring: ["home", "experience", "agents", "skills", "contact"],
+  technical: ["experience", "agents", "skills", "credentials", "contact"]
 };
 
 const NEXT_PROMPTS = {
   home: "Return to the system overview",
   experience: "Trace my systems experience",
+  agents: "Explore the agent delegation map",
   skills: "See how I apply development tools",
   projects: "Review future case study slots",
   credentials: "Review my technical training",
@@ -96,6 +98,58 @@ const EXPERIENCE_STEPS = {
     state: "System ready",
     activeNodes: ["client", "interface", "processor", "devices", "room"],
     activeLinks: ["1", "2", "3", "4"]
+  }
+};
+
+const AGENTS = {
+  athena: {
+    role: "Planner",
+    title: "Planner / Architecture and Delegation",
+    model: "Claude Opus 4.8",
+    scope: "Architecture and delegation",
+    description: "Handles architecture, complex planning, delegation, and unresolved ambiguity before work moves to a specialist."
+  },
+  hephaestus: {
+    role: "Builder",
+    title: "Builder // Implementation Workhorse",
+    model: "Terra 5.6",
+    scope: "Coding and execution",
+    description: "Edits files, works in the terminal, debugs implementation, and runs tests against the plan."
+  },
+  argus: {
+    role: "Watcher",
+    title: "Watcher // All-Seeing Eye",
+    model: "Claude Haiku 4.5",
+    scope: "Monitoring and status",
+    description: "Classifies logs, summarizes activity, detects failures, and posts concise updates while work is in progress."
+  },
+  themis: {
+    role: "Reviewer",
+    title: "Reviewer // Quality Gatekeeper",
+    model: "Claude Sonnet 5",
+    scope: "Plans, code, and tests",
+    description: "Reviews plans, diffs, tests, and completed work with enough reasoning depth for practical code judgment."
+  },
+  mnemosyne: {
+    role: "Memory",
+    title: "Memory // Decision Archive",
+    model: "Claude Haiku 4.5",
+    scope: "Structured project memory",
+    description: "Extracts decisions, preferences, and useful facts into structured memory, paired with an embedding model for retrieval."
+  },
+  hermes: {
+    role: "Relay",
+    title: "Relay // Message and Tool Courier",
+    model: "Claude Haiku 4.5",
+    scope: "Routing and communication",
+    description: "Handles tool selection, message formatting, structured JSON, and communication between agents."
+  },
+  aegis: {
+    role: "Security",
+    title: "Security // Risk and Policy Sentinel",
+    model: "Claude Sonnet 5",
+    scope: "Risk and policy review",
+    description: "Flags risky actions, permission requests, suspicious commands, exposed secrets, and possible policy violations."
   }
 };
 
@@ -594,6 +648,73 @@ function createExperienceWorkbench() {
     });
   });
   select("requirements");
+}
+
+function createAgentConsole() {
+  const consoleElement = document.querySelector("[data-agent-console]");
+  const buttons = Array.from(document.querySelectorAll("[data-agent]"));
+  const panel = document.querySelector("#agent-panel");
+  const rootButton = document.querySelector(".agent-root");
+  const name = document.querySelector("[data-agent-name]");
+  const role = document.querySelector("[data-agent-role]");
+  const model = document.querySelector("[data-agent-model]");
+  const scope = document.querySelector("[data-agent-scope]");
+  const description = document.querySelector("[data-agent-description]");
+  const counter = document.querySelector("[data-agent-counter]");
+  const status = document.querySelector("[data-agent-status]");
+  const route = document.querySelector("[data-agent-route]");
+  const visitedSpecialists = new Set();
+
+  function select(agentName, focus = false) {
+    const agent = AGENTS[agentName];
+    if (!agent) return;
+    const activeIndex = buttons.findIndex((button) => button.dataset.agent === agentName);
+
+    buttons.forEach((button, index) => {
+      const isSelected = index === activeIndex;
+      button.classList.toggle("is-active", isSelected);
+      button.setAttribute("aria-selected", String(isSelected));
+      button.tabIndex = isSelected ? 0 : -1;
+      if (isSelected && focus) button.focus();
+    });
+
+    if (agentName !== "athena") visitedSpecialists.add(agentName);
+    buttons.forEach((button) => button.classList.toggle("is-visited", button.dataset.agent === "athena" || visitedSpecialists.has(button.dataset.agent)));
+    rootButton.classList.toggle("is-routing", agentName !== "athena");
+    consoleElement.dataset.activeAgent = agentName;
+    consoleElement.classList.remove("is-routing");
+    void consoleElement.offsetWidth;
+    if (agentName !== "athena" && !reduceMotion.matches) consoleElement.classList.add("is-routing");
+    name.textContent = agentName.charAt(0).toUpperCase() + agentName.slice(1);
+    role.textContent = agent.title;
+    model.textContent = agent.model;
+    scope.textContent = agent.scope;
+    description.textContent = agent.description;
+    counter.textContent = agentName === "athena" ? "Root / 07" : `${String(activeIndex).padStart(2, "0")} / 07`;
+    status.textContent = `${agent.role} channel active`;
+    route.textContent = agentName === "athena" ? "Athena / Planning" : `Athena / ${name.textContent}`;
+    panel.setAttribute("aria-labelledby", buttons[activeIndex].id);
+    panel.classList.remove("is-updating");
+    void panel.offsetWidth;
+    if (!reduceMotion.matches) panel.classList.add("is-updating");
+    if (visitedSpecialists.size === buttons.length - 1) markModuleReviewed("agents", "Agent delegation map reviewed");
+    playPanelTone(500 + (activeIndex * 45));
+  }
+
+  buttons.forEach((button, index) => {
+    button.addEventListener("click", () => select(button.dataset.agent));
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      let nextIndex = index;
+      if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = buttons.length - 1;
+      else nextIndex = (index + (event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1) + buttons.length) % buttons.length;
+      select(buttons[nextIndex].dataset.agent, true);
+    });
+  });
+
+  select("athena");
 }
 
 function createUtilityControls() {
@@ -1389,6 +1510,7 @@ createUtilityControls();
 createHomePanels();
 createTransferConsole();
 createExperienceWorkbench();
+createAgentConsole();
 createSkillFilter();
 createProjectCarousel();
 createCredentialTerminal();

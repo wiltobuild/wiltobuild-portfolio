@@ -28,6 +28,13 @@
   --game-snake: #b7ef5b;
   --game-snake-alt: #91c94b;
   --party-pink: #e97663;
+  --agent-planner: #d7a45c;
+  --agent-builder: #dd7657;
+  --agent-watcher: #53a9bd;
+  --agent-reviewer: #9a7ed0;
+  --agent-memory: #cc6d9f;
+  --agent-relay: #55b982;
+  --agent-security: #668bd2;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-nav: 280ms;
@@ -65,6 +72,13 @@ html[data-scene="daylight"] {
   --game-head: #173d32;
   --game-snake: #247455;
   --game-snake-alt: #39896a;
+  --agent-planner: #946019;
+  --agent-builder: #a8472f;
+  --agent-watcher: #24718a;
+  --agent-reviewer: #6848a1;
+  --agent-memory: #9a3e70;
+  --agent-relay: #24754b;
+  --agent-security: #365da1;
   --shadow: 0 24px 60px rgba(36, 52, 46, 0.22);
 }
 
@@ -98,6 +112,13 @@ html[data-scene="party"] {
   --game-snake: #4df2cf;
   --game-snake-alt: #2db8ef;
   --party-pink: #ff4fc8;
+  --agent-planner: #ffd04f;
+  --agent-builder: #ff725c;
+  --agent-watcher: #3ed9ff;
+  --agent-reviewer: #b995ff;
+  --agent-memory: #ff6fc7;
+  --agent-relay: #4df2a2;
+  --agent-security: #6595ff;
   --shadow: 0 26px 76px rgba(0, 0, 0, 0.58);
 }
 
@@ -1591,6 +1612,7 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .experience-view,
+.agents-view,
 .skills-view,
 .projects-view,
 .credentials-view,
@@ -1815,6 +1837,501 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
   margin: 12px 0 0;
   color: var(--muted);
   line-height: 1.55;
+}
+
+.agent-console {
+  display: grid;
+  grid-template-columns: minmax(470px, 1.25fr) minmax(290px, 0.75fr);
+  gap: 14px;
+  max-width: 1140px;
+}
+
+.agent-map,
+.agent-inspector {
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.agent-map {
+  padding: 16px;
+  background:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px),
+    var(--surface);
+  background-size: 32px 32px;
+}
+
+.agent-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  margin: -16px -16px 16px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-raised) 92%, transparent);
+}
+
+.agent-map-header div,
+.agent-map-header p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.agent-map-header span,
+.agent-map-header p,
+.agent-root b,
+.agent-root-copy em,
+.agent-channel-icon em,
+.agent-card-copy small,
+.agent-index,
+.agent-inspector header,
+.agent-inspector footer,
+.agent-inspector-body > p,
+.agent-inspector dt,
+.agent-safety-note span {
+  font-family: Consolas, "Courier New", monospace;
+  text-transform: uppercase;
+}
+
+.agent-map-header span {
+  color: var(--dim);
+  font-size: 0.58rem;
+}
+
+.agent-map-header strong {
+  font-size: 0.78rem;
+}
+
+.agent-map-header p {
+  color: var(--lime);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+}
+
+.agent-map-header p i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--lime) 70%, transparent);
+}
+
+.agent-routes {
+  display: grid;
+}
+
+.agent-console {
+  --active-agent-color: var(--agent-planner);
+}
+
+.agent-console[data-active-agent="hephaestus"] { --active-agent-color: var(--agent-builder); }
+.agent-console[data-active-agent="argus"] { --active-agent-color: var(--agent-watcher); }
+.agent-console[data-active-agent="themis"] { --active-agent-color: var(--agent-reviewer); }
+.agent-console[data-active-agent="mnemosyne"] { --active-agent-color: var(--agent-memory); }
+.agent-console[data-active-agent="hermes"] { --active-agent-color: var(--agent-relay); }
+.agent-console[data-active-agent="aegis"] { --active-agent-color: var(--agent-security); }
+
+.agent-root {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 420px);
+  min-height: 78px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: var(--surface-raised);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms var(--ease);
+}
+
+.agent-root::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  bottom: -1px;
+  width: 3px;
+  background: var(--agent-planner);
+}
+
+.agent-root:hover,
+.agent-root:focus-visible,
+.agent-root.is-active,
+.agent-root.is-routing {
+  border-color: var(--agent-planner);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--agent-planner) 26%, transparent), 0 10px 26px color-mix(in srgb, var(--agent-planner) 12%, transparent);
+}
+
+.agent-root:active,
+.agent-grid button:active {
+  transform: scale(0.985);
+}
+
+.agent-root-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--agent-planner);
+  background: color-mix(in srgb, var(--agent-planner) 13%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agent-planner) 32%, transparent);
+}
+
+.agent-root-icon svg {
+  width: 34px;
+  height: 34px;
+}
+
+.agent-root-icon .icon-cutout,
+.agent-channel-icon .icon-cutout {
+  fill: var(--surface-raised);
+}
+
+.agent-root-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.agent-root-copy em {
+  color: var(--agent-planner);
+  font-size: 0.56rem;
+  font-style: normal;
+}
+
+.agent-root-copy strong {
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 1.12rem;
+}
+
+.agent-root-copy small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.agent-root > b {
+  align-self: center;
+  color: var(--dim);
+  font-size: 0.58rem;
+  font-weight: 500;
+}
+
+.delegation-bus {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  height: 34px;
+  color: var(--dim);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.54rem;
+  text-transform: uppercase;
+}
+
+.delegation-bus::before,
+.delegation-bus i {
+  content: "";
+  position: absolute;
+  background: var(--line);
+}
+
+.delegation-bus::before {
+  top: 0;
+  bottom: 8px;
+  left: 50%;
+  width: 1px;
+}
+
+.delegation-bus i {
+  right: calc(8.333% - 1px);
+  bottom: 8px;
+  left: calc(8.333% - 1px);
+  height: 1px;
+}
+
+.agent-console:not([data-active-agent="athena"]) .delegation-bus::before,
+.agent-console:not([data-active-agent="athena"]) .delegation-bus i {
+  background: var(--active-agent-color);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--active-agent-color) 48%, transparent);
+}
+
+.agent-console.is-routing .delegation-bus::before,
+.agent-console.is-routing .delegation-bus i {
+  animation: agent-route-flash 420ms var(--ease) both;
+}
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.agent-grid button {
+  --agent-color: var(--steel);
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 104px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-raised) 86%, transparent);
+  cursor: pointer;
+  text-align: left;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.agent-grid button[data-agent="hephaestus"] { --agent-color: var(--agent-builder); }
+.agent-grid button[data-agent="argus"] { --agent-color: var(--agent-watcher); }
+.agent-grid button[data-agent="themis"] { --agent-color: var(--agent-reviewer); }
+.agent-grid button[data-agent="mnemosyne"] { --agent-color: var(--agent-memory); }
+.agent-grid button[data-agent="hermes"] { --agent-color: var(--agent-relay); }
+.agent-grid button[data-agent="aegis"] { --agent-color: var(--agent-security); }
+
+.agent-grid button::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 1px;
+  height: 8px;
+  background: var(--line);
+}
+
+.agent-grid button:hover,
+.agent-grid button:focus-visible {
+  color: var(--text);
+  border-color: var(--agent-color);
+  background: var(--surface-raised);
+}
+
+.agent-grid button.is-active {
+  color: var(--text);
+  border-color: var(--agent-color);
+  background: var(--surface-raised);
+  box-shadow: inset 0 3px var(--agent-color), 0 8px 22px color-mix(in srgb, var(--agent-color) 18%, transparent), 0 0 0 1px color-mix(in srgb, var(--agent-color) 20%, transparent);
+}
+
+.agent-grid button.is-active::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--agent-color);
+  border-radius: 50%;
+  background: var(--agent-color);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--agent-color) 16%, transparent), 0 0 12px var(--agent-color);
+  animation: agent-signal 1.6s ease-in-out infinite;
+}
+
+.agent-grid button.is-active::before {
+  background: var(--agent-color);
+  box-shadow: 0 0 8px var(--agent-color);
+}
+
+.agent-grid button.is-visited:not(.is-active) {
+  border-bottom-color: color-mix(in srgb, var(--lime) 55%, var(--line));
+}
+
+.agent-index {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  color: color-mix(in srgb, var(--agent-color) 75%, var(--dim));
+  font-size: 0.52rem;
+  font-style: normal;
+}
+
+.agent-channel-icon {
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-height: 78px;
+  padding: 8px 4px 5px;
+  color: var(--agent-color);
+  background: color-mix(in srgb, var(--agent-color) 12%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agent-color) 22%, transparent);
+  transition: background 180ms ease, box-shadow 180ms ease, transform 180ms var(--ease);
+}
+
+.agent-channel-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.agent-channel-icon em {
+  align-self: end;
+  max-width: 58px;
+  color: color-mix(in srgb, var(--agent-color) 78%, var(--text));
+  font-size: 0.45rem;
+  font-style: normal;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.agent-grid button.is-active .agent-channel-icon {
+  background: color-mix(in srgb, var(--agent-color) 20%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agent-color) 52%, transparent), 0 0 18px color-mix(in srgb, var(--agent-color) 24%, transparent);
+  transform: translateY(-2px);
+}
+
+.agent-card-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.agent-card-copy strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 0.74rem;
+}
+
+.agent-card-copy small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.54rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.agent-card-copy small b {
+  color: var(--agent-color);
+  font-weight: 500;
+}
+
+.agent-inspector {
+  display: grid;
+  grid-template-rows: 42px minmax(0, 1fr) 48px;
+  border-top: 2px solid var(--active-agent-color);
+  box-shadow: 0 12px 34px color-mix(in srgb, var(--active-agent-color) 10%, transparent);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.agent-inspector > header,
+.agent-inspector > footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  color: var(--dim);
+  background: var(--surface-raised);
+  font-size: 0.56rem;
+}
+
+.agent-inspector > header {
+  border-bottom: 1px solid var(--line);
+}
+
+.agent-inspector > header b,
+.agent-inspector > footer strong {
+  color: var(--active-agent-color);
+  font-weight: 500;
+}
+
+.agent-inspector > footer {
+  border-top: 1px solid var(--line);
+}
+
+.agent-inspector-body {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  padding: clamp(24px, 3vw, 38px);
+}
+
+.agent-inspector-body > p {
+  margin: 0;
+  color: var(--active-agent-color);
+  font-size: 0.62rem;
+}
+
+.agent-inspector-body h3 {
+  margin: 8px 0 4px;
+  overflow-wrap: anywhere;
+  font-size: clamp(2rem, 3.2vw, 3.6rem);
+  line-height: 0.98;
+}
+
+.agent-inspector-body > span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.agent-inspector dl {
+  display: grid;
+  gap: 16px;
+  margin: 28px 0 0;
+}
+
+.agent-inspector dl div {
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.agent-inspector dt {
+  margin-bottom: 6px;
+  color: var(--dim);
+  font-size: 0.56rem;
+}
+
+.agent-inspector dd {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.agent-inspector dd[data-agent-model] {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.agent-inspector.is-updating .agent-inspector-body > * {
+  animation: output-update 360ms var(--ease) both;
+}
+
+.agent-safety-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 9px 12px;
+  border-left: 2px solid var(--amber);
+  color: var(--dim);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.agent-safety-note span {
+  margin-right: 10px;
+  color: var(--amber);
+  font-size: 0.56rem;
+}
+
+@keyframes agent-signal {
+  0%, 100% { opacity: 0.72; transform: scale(0.82); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes agent-route-flash {
+  0% { opacity: 0.25; filter: brightness(1); }
+  55% { opacity: 1; filter: brightness(1.45); }
+  100% { opacity: 1; filter: brightness(1); }
 }
 
 .skill-router {
@@ -2386,6 +2903,10 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
   --view-accent: var(--steel);
 }
 
+.agents-view {
+  --view-accent: color-mix(in srgb, var(--steel) 52%, var(--lime));
+}
+
 .skills-view {
   --view-accent: var(--lime);
 }
@@ -2403,6 +2924,7 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .experience-view .view-heading,
+.agents-view .view-heading,
 .skills-view .view-heading,
 .projects-view .view-heading,
 .credentials-view .view-heading,
@@ -2412,6 +2934,7 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .experience-view .view-heading::before,
+.agents-view .view-heading::before,
 .skills-view .view-heading::before,
 .projects-view .view-heading::before,
 .credentials-view .view-heading::before,
@@ -2426,6 +2949,7 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .experience-view .view-heading > p,
+.agents-view .view-heading > p,
 .skills-view .view-heading > p,
 .projects-view .view-heading > p,
 .credentials-view .view-heading > p,
@@ -3594,6 +4118,14 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   .routing-matrix article {
     grid-template-columns: minmax(190px, 0.72fr) minmax(260px, 1.28fr) 100px;
   }
+
+  .agent-console {
+    grid-template-columns: minmax(420px, 1.15fr) minmax(250px, 0.85fr);
+  }
+
+  .agent-inspector-body {
+    padding: 24px;
+  }
 }
 
 @media (min-width: 801px) and (max-height: 920px) {
@@ -3639,6 +4171,33 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
 
   .experience-view .signal-detail h3 {
     margin-block: 10px 24px;
+  }
+
+  .agents-view {
+    padding-block: 24px;
+  }
+
+  .agents-view .view-heading {
+    margin-bottom: 16px;
+  }
+
+  .agents-view .view-heading h2 {
+    margin-bottom: 9px;
+    font-size: clamp(2rem, 3.35vw, 3.35rem);
+  }
+
+  .agents-view .agent-root {
+    min-height: 68px;
+  }
+
+  .agents-view .agent-grid button {
+    min-height: 88px;
+    padding-block: 8px;
+  }
+
+  .agents-view .agent-inspector dl {
+    gap: 11px;
+    margin-top: 20px;
   }
 
   .skills-view {
@@ -3703,7 +4262,17 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
 }
 
 @media (min-width: 801px) and (max-height: 760px) {
+  .module-nav {
+    padding-block: 8px;
+  }
+
+  .module-nav button {
+    min-height: 54px;
+    padding-block: 8px;
+  }
+
   .experience-view,
+  .agents-view,
   .skills-view,
   .projects-view,
   .credentials-view,
@@ -3738,6 +4307,59 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   .system-path button {
     min-height: 60px;
     padding: 8px 11px;
+  }
+
+  .agent-map {
+    padding: 12px;
+  }
+
+  .agent-map-header {
+    min-height: 38px;
+    margin: -12px -12px 12px;
+  }
+
+  .agent-root {
+    min-height: 58px;
+    padding-block: 8px;
+  }
+
+  .delegation-bus {
+    height: 28px;
+  }
+
+  .agent-grid button {
+    min-height: 76px;
+    padding-block: 7px;
+  }
+
+  .agent-channel-icon {
+    min-height: 58px;
+  }
+
+  .agent-channel-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .agent-inspector {
+    grid-template-rows: 36px minmax(0, 1fr) 40px;
+  }
+
+  .agent-inspector-body {
+    padding: 18px 22px;
+  }
+
+  .agent-inspector-body h3 {
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+  }
+
+  .agent-inspector dl {
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .agent-inspector dl div {
+    padding-top: 8px;
   }
 
   .system-path button small {
@@ -4061,6 +4683,7 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   }
 
   .experience-view,
+  .agents-view,
   .skills-view,
   .projects-view,
   .credentials-view,
@@ -4119,6 +4742,67 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   .signal-detail {
     min-height: 280px;
     padding: 26px;
+  }
+
+  .agent-console {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-map {
+    padding: 12px;
+  }
+
+  .agent-map-header {
+    min-height: 42px;
+    margin: -12px -12px 14px;
+    padding-inline: 12px;
+  }
+
+  .agent-map-header div {
+    display: grid;
+    gap: 2px;
+  }
+
+  .agent-root {
+    width: 100%;
+    min-height: 76px;
+  }
+
+  .delegation-bus i {
+    right: calc(25% - 1px);
+    left: calc(25% - 1px);
+  }
+
+  .agent-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agent-grid button {
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: 8px;
+    min-height: 104px;
+    padding: 8px;
+  }
+
+  .agent-grid button:nth-child(n + 3)::before {
+    display: none;
+  }
+
+  .agent-inspector {
+    min-height: 330px;
+  }
+
+  .agent-inspector-body {
+    padding: 24px;
+  }
+
+  .agent-inspector-body h3 {
+    font-size: clamp(2rem, 12vw, 3.2rem);
+  }
+
+  .agent-safety-note {
+    display: grid;
+    gap: 5px;
   }
 
   .segmented-control {

@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://wiltobuild.github.io/wiltobuild-portfolio/" />
     <link rel="icon" href="./assets/wil-sheppard-headshot.png" type="image/png" />
     <title>Wil Sheppard | WilToBuild</title>
-    <link rel="stylesheet" href="./styles.css?v=20260716-scenes1" />
+    <link rel="stylesheet" href="./styles.css?v=20260718-agent-icons1" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -58,10 +58,11 @@
         <nav class="module-nav">
           <button type="button" class="is-active" data-nav="home" aria-current="page"><span>00</span><strong>Home</strong><small>System overview</small></button>
           <button type="button" data-nav="experience"><span>01</span><strong>Experience</strong><small>Systems practice</small></button>
-          <button type="button" data-nav="skills"><span>02</span><strong>Skills</strong><small>Applied tools</small></button>
-          <button type="button" data-nav="projects"><span>03</span><strong>Projects</strong><small>Case study slots</small></button>
-          <button type="button" data-nav="credentials"><span>04</span><strong>Credentials</strong><small>Training record</small></button>
-          <button type="button" data-nav="contact"><span>05</span><strong>Contact</strong><small>Profiles and contact</small></button>
+          <button type="button" data-nav="agents"><span>02</span><strong>Agents</strong><small>Delegation map</small></button>
+          <button type="button" data-nav="skills"><span>03</span><strong>Skills</strong><small>Applied tools</small></button>
+          <button type="button" data-nav="projects"><span>04</span><strong>Projects</strong><small>Case study slots</small></button>
+          <button type="button" data-nav="credentials"><span>05</span><strong>Credentials</strong><small>Training record</small></button>
+          <button type="button" data-nav="contact"><span>06</span><strong>Contact</strong><small>Profiles and contact</small></button>
         </nav>
         <div class="rail-footer"><span>WTB-C01</span><span>v1.0</span></div>
       </aside>
@@ -78,8 +79,8 @@
           <button class="preset-status" type="button" data-preset-status aria-label="Open portfolio preset controls">
             <span data-preset-name>Full portfolio</span>
             <i><b data-preset-progress></b></i>
-            <small data-preset-position>01 / 06</small>
-            <em data-reviewed-summary>0 / 6 reviewed</em>
+            <small data-preset-position>01 / 07</small>
+            <em data-reviewed-summary>0 / 7 reviewed</em>
           </button>
           <div class="utility-strip" aria-label="Panel controls">
             <button type="button" data-utility="lighting" aria-expanded="false" aria-controls="lighting-panel" title="Lighting scenes">
@@ -116,9 +117,9 @@
             <p>Exploration presets</p>
             <span class="utility-note">Choose which portfolio screens appear in the Continue sequence. Direct navigation remains available.</span>
             <div class="preset-options" role="group" aria-label="Choose a portfolio sequence">
-              <button type="button" class="is-active" data-preset="explore" aria-pressed="true"><strong>Full portfolio</strong><small>Complete six-screen review</small><i>Home / Experience / Skills / Projects / Credentials / Contact</i></button>
-              <button type="button" data-preset="hiring" aria-pressed="false"><strong>Hiring manager</strong><small>Fast background and fit review</small><i>Home / Experience / Skills / Contact</i></button>
-              <button type="button" data-preset="technical" aria-pressed="false"><strong>Technical</strong><small>Systems, tools, and training</small><i>Experience / Skills / Credentials / Contact</i></button>
+              <button type="button" class="is-active" data-preset="explore" aria-pressed="true"><strong>Full portfolio</strong><small>Complete seven-screen review</small><i>Home / Experience / Agents / Skills / Projects / Credentials / Contact</i></button>
+              <button type="button" data-preset="hiring" aria-pressed="false"><strong>Hiring manager</strong><small>Fast background and fit review</small><i>Home / Experience / Agents / Skills / Contact</i></button>
+              <button type="button" data-preset="technical" aria-pressed="false"><strong>Technical</strong><small>Systems, agents, tools, and training</small><i>Experience / Agents / Skills / Credentials / Contact</i></button>
             </div>
           </section>
           <section id="auxiliary-panel" data-utility-panel="auxiliary" hidden>
@@ -212,8 +213,61 @@
             </div>
           </section>
 
+          <section class="screen-view agents-view" data-view="agents" aria-labelledby="agents-title" hidden>
+            <header class="view-heading"><p>02 / Agent architecture</p><h2 id="agents-title" tabindex="-1">Seven agents, one chain of command.</h2><span>The Pantheon is a reference architecture that separates planning, execution, monitoring, review, memory, routing, and security into defined roles.</span></header>
+            <div class="agent-console" data-agent-console>
+              <section class="agent-map" aria-label="Agent delegation map">
+                <header class="agent-map-header"><div><span>Reference architecture</span><strong>The Pantheon</strong></div><p><i aria-hidden="true"></i>7 agents online</p></header>
+                <div class="agent-routes" role="tablist" aria-label="Select an agent role">
+                  <button class="agent-root is-active" id="agent-tab-athena" type="button" role="tab" aria-selected="true" aria-controls="agent-panel" tabindex="0" data-agent="athena">
+                    <span class="agent-root-icon" aria-hidden="true">
+                      <svg viewBox="0 0 48 48"><path d="M12 17 8 8l10 5a20 20 0 0 1 12 0L40 8l-4 9a17 17 0 0 1 2 8c0 10-6 17-14 19-8-2-14-9-14-19 0-3 .7-5.7 2-8Z"/><circle class="icon-cutout" cx="18" cy="25" r="5"/><circle class="icon-cutout" cx="30" cy="25" r="5"/><circle cx="18" cy="25" r="2"/><circle cx="30" cy="25" r="2"/><path class="icon-cutout" d="m21 32 3 5 3-5Z"/></svg>
+                    </span>
+                    <span class="agent-root-copy"><em>Root controller</em><strong>Athena</strong><small>Planner / Architecture and delegation</small></span>
+                    <b>Claude Opus 4.8</b>
+                  </button>
+                  <div class="delegation-bus" aria-hidden="true"><span>Delegation bus</span><i></i></div>
+                  <div class="agent-grid">
+                    <button id="agent-tab-hephaestus" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="hephaestus">
+                      <i class="agent-index">01</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m18 3 11 11-5 5-3-3-9 9 2 2-4 4-9-9 4-4 2 2 9-9-3-3 5-5Z"/></svg><em>Terra 5.6</em></span><span class="agent-card-copy"><strong>Hephaestus</strong><small><b>Builder</b> // Implementation Workhorse</small></span>
+                    </button>
+                    <button id="agent-tab-argus" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="argus">
+                      <i class="agent-index">02</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 16s5-8 14-8 14 8 14 8-5 8-14 8S2 16 2 16Z"/><circle cx="16" cy="16" r="5"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg><em>Claude Haiku 4.5</em></span><span class="agent-card-copy"><strong>Argus</strong><small><b>Watcher</b> // All-Seeing Eye</small></span>
+                    </button>
+                    <button id="agent-tab-themis" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="themis">
+                      <i class="agent-index">03</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3v24M7 8h18M7 8l-4 9h8L7 8ZM25 8l-4 9h8l-4-9ZM10 28h12"/><path d="M3 17c0 3 8 3 8 0M21 17c0 3 8 3 8 0"/></svg><em>Claude Sonnet 5</em></span><span class="agent-card-copy"><strong>Themis</strong><small><b>Reviewer</b> // Quality Gatekeeper</small></span>
+                    </button>
+                    <button id="agent-tab-mnemosyne" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="mnemosyne">
+                      <i class="agent-index">04</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path opacity=".5" d="m16 2 7 4v8l-7 4-7-4V6l7-4Z"/><path d="m8 13 7 4v8l-7 4-7-4v-8l7-4Z"/><path opacity=".78" d="m24 13 7 4v8l-7 4-7-4v-8l7-4Z"/></svg><em>Claude Haiku 4.5</em></span><span class="agent-card-copy"><strong>Mnemosyne</strong><small><b>Memory</b> // Decision Archive</small></span>
+                    </button>
+                    <button id="agent-tab-hermes" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="hermes">
+                      <i class="agent-index">05</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path opacity=".4" d="m2 7 9 9-9 9"/><path opacity=".7" d="m10 7 9 9-9 9"/><path d="m18 7 9 9-9 9"/></svg><em>Claude Haiku 4.5</em></span><span class="agent-card-copy"><strong>Hermes</strong><small><b>Relay</b> // Message and Tool Courier</small></span>
+                    </button>
+                    <button id="agent-tab-aegis" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="aegis">
+                      <i class="agent-index">06</i><span class="agent-channel-icon"><svg viewBox="0 0 32 36" aria-hidden="true"><path d="M16 1 30 6v10c0 9-5.7 15.2-14 19C7.7 31.2 2 25 2 16V6L16 1Z"/><path class="icon-cutout" d="M16 6 25 9v7c0 6-3.5 10.5-9 13.5C10.5 26.5 7 22 7 16V9l9-3Z"/></svg><em>Claude Sonnet 5</em></span><span class="agent-card-copy"><strong>Aegis</strong><small><b>Security</b> // Risk and Policy Sentinel</small></span>
+                    </button>
+                  </div>
+                </div>
+              </section>
+              <article class="agent-inspector" id="agent-panel" role="tabpanel" aria-labelledby="agent-tab-athena" tabindex="0" aria-live="polite">
+                <header><span data-agent-counter>Root / 07</span><b data-agent-status>Planning channel active</b></header>
+                <div class="agent-inspector-body">
+                  <p data-agent-role>Planner / Architecture and Delegation</p>
+                  <h3 data-agent-name>Athena</h3>
+                  <span data-agent-scope>Architecture and delegation</span>
+                  <dl>
+                    <div><dt>Assigned model</dt><dd data-agent-model>Claude Opus 4.8</dd></div>
+                    <div><dt>Responsibility</dt><dd data-agent-description>Handles architecture, complex planning, delegation, and unresolved ambiguity before work moves to a specialist.</dd></div>
+                  </dl>
+                </div>
+                <footer><span>Command route</span><strong data-agent-route>Athena / Planning</strong></footer>
+              </article>
+              <p class="agent-safety-note"><span>Security boundary</span>Deterministic code still enforces actual restrictions. Aegis advises; it does not act alone.</p>
+            </div>
+          </section>
+
           <section class="screen-view skills-view" data-view="skills" aria-labelledby="skills-title" hidden>
-            <header class="view-heading"><p>02 / Applied tools</p><h2 id="skills-title" tabindex="-1">Tools I use for specific development tasks.</h2><span>Choose a task to see which tools support it and how I use them.</span></header>
+            <header class="view-heading"><p>03 / Applied tools</p><h2 id="skills-title" tabindex="-1">Tools I use for specific development tasks.</h2><span>Choose a task to see which tools support it and how I use them.</span></header>
             <div class="skill-router">
               <div class="segmented-control" role="group" aria-label="Choose a development task">
                 <button type="button" class="is-active" aria-pressed="true" data-skill-focus="develop">Develop</button>
@@ -234,7 +288,7 @@
           </section>
 
           <section class="screen-view projects-view" data-view="projects" aria-labelledby="projects-title" hidden>
-            <header class="view-heading project-heading"><div><p>03 / Projects</p><h2 id="projects-title" tabindex="-1">Prepared for future case studies.</h2><span>Each placeholder shows the evidence that will be documented when the work is ready to publish.</span></div></header>
+            <header class="view-heading project-heading"><div><p>04 / Projects</p><h2 id="projects-title" tabindex="-1">Prepared for future case studies.</h2><span>Each placeholder shows the evidence that will be documented when the work is ready to publish.</span></div></header>
             <div class="project-bay" data-project-bay aria-label="Future project carousel">
               <article class="project-workspace" data-project-workspace tabindex="0" aria-live="polite"></article>
               <div class="project-queue" data-project-track aria-label="Future project queue"></div>
@@ -243,7 +297,7 @@
           </section>
 
           <section class="screen-view credentials-view" data-view="credentials" aria-labelledby="credentials-title" hidden>
-            <header class="view-heading"><p>04 / Training record</p><h2 id="credentials-title" tabindex="-1">Credentials grounded in practical AV work.</h2><span>Select a record to see what it covers and where it applies.</span></header>
+            <header class="view-heading"><p>05 / Training record</p><h2 id="credentials-title" tabindex="-1">Credentials grounded in practical AV work.</h2><span>Select a record to see what it covers and where it applies.</span></header>
             <div class="credential-terminal">
               <div class="credential-index" role="tablist" aria-label="Credential records">
                 <button id="credential-tab-crestron" type="button" role="tab" aria-selected="true" aria-controls="credential-record" tabindex="0" data-credential="crestron"><span>01</span><strong>Crestron Silver Programmer</strong><small>Programming</small></button>
@@ -267,7 +321,7 @@
           </section>
 
           <section class="screen-view contact-view" data-view="contact" aria-labelledby="contact-title" hidden>
-            <header class="view-heading"><p>05 / Contact</p><h2 id="contact-title" tabindex="-1">See my work and connect.</h2><span>I am interested in AI development and software engineering opportunities where careful problem definition, testing, and clear communication matter.</span></header>
+            <header class="view-heading"><p>06 / Contact</p><h2 id="contact-title" tabindex="-1">See my work and connect.</h2><span>I am interested in AI development and software engineering opportunities where careful problem definition, testing, and clear communication matter.</span></header>
             <div class="contact-console">
               <div class="contact-status"><span>Availability</span><strong>Open to entry-level roles</strong><p>AI development / Software engineering</p><small>LinkedIn is the best direct contact channel.</small></div>
               <div class="contact-channels">
@@ -354,15 +408,16 @@
         <nav class="mobile-dock" aria-label="Portfolio modules">
           <button type="button" class="is-active" data-nav="home" aria-current="page"><span>00</span><strong>Home</strong></button>
           <button type="button" data-nav="experience"><span>01</span><strong>Experience</strong></button>
-          <button type="button" data-nav="skills"><span>02</span><strong>Skills</strong></button>
-          <button type="button" data-nav="projects"><span>03</span><strong>Projects</strong></button>
-          <button type="button" data-nav="credentials"><span>04</span><strong>Credentials</strong></button>
-          <button type="button" data-nav="contact"><span>05</span><strong>Contact</strong></button>
+          <button type="button" data-nav="agents"><span>02</span><strong>Agents</strong></button>
+          <button type="button" data-nav="skills"><span>03</span><strong>Skills</strong></button>
+          <button type="button" data-nav="projects"><span>04</span><strong>Projects</strong></button>
+          <button type="button" data-nav="credentials"><span>05</span><strong>Credentials</strong></button>
+          <button type="button" data-nav="contact"><span>06</span><strong>Contact</strong></button>
         </nav>
       </div>
     </main>
 
     <div class="control-toast" data-control-toast role="status" aria-live="polite"></div>
-    <script src="./script.js?v=20260716-scenes1"></script>
+    <script src="./script.js?v=20260718-agent-icons1"></script>
   </body>
 </html>
