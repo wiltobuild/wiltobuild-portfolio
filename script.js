@@ -223,6 +223,7 @@ const PROJECTS = [
     kind: "NYC itinerary web application",
     title: "SideQuest NYC",
     description: "A guided static web app that turns six traveler preferences into a small NYC itinerary using local data and route-aware recommendation logic.",
+    visual: "assets/sidequest-animated-visual/index.html",
     labels: ["Local data", "Recommendation logic", "User controls"],
     evidence: ["104 NYC places with neighborhood and coordinate data", "Scored matching, geographic fallback, and route ordering", "Stop swapping, route estimates, Maps links, and quest copying"],
     links: [
@@ -1442,7 +1443,7 @@ function createProjectCarousel() {
     const detailLabels = project.labels || ["Context", "Decisions", "Evidence"];
     const projectVisual = project.visual ? `
       <figure class="project-visual">
-        <iframe src="${project.visual}" title="Animated iRYS desktop assistant visual" loading="lazy" tabindex="-1"></iframe>
+        <iframe src="${project.visual}" title="Animated ${project.title} visual" loading="lazy" tabindex="-1"></iframe>
       </figure>
     ` : "";
 
