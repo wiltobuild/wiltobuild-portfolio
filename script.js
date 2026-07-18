@@ -42,7 +42,7 @@ const MODULES = {
   experience: { number: "01", label: "Experience", kicker: "Systems practice" },
   agents: { number: "02", label: "Agents", kicker: "Delegation map" },
   skills: { number: "03", label: "Skills", kicker: "Applied tools" },
-  projects: { number: "04", label: "Projects", kicker: "Future case studies" },
+  projects: { number: "04", label: "Projects", kicker: "Current builds" },
   credentials: { number: "05", label: "Credentials", kicker: "Training record" },
   contact: { number: "06", label: "Contact", kicker: "Profiles and contact" }
 };
@@ -58,7 +58,7 @@ const NEXT_PROMPTS = {
   experience: "Trace my systems experience",
   agents: "Explore the agent delegation map",
   skills: "See how I apply development tools",
-  projects: "Review future case study slots",
+  projects: "Review current projects",
   credentials: "Review my technical training",
   contact: "Open my contact channels"
 };
@@ -207,31 +207,44 @@ const CREDENTIALS = {
 
 const PROJECTS = [
   {
-    id: "slot-1",
-    status: "Reserved",
-    title: "AI workflow application",
-    description: "Space for a practical application that uses an AI model to support a defined user task.",
-    evidence: ["User need and limits", "Workflow and model decisions", "Observed task result"]
+    id: "irys",
+    status: "Private / Active build",
+    kind: "Windows desktop companion",
+    title: "iRYS",
+    description: "A lightweight Windows companion with an eye-shaped overlay that communicates local application and coding-agent activity through distinct visual states.",
+    labels: ["Platform", "System boundary", "Current evidence"],
+    evidence: ["C# and .NET 8 desktop application", "Local tray controls and secured loopback events", "Interactive overlay states, local settings, and test project"],
+    access: "Repository private during active development"
   },
   {
-    id: "slot-2",
-    status: "Reserved",
-    title: "Interface case study",
-    description: "Space for an interface project documented from requirements through responsive implementation.",
-    evidence: ["Interface requirement", "Responsive implementation", "Usability checks"]
+    id: "sidequest-nyc",
+    status: "Public / v1.5A",
+    kind: "NYC itinerary web application",
+    title: "SideQuest NYC",
+    description: "A guided static web app that turns six traveler preferences into a small NYC itinerary using local data and route-aware recommendation logic.",
+    labels: ["Local data", "Recommendation logic", "User controls"],
+    evidence: ["104 NYC places with neighborhood and coordinate data", "Scored matching, geographic fallback, and route ordering", "Stop swapping, route estimates, Maps links, and quest copying"],
+    links: [
+      { label: "Open live project", url: "https://wiltobuild.github.io/sidequest-nyc/" },
+      { label: "View repository", url: "https://github.com/wiltobuild/sidequest-nyc" }
+    ]
   },
   {
     id: "slot-3",
     status: "Planned first case study",
+    kind: "Future case study",
     title: "Primary project",
     description: "This slot is reserved for the first complete case study documenting the problem, decisions, implementation, testing, and result.",
+    labels: ["Context", "Decisions", "Evidence"],
     evidence: ["Problem and constraints", "Implementation decisions", "Testing and result"]
   },
   {
     id: "slot-4",
     status: "Reserved",
+    kind: "Future case study",
     title: "Systems utility",
     description: "Space for a small software tool informed by automation, diagnostics, or support work.",
+    labels: ["Context", "Decisions", "Evidence"],
     evidence: ["Operational problem", "Diagnostic logic", "Observed result"]
   }
 ];
@@ -1407,7 +1420,7 @@ function createProjectCarousel() {
   const queue = document.querySelector("[data-project-track]");
   const workspace = document.querySelector("[data-project-workspace]");
   const status = document.querySelector("[data-project-status]");
-  let currentIndex = 2;
+  let currentIndex = 0;
   const reviewedProjects = new Set();
 
   queue.innerHTML = PROJECTS.map((project, index) => `
@@ -1421,18 +1434,25 @@ function createProjectCarousel() {
   const queueButtons = Array.from(queue.querySelectorAll("[data-project-id]"));
 
   function renderWorkspace(project, index) {
+    const projectLinks = project.links?.map((link) => `
+      <a href="${link.url}" target="_blank" rel="noreferrer">${link.label}<b aria-hidden="true">&#8599;</b></a>
+    `).join("") || "";
+    const projectAccess = project.access ? `<p class="project-access"><span>Repository</span><b>${project.access}</b></p>` : "";
+    const detailLabels = project.labels || ["Context", "Decisions", "Evidence"];
+
     workspace.innerHTML = `
       <div class="project-card-header"><span>${project.status}</span><b>Slot ${String(index + 1).padStart(2, "0")}</b></div>
       <div class="project-workspace-body">
         <div>
-          <p>Future case study</p>
+          <p>${project.kind}</p>
           <h3>${project.title}</h3>
           <span>${project.description}</span>
+          ${projectLinks ? `<div class="project-actions">${projectLinks}</div>` : projectAccess}
         </div>
-        <dl class="project-template" aria-label="Planned case study evidence">
-          <div><dt>Context</dt><dd>${project.evidence[0]}</dd></div>
-          <div><dt>Decisions</dt><dd>${project.evidence[1]}</dd></div>
-          <div><dt>Evidence</dt><dd>${project.evidence[2]}</dd></div>
+        <dl class="project-template" aria-label="${project.title} project details">
+          <div><dt>${detailLabels[0]}</dt><dd>${project.evidence[0]}</dd></div>
+          <div><dt>${detailLabels[1]}</dt><dd>${project.evidence[1]}</dd></div>
+          <div><dt>${detailLabels[2]}</dt><dd>${project.evidence[2]}</dd></div>
         </dl>
       </div>
     `;
@@ -1452,7 +1472,7 @@ function createProjectCarousel() {
     });
     status.textContent = `Slot ${String(currentIndex + 1).padStart(2, "0")} of ${String(PROJECTS.length).padStart(2, "0")} / ${PROJECTS[currentIndex].status}`;
     reviewedProjects.add(currentIndex);
-    if (reviewedProjects.size >= Math.min(3, PROJECTS.length)) markModuleReviewed("projects", "Future project queue reviewed");
+    if (reviewedProjects.size >= Math.min(3, PROJECTS.length)) markModuleReviewed("projects", "Project queue reviewed");
   }
 
   function goTo(index) {
@@ -1466,6 +1486,7 @@ function createProjectCarousel() {
   }
 
   workspace.addEventListener("keydown", (event) => {
+    if (event.target.closest("a, button")) return;
     if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
     event.preventDefault();
     goTo(currentIndex + (event.key === "ArrowRight" ? 1 : -1));

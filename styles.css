@@ -2545,6 +2545,70 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
   line-height: 1.55;
 }
 
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.project-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: var(--surface-raised);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.project-actions a:hover,
+.project-actions a:focus-visible {
+  border-color: var(--amber);
+  color: var(--on-accent);
+  background: var(--amber);
+}
+
+.project-actions a b {
+  color: var(--amber);
+  font-size: 0.82rem;
+}
+
+.project-actions a:hover b,
+.project-actions a:focus-visible b {
+  color: currentColor;
+}
+
+.project-access {
+  display: grid;
+  gap: 4px;
+  max-width: 330px;
+  margin: 20px 0 0;
+  padding: 10px 12px;
+  border-left: 2px solid var(--steel);
+  color: var(--muted);
+  background: var(--surface-raised);
+  font-size: 0.72rem;
+}
+
+.project-access span {
+  color: var(--steel);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+}
+
+.project-access b {
+  font-weight: 500;
+}
+
 .project-card-header {
   display: flex;
   justify-content: space-between;
