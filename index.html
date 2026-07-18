@@ -13,7 +13,7 @@
     <link rel="canonical" href="https://wiltobuild.github.io/wiltobuild-portfolio/" />
     <link rel="icon" href="./assets/wil-sheppard-headshot.png" type="image/png" />
     <title>Wil Sheppard | WilToBuild</title>
-    <link rel="stylesheet" href="./styles.css?v=20260716-controller8" />
+    <link rel="stylesheet" href="./styles.css?v=20260716-scenes1" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -67,6 +67,12 @@
       </aside>
 
       <section class="display-bezel" aria-label="WilToBuild portfolio display">
+        <div class="scene-recall" data-scene-recall aria-hidden="true">
+          <span>Recalling environment</span>
+          <strong data-scene-recall-name>Work</strong>
+          <i><b></b><b></b><b></b><b></b><b></b></i>
+          <small>Scene loaded</small>
+        </div>
         <div class="display-header">
           <p><span data-view-kicker>System overview</span><b data-view-title>Home</b></p>
           <button class="preset-status" type="button" data-preset-status aria-label="Open portfolio preset controls">
@@ -101,9 +107,9 @@
           <section id="lighting-panel" data-utility-panel="lighting" hidden>
             <p>Lighting scenes</p>
             <div class="scene-options" role="group" aria-label="Choose a display scene">
-              <button type="button" class="is-active" data-scene="work" aria-pressed="true"><span>01</span><strong>Work</strong><small>Balanced display</small></button>
-              <button type="button" data-scene="presentation" aria-pressed="false"><span>02</span><strong>Presentation</strong><small>Higher contrast</small></button>
-              <button type="button" data-scene="night" aria-pressed="false"><span>03</span><strong>Night</strong><small>Reduced brightness</small></button>
+              <button type="button" class="is-active" data-scene="work" aria-pressed="true"><span>01</span><strong>Work</strong><small>Focused control room</small></button>
+              <button type="button" data-scene="daylight" aria-pressed="false"><span>02</span><strong>Daylight</strong><small>Bright review environment</small></button>
+              <button type="button" data-scene="party" aria-pressed="false"><span>03</span><strong>Party</strong><small>Showcase demo scene</small></button>
             </div>
           </section>
           <section id="preset-panel" data-utility-panel="presets" hidden>
@@ -357,6 +363,6 @@
     </main>
 
     <div class="control-toast" data-control-toast role="status" aria-live="polite"></div>
-    <script src="./script.js?v=20260716-controller8"></script>
+    <script src="./script.js?v=20260716-scenes1"></script>
   </body>
 </html>

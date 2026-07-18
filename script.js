@@ -604,7 +604,11 @@ function createUtilityControls() {
   const sceneButtons = Array.from(document.querySelectorAll("[data-scene]"));
   const presetButtons = Array.from(document.querySelectorAll("[data-preset]"));
   const auxiliaryButton = document.querySelector('[data-utility="auxiliary"]');
+  const lightingButton = document.querySelector('[data-utility="lighting"]');
+  const sceneRecallName = document.querySelector("[data-scene-recall-name]");
+  const themeColor = document.querySelector('meta[name="theme-color"]');
   let openPanel = "";
+  let sceneRecallTimer;
 
   function closeDrawer() {
     drawer.hidden = true;
@@ -634,16 +638,42 @@ function createUtilityControls() {
   }
 
   function applyScene(sceneName, announce = true) {
-    document.documentElement.dataset.scene = sceneName;
-    window.localStorage.setItem("wiltobuild-scene", sceneName);
+    const legacyScenes = { presentation: "daylight", night: "work" };
+    const validScenes = ["work", "daylight", "party"];
+    const requestedScene = legacyScenes[sceneName] || sceneName;
+    const activeScene = validScenes.includes(requestedScene) ? requestedScene : "work";
+    const sceneLabels = { work: "Work", daylight: "Daylight", party: "Party" };
+    const themeColors = { work: "#111715", daylight: "#edf1ef", party: "#11101d" };
+
+    document.documentElement.dataset.scene = activeScene;
+    themeColor.content = themeColors[activeScene];
+    lightingButton.dataset.currentScene = activeScene;
+    lightingButton.title = `Lighting scenes / ${sceneLabels[activeScene]} active`;
+    window.localStorage.setItem("wiltobuild-scene", activeScene);
     sceneButtons.forEach((button) => {
-      const isActive = button.dataset.scene === sceneName;
+      const isActive = button.dataset.scene === activeScene;
       button.classList.toggle("is-active", isActive);
       button.setAttribute("aria-pressed", String(isActive));
     });
+
+    window.dispatchEvent(new CustomEvent("wiltobuild:scenechange", { detail: { scene: activeScene } }));
     if (announce) {
-      showControlToast(`${sceneName[0].toUpperCase()}${sceneName.slice(1)} lighting scene recalled`);
-      playPanelTone(680);
+      window.clearTimeout(sceneRecallTimer);
+      sceneRecallName.textContent = sceneLabels[activeScene];
+      document.documentElement.classList.remove("is-recalling");
+      void document.documentElement.offsetWidth;
+      document.documentElement.classList.add("is-recalling");
+      systemStatus.textContent = `Recalling ${sceneLabels[activeScene]} scene`;
+      showControlToast(`${sceneLabels[activeScene]} lighting scene recalled`);
+      playToneSequence({
+        work: [[460, 0, 0.05], [560, 0.06, 0.07]],
+        daylight: [[520, 0, 0.05], [680, 0.06, 0.05], [820, 0.12, 0.08]],
+        party: [[440, 0, 0.045], [660, 0.05, 0.045], [880, 0.1, 0.09]]
+      }[activeScene], { volume: 0.014 });
+      sceneRecallTimer = window.setTimeout(() => {
+        document.documentElement.classList.remove("is-recalling");
+        systemStatus.textContent = `${sceneLabels[activeScene]} environment active`;
+      }, reduceMotion.matches ? 30 : 700);
     }
   }
 
@@ -1008,11 +1038,21 @@ function createServiceMode() {
   }
 
   function drawSnake() {
+    const sceneStyles = getComputedStyle(document.documentElement);
+    const sceneColor = (property, fallback) => sceneStyles.getPropertyValue(property).trim() || fallback;
+    const gameBackground = sceneColor("--game-bg", "#07100d");
+    const gameCell = sceneColor("--game-cell", "#0b1512");
+    const gameGrid = sceneColor("--game-grid", "#1b2a25");
+    const gameBorder = sceneColor("--game-border", "#315046");
+    const gameTarget = sceneColor("--game-target", "#d7a45c");
+    const gameHead = sceneColor("--game-head", "#f1f4ed");
+    const gameSnake = sceneColor("--game-snake", "#b7ef5b");
+    const gameSnakeAlt = sceneColor("--game-snake-alt", "#91c94b");
     foodPulse = (foodPulse + 1) % 8;
-    context.fillStyle = "#07100d";
+    context.fillStyle = gameBackground;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    context.fillStyle = "#0b1512";
+    context.fillStyle = gameCell;
     for (let row = 0; row < gridSize; row += 1) {
       for (let column = 0; column < gridSize; column += 1) {
         if ((row + column) % 2 === 0) {
@@ -1021,7 +1061,7 @@ function createServiceMode() {
       }
     }
 
-    context.strokeStyle = "#1b2a25";
+    context.strokeStyle = gameGrid;
     context.lineWidth = 1;
     for (let index = 0; index <= gridSize; index += 1) {
       context.beginPath();
@@ -1034,7 +1074,7 @@ function createServiceMode() {
       context.stroke();
     }
 
-    context.strokeStyle = "#315046";
+    context.strokeStyle = gameBorder;
     context.lineWidth = 2;
     context.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
 
@@ -1044,9 +1084,9 @@ function createServiceMode() {
     context.save();
     context.translate(foodCenterX, foodCenterY);
     context.rotate(Math.PI / 4);
-    context.shadowColor = "#d7a45c";
+    context.shadowColor = gameTarget;
     context.shadowBlur = 14;
-    context.fillStyle = "#d7a45c";
+    context.fillStyle = gameTarget;
     context.fillRect(-foodRadius, -foodRadius, foodRadius * 2, foodRadius * 2);
     context.restore();
 
@@ -1056,9 +1096,9 @@ function createServiceMode() {
       const y = (segment.y * cellSize) + inset;
       const size = cellSize - (inset * 2);
       context.save();
-      context.shadowColor = index === 0 ? "#f1f4ed" : "#b7ef5b";
+      context.shadowColor = index === 0 ? gameHead : gameSnake;
       context.shadowBlur = index < 4 ? 9 - index : 2;
-      context.fillStyle = index === 0 ? "#f1f4ed" : index % 2 === 0 ? "#b7ef5b" : "#91c94b";
+      context.fillStyle = index === 0 ? gameHead : index % 2 === 0 ? gameSnake : gameSnakeAlt;
       context.beginPath();
       context.roundRect(x, y, size, size, index === 0 ? 5 : 3);
       context.fill();
@@ -1067,7 +1107,7 @@ function createServiceMode() {
       if (index === 0) {
         const eyeOffsetX = direction.x === 0 ? 4 : direction.x * 4;
         const eyeOffsetY = direction.y === 0 ? 4 : direction.y * 4;
-        context.fillStyle = "#07100d";
+        context.fillStyle = gameBackground;
         if (direction.x !== 0) {
           context.fillRect(x + (size / 2) + eyeOffsetX - 1, y + 3, 2, 2);
           context.fillRect(x + (size / 2) + eyeOffsetX - 1, y + size - 5, 2, 2);
@@ -1078,6 +1118,8 @@ function createServiceMode() {
       }
     });
   }
+
+  window.addEventListener("wiltobuild:scenechange", drawSnake);
 
   function stopSnake() {
     window.clearInterval(snakeTimer);
@@ -1337,6 +1379,9 @@ footerNextButton.addEventListener("click", () => activateModule(footerNextButton
 
 window.addEventListener("popstate", () => activateModule(moduleFromLocation(), { updateUrl: false }));
 reduceMotion.addEventListener("change", () => controller.classList.remove("is-switching"));
+document.addEventListener("visibilitychange", () => {
+  document.documentElement.classList.toggle("is-page-hidden", document.hidden);
+});
 
 document.querySelector("#year").textContent = new Date().getFullYear();
 configureSocialLinks();
