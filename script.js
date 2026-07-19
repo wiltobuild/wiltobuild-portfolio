@@ -109,6 +109,20 @@ const AGENTS = {
     scope: "Architecture and delegation",
     description: "Handles architecture, complex planning, delegation, and unresolved ambiguity before work moves to a specialist."
   },
+  zeus: {
+    role: "Escalation",
+    title: "Escalation // Independent Top-Down Reasoning",
+    model: "Sol 5.6",
+    scope: "High-ambiguity problem framing",
+    description: "Independently reasons through escalated, high-ambiguity problems from the top down; its proposal is handed to Athena for synthesis."
+  },
+  hades: {
+    role: "Escalation",
+    title: "Escalation // Underworld Reasoning",
+    model: "Claude Fable",
+    scope: "Independent counter-proposal",
+    description: "Reasons independently from the depths; any tokens that don't make Athena's final cut are banished straight to the underworld."
+  },
   hephaestus: {
     role: "Builder",
     title: "Builder // Implementation Workhorse",
@@ -455,6 +469,7 @@ async function activateModule(moduleName, options = {}) {
 
   activeModule = moduleName;
   updateInterface(moduleName);
+  updateScrollAffordance();
   if (updateUrl) updateHistory(moduleName);
 
   if (animate && !reduceMotion.matches) await wait(270);
@@ -682,6 +697,8 @@ function createAgentConsole() {
   const status = document.querySelector("[data-agent-status]");
   const route = document.querySelector("[data-agent-route]");
   const visitedSpecialists = new Set();
+  const specialistAgents = ["hephaestus", "argus", "themis", "mnemosyne", "hermes", "aegis"];
+  const escalationAgents = ["zeus", "hades"];
 
   function select(agentName, focus = false) {
     const agent = AGENTS[agentName];
@@ -696,26 +713,28 @@ function createAgentConsole() {
       if (isSelected && focus) button.focus();
     });
 
-    if (agentName !== "athena") visitedSpecialists.add(agentName);
+    const isSpecialist = specialistAgents.includes(agentName);
+    const isEscalation = escalationAgents.includes(agentName);
+    if (isSpecialist) visitedSpecialists.add(agentName);
     buttons.forEach((button) => button.classList.toggle("is-visited", button.dataset.agent === "athena" || visitedSpecialists.has(button.dataset.agent)));
-    rootButton.classList.toggle("is-routing", agentName !== "athena");
+    rootButton.classList.toggle("is-routing", isSpecialist);
     consoleElement.dataset.activeAgent = agentName;
     consoleElement.classList.remove("is-routing");
     void consoleElement.offsetWidth;
-    if (agentName !== "athena" && !reduceMotion.matches) consoleElement.classList.add("is-routing");
+    if (isSpecialist && !reduceMotion.matches) consoleElement.classList.add("is-routing");
     name.textContent = agentName.charAt(0).toUpperCase() + agentName.slice(1);
     role.textContent = agent.title;
     model.textContent = agent.model;
     scope.textContent = agent.scope;
     description.textContent = agent.description;
-    counter.textContent = agentName === "athena" ? "Root / 07" : `${String(activeIndex).padStart(2, "0")} / 07`;
+    counter.textContent = agentName === "athena" ? "Root / 09" : isEscalation ? `ESC / ${agentName === "zeus" ? "08" : "09"}` : `${String(specialistAgents.indexOf(agentName) + 1).padStart(2, "0")} / 09`;
     status.textContent = `${agent.role} channel active`;
-    route.textContent = agentName === "athena" ? "Athena / Planning" : `Athena / ${name.textContent}`;
+    route.textContent = agentName === "athena" ? "Athena / Planning" : isEscalation ? `${name.textContent} → Athena` : `Athena / ${name.textContent}`;
     panel.setAttribute("aria-labelledby", buttons[activeIndex].id);
     panel.classList.remove("is-updating");
     void panel.offsetWidth;
     if (!reduceMotion.matches) panel.classList.add("is-updating");
-    if (visitedSpecialists.size === buttons.length - 1) markModuleReviewed("agents", "AI workflow reviewed");
+    if (visitedSpecialists.size === specialistAgents.length) markModuleReviewed("agents", "AI workflow reviewed");
     playPanelTone(500 + (activeIndex * 45));
   }
 
@@ -1526,6 +1545,25 @@ function createMobileDockCue() {
   update();
 }
 
+function updateScrollAffordance() {
+  const activeView = document.querySelector(".screen-view.is-active");
+  if (!activeView) return;
+  const remaining = activeView.scrollHeight - activeView.clientHeight - activeView.scrollTop;
+  const isScrollable = activeView.scrollHeight - activeView.clientHeight > 2;
+  displayScreen.classList.toggle("has-scroll-cue", isScrollable && remaining > 2);
+}
+
+function createScrollAffordance() {
+  const update = () => window.requestAnimationFrame(updateScrollAffordance);
+  views.forEach((view) => view.addEventListener("scroll", update, { passive: true }));
+  window.addEventListener("resize", update);
+  if ("ResizeObserver" in window) {
+    const observer = new ResizeObserver(update);
+    views.forEach((view) => observer.observe(view));
+  }
+  update();
+}
+
 function updateClock() {
   clock.textContent = new Intl.DateTimeFormat([], { hour: "2-digit", minute: "2-digit" }).format(new Date());
 }
@@ -1553,6 +1591,7 @@ createProjectCarousel();
 createCredentialTerminal();
 createServiceMode();
 createMobileDockCue();
+createScrollAffordance();
 updateClock();
 window.setInterval(updateClock, 30000);
 activeModule = moduleFromLocation();
@@ -1562,6 +1601,7 @@ views.forEach((view) => {
   view.classList.toggle("is-active", isActive);
 });
 updateInterface(activeModule);
+updateScrollAffordance();
 systemStatus.textContent = activeModule === "home" ? "System ready" : `${MODULES[activeModule].label} active`;
 if (!window.location.hash) updateHistory(activeModule, "replace");
 createBootSequence();

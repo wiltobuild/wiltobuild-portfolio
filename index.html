@@ -136,6 +136,7 @@
 
         <div class="display-screen" id="active-screen" tabindex="-1">
           <div class="screen-transition" aria-hidden="true"><span data-transition-from>Home</span><i></i><b data-transition-to>Experience</b></div>
+          <div class="scroll-affordance" data-scroll-affordance aria-hidden="true"><span>Scroll</span><i></i></div>
 
           <section class="screen-view home-view is-active" data-view="home" aria-labelledby="home-title">
             <div class="home-mobile-switch" role="group" aria-label="Home screen view">
@@ -235,11 +236,20 @@
           </section>
 
           <section class="screen-view agents-view" data-view="agents" aria-labelledby="agents-title" hidden>
-            <header class="view-heading"><p>02 / My AI workflow</p><h2 id="agents-title" tabindex="-1">Seven agents, one chain of command.</h2><span>The Pantheon is the multi-agent system I designed and run as part of my own development workflow, separating planning, execution, monitoring, review, memory, routing, and security into defined roles.</span></header>
+            <header class="view-heading"><p>02 / My AI workflow</p><h2 id="agents-title" tabindex="-1">Nine agents, one chain of command.</h2><span>The Pantheon is the multi-agent system I designed and run as part of my own development workflow, adding independent escalation reasoning before Athena plans, delegates, and synthesizes the work.</span></header>
             <div class="agent-console" data-agent-console>
               <section class="agent-map" aria-label="My AI workflow">
-                <header class="agent-map-header"><div><span>My AI workflow</span><strong>The Pantheon</strong></div><p><i aria-hidden="true"></i>7 agents online</p></header>
+                <header class="agent-map-header"><div><span>My AI workflow</span><strong>The Pantheon</strong></div><p><i aria-hidden="true"></i>9 agents online</p></header>
                 <div class="agent-routes" role="tablist" aria-label="Select an agent role">
+                  <div class="agent-escalation">
+                    <button id="agent-tab-zeus" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="zeus">
+                      <span class="agent-channel-icon" aria-hidden="true"><svg viewBox="0 0 32 32"><path fill="currentColor" d="m18 1-13 17h9l-1 13 14-19h-9l0-11Z"/></svg><span class="agent-model-caption"><small>Codex</small><em>Sol 5.6</em></span></span><span class="agent-card-copy"><strong>Zeus</strong><small><b>Escalation</b> // Top-down reasoning</small></span>
+                    </button>
+                    <button id="agent-tab-hades" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="hades">
+                      <span class="agent-channel-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 30V8M10 4v7M22 4v7M8 11c0 3 8 3 8-3M16 8c0 6 8 6 8 3M11 30h10"/></svg><em>Claude Fable</em></span><span class="agent-card-copy"><strong>Hades</strong><small><b>Escalation</b> // sends spent tokens to the underworld</small></span>
+                    </button>
+                  </div>
+                  <div class="escalation-connector" aria-hidden="true"><i></i><b></b><em></em><span><strong>Escalation · independent reasoning</strong><small>Athena synthesizes the best — or a hybrid.</small></span></div>
                   <button class="agent-root is-active" id="agent-tab-athena" type="button" role="tab" aria-selected="true" aria-controls="agent-panel" tabindex="0" data-agent="athena">
                     <span class="agent-root-icon" aria-hidden="true">
                       <svg viewBox="0 0 48 48"><path d="M12 17 8 8l10 5a20 20 0 0 1 12 0L40 8l-4 9a17 17 0 0 1 2 8c0 10-6 17-14 19-8-2-14-9-14-19 0-3 .7-5.7 2-8Z"/><circle class="icon-cutout" cx="18" cy="25" r="5"/><circle class="icon-cutout" cx="30" cy="25" r="5"/><circle cx="18" cy="25" r="2"/><circle cx="30" cy="25" r="2"/><path class="icon-cutout" d="m21 32 3 5 3-5Z"/></svg>
@@ -272,7 +282,7 @@
                 </div>
               </section>
               <article class="agent-inspector" id="agent-panel" role="tabpanel" aria-labelledby="agent-tab-athena" tabindex="0" aria-live="polite">
-                <header><span data-agent-counter>Root / 07</span><b data-agent-status>Planning channel active</b></header>
+                <header><span data-agent-counter>Root / 09</span><b data-agent-status>Planning channel active</b></header>
                 <div class="agent-inspector-body">
                   <p data-agent-role>Planner / Architecture and Delegation</p>
                   <h3 data-agent-name>Athena</h3>
@@ -359,11 +369,13 @@
           <section class="screen-view contact-view" data-view="contact" aria-labelledby="contact-title" hidden>
             <header class="view-heading"><p>06 / Contact</p><h2 id="contact-title" tabindex="-1">See my work and connect.</h2><span>I am interested in AI development and software engineering opportunities where careful problem definition, testing, and clear communication matter.</span></header>
             <div class="contact-console">
-              <div class="contact-status"><span>Availability</span><strong>Open to entry-level roles</strong><p>AI development / Software engineering</p><small>LinkedIn is the best direct contact channel.</small></div>
+              <div class="contact-status"><span>Availability</span><strong>Open to entry-level roles</strong><p>AI development / Software engineering</p><small>LinkedIn and email are both direct contact channels.</small></div>
               <div class="contact-channels">
                 <a data-social="github" href="https://github.com/wiltobuild" target="_blank" rel="noreferrer"><span>01</span><strong>GitHub</strong><small>Public repositories</small><b>&#8599;</b></a>
                 <a class="is-primary" data-social="linkedin" href="https://www.linkedin.com/in/william-sheppard-230a82132/" target="_blank" rel="noreferrer"><span>02</span><strong>Connect on LinkedIn</strong><small>Best direct contact channel</small><b>&#8599;</b></a>
                 <a data-social="x" href="https://x.com/WillBeBuilding" target="_blank" rel="noreferrer"><span>03</span><strong>X</strong><small>@WillBeBuilding</small><b>&#8599;</b></a>
+                <a href="mailto:wil.sheppard@gmail.com"><span>04</span><strong>Email Wil</strong><small>wil.sheppard@gmail.com</small><b>&#8594;</b></a>
+                <a class="contact-resume" href="assets/wil-sheppard-resume.pdf" download><span>05</span><strong>Download r&eacute;sum&eacute;</strong><small>PDF / current r&eacute;sum&eacute;</small><b>&#8595;</b></a>
               </div>
             </div>
           </section>

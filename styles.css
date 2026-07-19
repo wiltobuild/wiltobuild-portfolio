@@ -31,6 +31,10 @@
   --game-snake-alt: #91c94b;
   --party-pink: #e97663;
   --agent-planner: #d7a45c;
+  --agent-zeus: #f1f4ed;
+  --agent-zeus-ink: #f1f4ed;
+  --agent-hades: #d4dbd7;
+  --agent-hades-surface: #070a09;
   --agent-builder: #dd7657;
   --agent-watcher: #53a9bd;
   --agent-reviewer: #9a7ed0;
@@ -75,6 +79,10 @@ html[data-scene="daylight"] {
   --game-snake: #247455;
   --game-snake-alt: #39896a;
   --agent-planner: #946019;
+  --agent-zeus: #f7faf8;
+  --agent-zeus-ink: #17201d;
+  --agent-hades: #33413c;
+  --agent-hades-surface: #070a09;
   --agent-builder: #a8472f;
   --agent-watcher: #24718a;
   --agent-reviewer: #6848a1;
@@ -115,6 +123,10 @@ html[data-scene="party"] {
   --game-snake-alt: #2db8ef;
   --party-pink: #ff4fc8;
   --agent-planner: #ffd04f;
+  --agent-zeus: #fffaff;
+  --agent-zeus-ink: #fffaff;
+  --agent-hades: #e0e0eb;
+  --agent-hades-surface: #05040b;
   --agent-builder: #ff725c;
   --agent-watcher: #3ed9ff;
   --agent-reviewer: #b995ff;
@@ -1113,6 +1125,42 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
   box-shadow: inset 0 0 36px rgba(0, 0, 0, 0.48), inset 0 1px rgba(255, 255, 255, 0.035);
 }
 
+.scroll-affordance {
+  position: absolute;
+  z-index: 12;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: 7px;
+  height: 52px;
+  padding-bottom: 8px;
+  color: var(--dim);
+  background: linear-gradient(to bottom, transparent, var(--screen) 82%);
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  transition: opacity 180ms ease;
+}
+
+.scroll-affordance i {
+  width: 6px;
+  height: 6px;
+  margin-bottom: 2px;
+  border-right: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+  transform: rotate(45deg);
+}
+
+.display-screen.has-scroll-cue .scroll-affordance {
+  opacity: 1;
+}
+
 .screen-view {
   height: 100%;
   min-width: 0;
@@ -1182,6 +1230,7 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 .home-view {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 310px;
+  align-content: center;
   gap: 22px;
   padding: clamp(22px, 3vw, 42px);
   height: auto;
@@ -2041,6 +2090,8 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .agent-console[data-active-agent="hephaestus"] { --active-agent-color: var(--agent-builder); }
+.agent-console[data-active-agent="zeus"] { --active-agent-color: var(--agent-zeus); }
+.agent-console[data-active-agent="hades"] { --active-agent-color: var(--agent-hades); }
 .agent-console[data-active-agent="argus"] { --active-agent-color: var(--agent-watcher); }
 .agent-console[data-active-agent="themis"] { --active-agent-color: var(--agent-reviewer); }
 .agent-console[data-active-agent="mnemosyne"] { --active-agent-color: var(--agent-memory); }
@@ -2142,6 +2193,131 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
   position: relative;
   height: 30px;
 }
+
+.agent-escalation {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.agent-escalation button {
+  --agent-color: var(--steel);
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 104px;
+  padding: 10px;
+  border: 1px solid var(--agent-color);
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-raised) 86%, transparent);
+  cursor: pointer;
+  text-align: left;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.agent-escalation button[data-agent="zeus"] { --agent-color: var(--agent-zeus); --agent-ink: var(--agent-zeus-ink); background: color-mix(in srgb, var(--agent-zeus) 8%, var(--surface-raised)); }
+.agent-escalation button[data-agent="hades"] { --agent-color: var(--agent-hades); --agent-ink: var(--agent-hades); color: var(--agent-hades); background: var(--agent-hades-surface); }
+
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"] {
+  border-color: #596861;
+}
+
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"] .agent-card-copy small,
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"] .agent-card-copy small b,
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"] .agent-model-caption small,
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"] .agent-channel-icon em {
+  color: #35443e;
+}
+
+.agent-escalation button::before {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  width: 1px;
+  height: 9px;
+  background: var(--line);
+}
+
+.agent-escalation button:hover,
+.agent-escalation button:focus-visible,
+.agent-escalation button.is-active {
+  color: var(--text);
+  border-color: var(--agent-color);
+  box-shadow: inset 0 3px var(--agent-color), 0 8px 22px color-mix(in srgb, var(--agent-color) 18%, transparent), 0 0 0 1px color-mix(in srgb, var(--agent-color) 20%, transparent);
+}
+
+.agent-escalation button[data-agent="hades"]:hover,
+.agent-escalation button[data-agent="hades"]:focus-visible,
+.agent-escalation button[data-agent="hades"].is-active { color: var(--agent-hades); background: var(--agent-hades-surface); }
+
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"]:hover,
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"]:focus-visible,
+html[data-scene="daylight"] .agent-escalation button[data-agent="zeus"].is-active { border-color: #596861; }
+
+.agent-escalation .agent-channel-icon { color: var(--agent-ink, var(--agent-color)); }
+.agent-escalation button[data-agent="hades"] .agent-channel-icon { background: #020303; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--agent-hades) 54%, transparent); }
+.agent-escalation .agent-card-copy strong { color: var(--text); }
+.agent-escalation button[data-agent="hades"] .agent-card-copy strong { color: var(--agent-hades); }
+
+.escalation-connector {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  min-height: 58px;
+  color: var(--dim);
+  font-family: var(--font-mono);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.escalation-connector::before,
+.escalation-connector::after,
+.escalation-connector i,
+.escalation-connector b,
+.escalation-connector em {
+  content: "";
+  position: absolute;
+  display: block;
+  background: var(--line);
+}
+
+.escalation-connector::before { top: 9px; right: 25%; left: 25%; height: 1px; }
+.escalation-connector::after { top: 9px; bottom: 18px; left: 50%; width: 1px; }
+.escalation-connector b { top: 0; left: 25%; width: 1px; height: 10px; }
+.escalation-connector em { top: 0; right: 25%; width: 1px; height: 10px; }
+.escalation-connector i { display: none; }
+
+.escalation-connector span {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+  padding: 0 8px;
+  background: var(--surface);
+  font-style: normal;
+  line-height: 1.15;
+}
+
+.escalation-connector strong { color: var(--dim); font-size: 0.52rem; font-weight: 500; }
+.escalation-connector small { color: var(--muted); font-size: 0.48rem; text-transform: none; }
+
+.agent-console[data-active-agent="zeus"] .escalation-connector::before,
+.agent-console[data-active-agent="zeus"] .escalation-connector::after,
+.agent-console[data-active-agent="zeus"] .escalation-connector b,
+.agent-console[data-active-agent="zeus"] .escalation-connector em,
+.agent-console[data-active-agent="hades"] .escalation-connector::before,
+.agent-console[data-active-agent="hades"] .escalation-connector::after,
+.agent-console[data-active-agent="hades"] .escalation-connector b,
+.agent-console[data-active-agent="hades"] .escalation-connector em { background: var(--active-agent-color); box-shadow: 0 0 8px color-mix(in srgb, var(--active-agent-color) 48%, transparent); }
+
+html .agent-console[data-active-agent="zeus"] .delegation-connector::before,
+html .agent-console[data-active-agent="zeus"] .delegation-connector i,
+html .agent-console[data-active-agent="hades"] .delegation-connector::before,
+html .agent-console[data-active-agent="hades"] .delegation-connector i { background: var(--line); box-shadow: none; }
 
 .delegation-connector::before,
 .delegation-connector i {
@@ -3063,6 +3239,15 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
   background: var(--surface);
 }
 
+.contact-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.contact-view .contact-console {
+  align-self: center;
+}
+
 .contact-status {
   position: relative;
   display: grid;
@@ -3122,6 +3307,24 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 .contact-channels a.is-primary {
   background: var(--surface-raised);
   box-shadow: inset 3px 0 var(--accent);
+}
+
+.contact-channels a.contact-resume {
+  border-bottom: 0;
+  color: var(--on-accent);
+  background: var(--accent);
+  box-shadow: inset 3px 0 color-mix(in srgb, var(--text) 64%, transparent);
+}
+
+.contact-channels a.contact-resume > span,
+.contact-channels a.contact-resume small,
+.contact-channels a.contact-resume b {
+  color: var(--on-accent);
+}
+
+.contact-channels a.contact-resume:hover,
+.contact-channels a.contact-resume:focus-visible {
+  background: color-mix(in srgb, var(--accent) 88%, white);
 }
 
 .pursuit-program {
