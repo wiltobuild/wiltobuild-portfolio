@@ -1794,9 +1794,9 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 .experience-overview {
   display: grid;
   align-content: center;
-  gap: 15px;
+  gap: 12px;
   min-width: 0;
-  padding: clamp(22px, 2.4vw, 32px);
+  padding: clamp(22px, 2vw, 28px);
   border-right: 1px solid var(--line);
   background: color-mix(in srgb, var(--surface-raised) 58%, var(--surface));
 }
@@ -1834,8 +1834,8 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 .experience-metrics span {
   display: grid;
   gap: 5px;
-  min-height: 62px;
-  padding: 10px;
+  min-height: 58px;
+  padding: 9px 10px;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
@@ -1856,7 +1856,7 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 .experience-capabilities {
   display: grid;
   gap: 6px;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--line);
 }
 
@@ -3071,11 +3071,16 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 
 .contact-channels a.is-primary {
   background: var(--surface-raised);
-  box-shadow: inset 3px 0 var(--lime);
+  box-shadow: inset 3px 0 var(--accent);
 }
 
 .contact-channels a.is-primary strong {
-  color: var(--lime);
+  color: var(--accent);
+}
+
+.contact-channels a.is-primary > span,
+.contact-channels a.is-primary b {
+  color: var(--accent);
 }
 
 .contact-channels a > span {
@@ -3188,6 +3193,13 @@ html[data-active-view="contact"] { --accent: var(--coral); }
 .experience-view .signal-readout b,
 .experience-view .transfer-line i {
   background: var(--accent);
+}
+
+.experience-view .signal-readout b {
+  padding: 4px 6px;
+  border: 1px solid color-mix(in srgb, var(--accent) 58%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--accent);
 }
 
 .experience-view .system-path button.is-active > b {
@@ -4849,7 +4861,7 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
     height: clamp(190px, 48vw, 230px);
     aspect-ratio: auto;
     object-position: center 22%;
-    filter: saturate(0.68) contrast(1.04) sepia(0.08) hue-rotate(120deg);
+    filter: saturate(0.68) contrast(1.04) sepia(0.07) hue-rotate(102deg);
   }
 
   .identity-feed::after {
@@ -4858,7 +4870,7 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
     z-index: 1;
     inset: 2px 0 auto;
     height: clamp(190px, 48vw, 230px);
-    background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--steel) 18%, transparent) 0 1px, transparent 1px 4px), linear-gradient(135deg, color-mix(in srgb, var(--steel) 17%, transparent), transparent 60%);
+    background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--steel) 15%, transparent) 0 1px, transparent 1px 4px), linear-gradient(135deg, color-mix(in srgb, var(--steel) 14%, transparent), transparent 60%);
     pointer-events: none;
   }
 
