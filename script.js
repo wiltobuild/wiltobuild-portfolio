@@ -40,7 +40,7 @@ const SOCIAL_URLS = {
 const MODULES = {
   home: { number: "00", label: "Home", kicker: "System overview" },
   experience: { number: "01", label: "Experience", kicker: "Systems practice" },
-  agents: { number: "02", label: "Agents", kicker: "Delegation map" },
+  agents: { number: "02", label: "Agents", kicker: "Workflow" },
   skills: { number: "03", label: "Skills", kicker: "Applied tools" },
   projects: { number: "04", label: "Projects", kicker: "Current builds" },
   credentials: { number: "05", label: "Credentials", kicker: "Training record" },
@@ -56,7 +56,7 @@ const PRESETS = {
 const NEXT_PROMPTS = {
   home: "Return to the system overview",
   experience: "Trace my systems experience",
-  agents: "Explore the agent delegation map",
+  agents: "Explore my AI workflow",
   skills: "See how I apply development tools",
   projects: "Review current projects",
   credentials: "Review my technical training",
@@ -191,7 +191,8 @@ const CREDENTIALS = {
     practice: "I used this training to build and support control programs whose behavior had to remain understandable in real rooms.",
     area: "Control programming",
     demonstrates: "Structured logic and system behavior",
-    applied: "Software state, dependencies, and testing"
+    applied: "Software state, dependencies, and testing",
+    badge: { src: "assets/credential-crestron.png", alt: "Crestron Certified Programmer badge" }
   },
   cts: {
     issuer: "AVIXA",
@@ -201,7 +202,8 @@ const CREDENTIALS = {
     practice: "I applied this foundation while translating client needs into systems that technicians could install, test, and support.",
     area: "AV systems integration",
     demonstrates: "Requirements, signal flow, and technical communication",
-    applied: "System mapping, implementation context, and support"
+    applied: "System mapping, implementation context, and support",
+    badge: { src: "assets/credential-cts.png", alt: "AVIXA CTS certification badge" }
   }
 };
 
@@ -713,7 +715,7 @@ function createAgentConsole() {
     panel.classList.remove("is-updating");
     void panel.offsetWidth;
     if (!reduceMotion.matches) panel.classList.add("is-updating");
-    if (visitedSpecialists.size === buttons.length - 1) markModuleReviewed("agents", "Agent delegation map reviewed");
+    if (visitedSpecialists.size === buttons.length - 1) markModuleReviewed("agents", "AI workflow reviewed");
     playPanelTone(500 + (activeIndex * 45));
   }
 
@@ -876,6 +878,7 @@ function createCredentialTerminal() {
     demonstrates: document.querySelector("[data-credential-demonstrates]"),
     applied: document.querySelector("[data-credential-applied]")
   };
+  const badge = document.querySelector("[data-credential-badge]");
   const reviewedCredentials = new Set();
 
   function select(credentialName, focus = false) {
@@ -889,6 +892,8 @@ function createCredentialTerminal() {
       if (isSelected && focus) button.focus();
     });
     Object.entries(fields).forEach(([name, field]) => { field.textContent = credential[name]; });
+    badge.src = credential.badge.src;
+    badge.alt = credential.badge.alt;
     reviewedCredentials.add(credentialName);
     record.setAttribute("aria-labelledby", buttons[activeIndex].id);
     record.classList.remove("is-updating");

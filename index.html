@@ -14,7 +14,7 @@
     <link rel="icon" href="./assets/wil-sheppard-headshot.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <title>Wil Sheppard | WilToBuild</title>
     <link rel="stylesheet" href="./styles.css?v=20260718-experience" />
     <script>document.documentElement.classList.add("js");</script>
@@ -61,7 +61,7 @@
         <nav class="module-nav">
           <button type="button" class="is-active" data-nav="home" aria-current="page"><span>00</span><strong>Home</strong><small>System overview</small></button>
           <button type="button" data-nav="experience"><span>01</span><strong>Experience</strong><small>Systems practice</small></button>
-          <button type="button" data-nav="agents"><span>02</span><strong>Agents</strong><small>Delegation map</small></button>
+          <button type="button" data-nav="agents"><span>02</span><strong>Agents</strong><small>Workflow</small></button>
           <button type="button" data-nav="skills"><span>03</span><strong>Skills</strong><small>Applied tools</small></button>
           <button type="button" data-nav="projects"><span>04</span><strong>Projects</strong><small>Current and reserved</small></button>
           <button type="button" data-nav="credentials"><span>05</span><strong>Credentials</strong><small>Training record</small></button>
@@ -210,7 +210,7 @@
                   <p class="experience-overview-lead">Independent AV systems integrator + project lead <b>since 2012</b></p>
                   <div class="experience-metrics" aria-label="Experience highlights">
                     <span><b>Since</b><strong>2012</strong></span>
-                    <span><b>Flagship</b><strong>2,400+ UMMC endpoints</strong></span>
+                    <span><b>Largest deployment</b><strong>2,400+ endpoints</strong></span>
                     <span><b>Reach</b><strong>5 sectors served</strong></span>
                     <span><b>Platform</b><strong>Crestron / SIMPL Windows</strong></span>
                   </div>
@@ -218,7 +218,11 @@
                     <b>Core capabilities</b>
                     <span>Residential · commercial · enterprise · healthcare · hospitality. System design + integration · programming · network + hardware coordination · installation, testing + commissioning · client-facing technical leadership.</span>
                   </div>
-                  <p class="experience-note">University of Maryland Medical Center: coordinated technicians, vendors, and client representatives through testing, documentation, and issue resolution.</p>
+                  <div class="experience-capabilities experience-clients">
+                    <b>Major clients</b>
+                    <span>Leto's Pizza · La Quinta Inns &amp; Suites · University of Maryland Medical Center · Telehealth</span>
+                  </div>
+                  <p class="experience-note">A systems engineer and project lead who pairs hands-on Crestron programming with large-scale deployment leadership and clear client communication.</p>
                 </aside>
                 <article class="signal-detail" id="experience-panel" role="tabpanel" aria-labelledby="experience-tab-requirements" tabindex="0">
                   <div class="signal-readout"><span data-experience-counter>01 / 05</span><i aria-hidden="true"></i><b data-experience-state>Requirement confirmed</b></div>
@@ -231,10 +235,10 @@
           </section>
 
           <section class="screen-view agents-view" data-view="agents" aria-labelledby="agents-title" hidden>
-            <header class="view-heading"><p>02 / Agent architecture</p><h2 id="agents-title" tabindex="-1">Seven agents, one chain of command.</h2><span>The Pantheon is a reference architecture that separates planning, execution, monitoring, review, memory, routing, and security into defined roles.</span></header>
+            <header class="view-heading"><p>02 / My AI workflow</p><h2 id="agents-title" tabindex="-1">Seven agents, one chain of command.</h2><span>The Pantheon is the multi-agent system I designed and run as part of my own development workflow, separating planning, execution, monitoring, review, memory, routing, and security into defined roles.</span></header>
             <div class="agent-console" data-agent-console>
-              <section class="agent-map" aria-label="Agent delegation map">
-                <header class="agent-map-header"><div><span>Reference architecture</span><strong>The Pantheon</strong></div><p><i aria-hidden="true"></i>7 agents online</p></header>
+              <section class="agent-map" aria-label="My AI workflow">
+                <header class="agent-map-header"><div><span>My AI workflow</span><strong>The Pantheon</strong></div><p><i aria-hidden="true"></i>7 agents online</p></header>
                 <div class="agent-routes" role="tablist" aria-label="Select an agent role">
                   <button class="agent-root is-active" id="agent-tab-athena" type="button" role="tab" aria-selected="true" aria-controls="agent-panel" tabindex="0" data-agent="athena">
                     <span class="agent-root-icon" aria-hidden="true">
@@ -243,13 +247,13 @@
                     <span class="agent-root-copy"><em>Root controller</em><strong>Athena</strong><small>Planner / Architecture and delegation</small></span>
                     <b>Claude Opus 4.8</b>
                   </button>
-                  <div class="delegation-bus" aria-hidden="true"><span>Delegation bus</span><i></i></div>
+                  <div class="delegation-connector" aria-hidden="true"><i></i></div>
                   <div class="agent-grid">
                     <button id="agent-tab-hephaestus" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="hephaestus">
                       <i class="agent-index">01</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m18 3 11 11-5 5-3-3-9 9 2 2-4 4-9-9 4-4 2 2 9-9-3-3 5-5Z"/></svg><span class="agent-model-caption"><small>Codex</small><em>Terra 5.6</em></span></span><span class="agent-card-copy"><strong>Hephaestus</strong><small><b>Builder</b> // Implementation Workhorse</small></span>
                     </button>
                     <button id="agent-tab-argus" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="argus">
-                      <i class="agent-index">02</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 16s5-8 14-8 14 8 14 8-5 8-14 8S2 16 2 16Z"/><circle cx="16" cy="16" r="5" fill="currentColor" fill-opacity=".28"/><circle cx="16" cy="16" r="2.25" fill="currentColor" stroke="none"/></svg><em>Claude Haiku 4.5</em></span><span class="agent-card-copy"><strong>Argus</strong><small><b>Watcher</b> // All-Seeing Eye</small></span>
+                      <i class="agent-index">02</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path fill="none" d="M2 16s5-8 14-8 14 8 14 8-5 8-14 8S2 16 2 16Z"/><circle cx="16" cy="16" r="5" fill="none"/><circle cx="16" cy="16" r="2" fill="currentColor" stroke="none"/></svg><em>Claude Haiku 4.5</em></span><span class="agent-card-copy"><strong>Argus</strong><small><b>Watcher</b> // All-Seeing Eye</small></span>
                     </button>
                     <button id="agent-tab-themis" type="button" role="tab" aria-selected="false" aria-controls="agent-panel" tabindex="-1" data-agent="themis">
                       <i class="agent-index">03</i><span class="agent-channel-icon"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 3v24M7 8h18M7 8l-4 9h8L7 8ZM25 8l-4 9h8l-4-9ZM10 28h12"/><path d="M3 17c0 3 8 3 8 0M21 17c0 3 8 3 8 0"/></svg><em>Claude Sonnet 5</em></span><span class="agent-card-copy"><strong>Themis</strong><small><b>Reviewer</b> // Quality Gatekeeper</small></span>
@@ -264,6 +268,7 @@
                       <i class="agent-index">06</i><span class="agent-channel-icon"><svg viewBox="0 0 32 36" aria-hidden="true"><path d="M16 1 30 6v10c0 9-5.7 15.2-14 19C7.7 31.2 2 25 2 16V6L16 1Z"/><path class="icon-cutout" d="M16 6 25 9v7c0 6-3.5 10.5-9 13.5C10.5 26.5 7 22 7 16V9l9-3Z"/></svg><em>Claude Sonnet 5</em></span><span class="agent-card-copy"><strong>Aegis</strong><small><b>Security</b> // Risk and Policy Sentinel</small></span>
                     </button>
                   </div>
+                  <div class="delegation-bus" aria-hidden="true"><span>Delegation bus</span></div>
                 </div>
               </section>
               <article class="agent-inspector" id="agent-panel" role="tabpanel" aria-labelledby="agent-tab-athena" tabindex="0" aria-live="polite">
@@ -315,6 +320,20 @@
 
           <section class="screen-view credentials-view" data-view="credentials" aria-labelledby="credentials-title" hidden>
             <header class="view-heading"><p>05 / Training record</p><h2 id="credentials-title" tabindex="-1">Credentials grounded in practical AV work.</h2><span>Select a record to see what it covers and where it applies.</span></header>
+            <article class="pursuit-program">
+              <img src="assets/pursuit-native-ai.gif" alt="Pursuit — Native AI Program" loading="lazy" decoding="async" width="1200" height="630" />
+              <div>
+                <p>Current program</p>
+                <h3>Native AI Program — Fellow</h3>
+                <b>July 2026 cohort · In progress</b>
+                <span>Selected as a fellow in Pursuit's Native AI Program, building real software with AI tools and modern engineering practices.</span>
+                <dl>
+                  <div><dt>Focus</dt><dd>Applied AI development</dd></div>
+                  <div><dt>Building with</dt><dd>Claude Code + Codex</dd></div>
+                  <div><dt>Cohort</dt><dd>July 2026</dd></div>
+                </dl>
+              </div>
+            </article>
             <div class="credential-terminal">
               <div class="credential-index" role="tablist" aria-label="Credential records">
                 <button id="credential-tab-crestron" type="button" role="tab" aria-selected="true" aria-controls="credential-record" tabindex="0" data-credential="crestron"><span>01</span><strong>Crestron Silver Programmer</strong><small>Programming</small></button>
@@ -324,7 +343,7 @@
                 <header><span data-credential-issuer>Crestron</span><b data-credential-status>Completed</b></header>
                 <div>
                   <p>Credential record</p>
-                  <h3 data-credential-title>Silver Programmer</h3>
+                  <div class="credential-record-title"><h3 data-credential-title>Silver Programmer</h3><img data-credential-badge src="assets/credential-crestron.png" alt="Crestron Certified Programmer badge" loading="lazy" decoding="async" width="160" height="80" /></div>
                   <span data-credential-description>Programming training focused on control logic, device behavior, interfaces, and deployable automation.</span>
                   <p class="credential-practice"><b>In practice</b><span data-credential-practice>I used this training to build and support control programs whose behavior had to remain understandable in real rooms.</span></p>
                   <dl>
