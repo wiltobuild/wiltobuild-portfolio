@@ -65,36 +65,36 @@ const NEXT_PROMPTS = {
 
 const EXPERIENCE_STEPS = {
   requirements: {
-    title: "Clarify what the client needs the system to do.",
-    application: "Define the user, task, constraints, and expected behavior before choosing tools.",
+    title: "Translate client needs into room behavior, scope, and constraints.",
+    application: "Gather requirements directly with executives, facility teams, vendors, and end users before choosing a software approach.",
     state: "Requirement confirmed",
     activeNodes: ["client"],
     activeLinks: []
   },
   interface: {
-    title: "Shape controls and feedback around the person using the room.",
-    application: "Design interface states and feedback so the user can understand what the software is doing.",
+    title: "Shape Crestron controls and feedback around real room users.",
+    application: "Carry the same user-first approach into software: make states and feedback understandable for technical and nontechnical users.",
     state: "Interface behavior mapped",
     activeNodes: ["client", "interface"],
     activeLinks: ["1"]
   },
   logic: {
-    title: "Connect interface commands to system state and device behavior.",
-    application: "Map inputs, dependencies, state changes, outputs, and failure cases before implementation.",
+    title: "Build SIMPL Windows logic across control, hardware, and network dependencies.",
+    application: "Map inputs, state changes, outputs, dependencies, and failure cases before implementation—whether the system is a room or an application.",
     state: "Control path mapped",
     activeNodes: ["client", "interface", "processor"],
     activeLinks: ["1", "2"]
   },
   troubleshooting: {
-    title: "Trace faults through a working system under real constraints.",
-    application: "Reproduce the problem, isolate variables, test assumptions, and verify the correction.",
+    title: "Trace faults across devices, networks, technicians, and vendor constraints.",
+    application: "Reproduce the problem, isolate variables, coordinate the right people, test assumptions, and verify the correction in software.",
     state: "Behavior verified",
     activeNodes: ["client", "interface", "processor", "devices"],
     activeLinks: ["1", "2", "3"]
   },
   handoff: {
-    title: "Explain behavior to clients, technicians, and support teams.",
-    application: "Document decisions clearly so the software can be understood, used, and maintained.",
+    title: "Commission, document, and explain a verified system to the people who rely on it.",
+    application: "Carry clear handoff into software: document decisions, translate technical behavior, and leave systems maintainable after launch.",
     state: "System ready",
     activeNodes: ["client", "interface", "processor", "devices", "room"],
     activeLinks: ["1", "2", "3", "4"]
@@ -374,6 +374,7 @@ function updateHistory(moduleName, method = "push") {
 }
 
 function setNavigationState(moduleName) {
+  document.documentElement.dataset.activeView = moduleName;
   stateNavigationButtons.forEach((button) => {
     const isActive = button.dataset.nav === moduleName;
     button.classList.toggle("is-active", isActive);

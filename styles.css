@@ -14,6 +14,7 @@
   --steel: #78aebe;
   --amber: #d7a45c;
   --coral: #e97663;
+  --accent: var(--lime);
   --on-accent: #0a0d0c;
   --rail-surface: #121816;
   --bezel-surface: #0f1513;
@@ -497,7 +498,7 @@ h2[tabindex="-1"]:focus-visible {
   bottom: 0;
   left: 0;
   width: 2px;
-  background: var(--lime);
+  background: var(--accent);
   transform: scaleY(0);
   transition: transform 180ms var(--ease);
 }
@@ -544,7 +545,7 @@ h2[tabindex="-1"]:focus-visible {
 }
 
 .module-nav button.is-active span {
-  color: var(--lime);
+  color: var(--accent);
 }
 
 .module-nav strong {
@@ -1731,9 +1732,22 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 .system-path > i {
   position: relative;
   align-self: center;
-  height: 1px;
+  height: 3px;
+  overflow: hidden;
   background: var(--line);
   transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.system-path > i::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -42%;
+  width: 34%;
+  height: 100%;
+  background: color-mix(in srgb, var(--accent) 90%, white);
+  box-shadow: 0 0 8px var(--accent);
+  opacity: 0;
 }
 
 .system-path > i::after {
@@ -1748,12 +1762,17 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .system-path > i.is-active {
-  background: var(--steel);
-  box-shadow: 0 0 9px rgba(120, 174, 190, 0.42);
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 52%, transparent);
 }
 
 .system-path > i.is-active::after {
-  background: var(--lime);
+  background: var(--accent);
+}
+
+.system-path > i.is-active::before {
+  opacity: 1;
+  animation: signal-flow 2.8s linear infinite;
 }
 
 .signal-workbench {
@@ -1765,12 +1784,83 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .signal-workbench-single {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
 }
 
 .signal-workbench-single .signal-detail {
   min-height: 250px;
 }
+
+.experience-overview {
+  display: grid;
+  align-content: center;
+  gap: 15px;
+  min-width: 0;
+  padding: clamp(22px, 2.4vw, 32px);
+  border-right: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-raised) 58%, var(--surface));
+}
+
+.experience-overview-lead,
+.experience-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.experience-overview-lead {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.experience-overview-lead b,
+.experience-capabilities > b {
+  color: var(--accent);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.experience-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+}
+
+.experience-metrics span {
+  display: grid;
+  gap: 5px;
+  min-height: 62px;
+  padding: 10px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.experience-metrics span:nth-child(2n) { border-right: 0; }
+.experience-metrics span:nth-last-child(-n + 2) { border-bottom: 0; }
+
+.experience-metrics b {
+  color: var(--dim);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.54rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.experience-metrics strong { font-size: 0.72rem; line-height: 1.25; }
+
+.experience-capabilities {
+  display: grid;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.experience-capabilities span { color: var(--muted); font-size: 0.7rem; line-height: 1.48; }
 
 .signal-detail {
   display: grid;
@@ -3013,28 +3103,36 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 }
 
 .experience-view {
-  --view-accent: var(--steel);
+  --view-accent: var(--accent);
 }
 
 .agents-view {
-  --view-accent: color-mix(in srgb, var(--steel) 52%, var(--lime));
+  --view-accent: var(--accent);
 }
 
 .skills-view {
-  --view-accent: var(--lime);
+  --view-accent: var(--accent);
 }
 
 .projects-view {
-  --view-accent: var(--amber);
+  --view-accent: var(--accent);
 }
 
 .credentials-view {
-  --view-accent: #8fb9c7;
+  --view-accent: var(--accent);
 }
 
 .contact-view {
-  --view-accent: var(--coral);
+  --view-accent: var(--accent);
 }
+
+html[data-active-view="home"] { --accent: var(--lime); }
+html[data-active-view="experience"] { --accent: var(--steel); }
+html[data-active-view="agents"] { --accent: color-mix(in srgb, var(--steel) 52%, var(--lime)); }
+html[data-active-view="skills"] { --accent: var(--amber); }
+html[data-active-view="projects"] { --accent: var(--lime); }
+html[data-active-view="credentials"] { --accent: var(--steel); }
+html[data-active-view="contact"] { --accent: var(--coral); }
 
 .experience-view .view-heading,
 .agents-view .view-heading,
@@ -3076,6 +3174,24 @@ html.is-recalling .scene-recall > i > b:nth-child(5) { animation-delay: 180ms; }
 .credentials-view .credential-terminal,
 .contact-view .contact-console {
   border-top-color: var(--view-accent);
+}
+
+.experience-view .system-path button.is-active {
+  box-shadow: inset 0 2px var(--accent);
+}
+
+.experience-view .system-path button[aria-selected="true"] {
+  box-shadow: inset 0 2px var(--accent), inset 0 -3px var(--amber);
+}
+
+.experience-view .system-path button.is-active > b,
+.experience-view .signal-readout b,
+.experience-view .transfer-line i {
+  background: var(--accent);
+}
+
+.experience-view .system-path button.is-active > b {
+  color: var(--on-accent);
 }
 
 .control-toast {
@@ -4104,6 +4220,11 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   100% { box-shadow: 0 0 0 rgba(183, 239, 91, 0); }
 }
 
+@keyframes signal-flow {
+  from { transform: translateX(0); }
+  to { transform: translateX(450%); }
+}
+
 @keyframes boot-bar {
   0% { transform: scaleY(0.12); background: var(--surface); }
   70% { transform: scaleY(1); background: var(--steel); }
@@ -4720,11 +4841,31 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
     width: min(100%, 360px);
     align-self: center;
     box-shadow: 8px 8px 0 #050807;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .identity-feed img {
+    height: clamp(190px, 48vw, 230px);
+    aspect-ratio: auto;
+    object-position: center 22%;
+    filter: saturate(0.68) contrast(1.04) sepia(0.08) hue-rotate(120deg);
+  }
+
+  .identity-feed::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    inset: 2px 0 auto;
+    height: clamp(190px, 48vw, 230px);
+    background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--steel) 18%, transparent) 0 1px, transparent 1px 4px), linear-gradient(135deg, color-mix(in srgb, var(--steel) 17%, transparent), transparent 60%);
+    pointer-events: none;
   }
 
   .home-copy h1 {
-    margin-bottom: 20px;
-    font-size: clamp(3.3rem, 15vw, 4rem);
+    margin-bottom: 16px;
+    font-size: clamp(3rem, 14vw, 3.7rem);
+    line-height: 0.88;
   }
 
   .home-copy {
@@ -4761,7 +4902,7 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
     align-items: center;
     width: 100%;
     min-height: 44px;
-    margin-top: 18px;
+    margin-top: 24px;
     padding: 0 14px;
   color: var(--on-accent);
     background: var(--lime);
@@ -4838,7 +4979,7 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   .system-path > i {
     flex: 0 0 18px;
     width: 18px;
-    height: 1px;
+    height: 3px;
   }
 
   .system-path > i::after {
@@ -4850,6 +4991,11 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   .signal-workbench,
   .contact-console {
     grid-template-columns: 1fr;
+  }
+
+  .experience-overview {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
   }
 
   .signal-detail {
@@ -5290,7 +5436,7 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
     right: 8px;
     left: 8px;
     height: 2px;
-    background: var(--lime);
+    background: var(--accent);
     transform: scaleX(0);
   }
 
@@ -5324,7 +5470,7 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
   }
 
   .mobile-dock button.is-active span {
-    color: var(--lime);
+    color: var(--accent);
   }
 
   .mobile-dock strong {
@@ -5383,5 +5529,10 @@ html.is-page-hidden[data-scene="party"] .snake-cabinet-header i {
 
   .boot-screen {
     display: none;
+  }
+
+  .system-path > i.is-active::before {
+    animation: none !important;
+    opacity: 0;
   }
 }
