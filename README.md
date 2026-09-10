@@ -8,6 +8,7 @@ The site uses a responsive portfolio map to connect Experience, Skills, Projects
 
 - `index.html` - accessible page structure, portfolio content, social links, and metadata
 - `styles.css` - responsive layout, visual states, section components, and animation
+- `visual-refresh.css` - editorial hero, portrait treatment, warm palette, responsive visual refinements; loaded after the base component styles and compatible with all three lighting scenes
 - `script.js` - URL history, route interaction, Experience and Skills controls, and the project carousel
 - `assets/` - Wil Sheppard's headshot
 
