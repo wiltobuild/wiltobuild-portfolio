@@ -248,13 +248,18 @@ const PROJECTS = [
     ]
   },
   {
-    id: "slot-3",
-    status: "Planned first case study",
-    kind: "Future case study",
-    title: "Primary project",
-    description: "This slot is reserved for the first complete case study documenting the problem, decisions, implementation, testing, and result.",
-    labels: ["Context", "Decisions", "Evidence"],
-    evidence: ["Problem and constraints", "Implementation decisions", "Testing and result"]
+    id: "gitfit",
+    status: "Public / Active build",
+    kind: "Fitness studio management suite",
+    title: "GitFit",
+    description: "A unified fitness-management platform for one studio: members book classes and track momentum, staff run a live operations console, and Fitbot — a deterministic-first assistant — ties it together as the suite's native interface.",
+    visual: "assets/gitfit-animated-visual/index.html",
+    labels: ["Suite architecture", "Role and data model", "Deterministic assistant"],
+    evidence: ["One Next.js app, four role-aware modules on a shared design system and auth model", "Supabase Postgres with row-level security and a trigger-protected client/staff role boundary", "Fitbot answers everyday requests with intent-routed logic against real data, not an LLM call per message"],
+    links: [
+      { label: "Open live project", url: "https://gitfit-pursuit6.vercel.app/" },
+      { label: "View repository", url: "https://github.com/wiltobuild/gitfit-fitbot" }
+    ]
   },
   {
     id: "slot-4",

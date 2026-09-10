@@ -2860,6 +2860,11 @@ html .agent-console[data-active-agent="hades"] .delegation-connector i { backgro
   box-shadow: 0 0 24px rgba(215, 164, 92, 0.12);
 }
 
+.project-visual[data-project-id="gitfit"] {
+  border-color: rgba(110, 63, 224, 0.44);
+  box-shadow: 0 0 24px rgba(110, 63, 224, 0.16);
+}
+
 .project-visual iframe {
   display: block;
   width: 100%;
