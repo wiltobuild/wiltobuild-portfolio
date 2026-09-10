@@ -195,10 +195,10 @@
 .module-nav button.is-suggested::after { content: ''; position: absolute; right: 8px; top: 16px; width: 3px; height: 3px; border-radius: 50%; background: var(--steel); }
 
 /* Reading modes reshape the same content; navigation always stays complete. */
-html[data-reading="hiring"] .home-intro { grid-template-columns: minmax(250px, .8fr) minmax(0, 1.2fr); }
-html[data-reading="hiring"] .identity-feed { order: -1; min-height: 420px; border-radius: 160px 160px 8px 8px; }
-html[data-reading="hiring"] .portrait-coordinate { top: 60px; left: 48px; right: 48px; }
-html[data-reading="hiring"] .home-copy h1 { font-size: clamp(60px, 17cqi, 100px); }
+html[data-reading="explore"] .home-intro { grid-template-columns: minmax(250px, .8fr) minmax(0, 1.2fr); }
+html[data-reading="explore"] .identity-feed { order: -1; min-height: 420px; border-radius: 160px 160px 8px 8px; }
+html[data-reading="explore"] .portrait-coordinate { top: 60px; left: 48px; right: 48px; }
+html[data-reading="explore"] .home-copy h1 { font-size: clamp(60px, 17cqi, 100px); }
 html[data-reading="hiring"] .view-heading h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; letter-spacing: -.04em; }
 html[data-reading="hiring"] :is(.reading-guide, .builder-detail, .project-workspace, .credential-terminal, .contact-console) { border-radius: 12px; }
 html[data-reading="hiring"] .builder-workflow button { border-radius: 10px; }
@@ -244,8 +244,8 @@ html[data-reading="hiring"] .contact-view, html[data-reading="technical"] .conta
   .reading-guide-copy strong { font-size: 20px; }
   .reading-guide-label { flex-wrap: wrap; gap: 8px; font-size: 7px; }
   .home-view > .reading-guide { margin-bottom: 26px; }
-  html[data-reading="hiring"] .identity-feed { order: 0; min-height: 380px; border-radius: 120px 120px 8px 8px; }
-  html[data-reading="hiring"] .home-copy h1 { font-size: clamp(56px, 20cqi, 100px); }
+  html[data-reading="explore"] .identity-feed { order: 0; min-height: 380px; border-radius: 120px 120px 8px 8px; }
+  html[data-reading="explore"] .home-copy h1 { font-size: clamp(56px, 20cqi, 100px); }
   html[data-reading="technical"] .home-dashboard { grid-template-columns: 1fr; }
   html[data-reading] .project-workspace-layout.has-visual { grid-template-columns: 1fr; }
   html[data-reading="technical"] .project-template { padding: 14px; }
@@ -255,3 +255,5 @@ html[data-reading="hiring"] .contact-view, html[data-reading="technical"] .conta
   .builder-workflow button, .project-queue-item, .contact-channels a { transition: none; }
   .builder-workflow button:hover { transform: none; }
 }
+
+html[data-reading="explore"] .home-view > .reading-guide { border-radius: 12px; }
