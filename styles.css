@@ -2855,6 +2855,11 @@ html .agent-console[data-active-agent="hades"] .delegation-connector i { backgro
   box-shadow: 0 0 24px rgba(57, 255, 138, 0.1);
 }
 
+.project-visual[data-project-id="cephalon"] {
+  border-color: rgba(215, 164, 92, 0.4);
+  box-shadow: 0 0 24px rgba(215, 164, 92, 0.12);
+}
+
 .project-visual iframe {
   display: block;
   width: 100%;

@@ -234,17 +234,17 @@ const PROJECTS = [
     access: "Repository private during active development"
   },
   {
-    id: "sidequest-nyc",
-    status: "Public / v1.5A",
-    kind: "NYC itinerary web application",
-    title: "SideQuest NYC",
-    description: "A guided static web app that turns six traveler preferences into a small NYC itinerary using local data and route-aware recommendation logic.",
-    visual: "assets/sidequest-animated-visual/index.html",
-    labels: ["Local data", "Recommendation logic", "User controls"],
-    evidence: ["104 NYC places with neighborhood and coordinate data", "Scored matching, geographic fallback, and route ordering", "Stop swapping, route estimates, Maps links, and quest copying"],
+    id: "cephalon",
+    status: "Public / Active build",
+    kind: "Warframe companion web application",
+    title: "CEPHALON",
+    description: "An all-in-one Warframe companion: a deterministic build and damage engine, an arsenal workspace, and farming, relic, and mastery planning, wrapped around a searchable library of vetted builds.",
+    visual: "assets/cephalon-animated-visual/index.html",
+    labels: ["Calculation engine", "Arsenal workspace", "Build library"],
+    evidence: ["Next.js app over a standalone TypeScript calculation engine with a formula-regression gate", "Server-side weapon and Warframe builder with live stat deltas and confidence", "394-build guide library across Warframe, weapon, Archwing, and companion categories"],
     links: [
-      { label: "Open live project", url: "https://wiltobuild.github.io/sidequest-nyc/" },
-      { label: "View repository", url: "https://github.com/wiltobuild/sidequest-nyc" }
+      { label: "Open live project", url: "https://cephalon.vercel.app/" },
+      { label: "View repository", url: "https://github.com/wiltobuild/cephalon" }
     ]
   },
   {
@@ -1467,7 +1467,7 @@ function createProjectCarousel() {
     const projectAccess = project.access ? `<p class="project-access"><span>Repository</span><b>${project.access}</b></p>` : "";
     const detailLabels = project.labels || ["Context", "Decisions", "Evidence"];
     const projectVisual = project.visual ? `
-      <figure class="project-visual">
+      <figure class="project-visual" data-project-id="${project.id}">
         <iframe src="${project.visual}" title="Animated ${project.title} visual" loading="lazy" tabindex="-1"></iframe>
       </figure>
     ` : "";
