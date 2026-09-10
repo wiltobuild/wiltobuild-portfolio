@@ -14,6 +14,12 @@ The site uses a responsive portfolio map to connect Experience, Skills, Projects
 
 The project uses static HTML, CSS, and JavaScript and can be hosted directly with GitHub Pages.
 
+## Reading experiences
+
+Exploration presets persist locally. Full portfolio presents the complete visual experience. Hiring manager adds role-fit guidance and an editorial layout, with a project-first guided sequence. Technical adds implementation guidance, a denser technical presentation, highlighted project evidence, and a verification-first Skills view. All seven modules remain directly accessible in every preset. Lighting and reading presets operate independently.
+
+Skills presents four interactive stages: framing, agent-assisted building, verification, and delivery. Each stage describes practices, a deliverable, and a link that selects the matching project in the portfolio.
+
 ## Social profile configuration
 
 Social destinations are defined in `SOCIAL_URLS` near the top of `script.js`. GitHub is configured for `wiltobuild`; replace the LinkedIn and X homepage values with Wil's exact profile URLs before publishing.

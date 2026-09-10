@@ -132,3 +132,126 @@
   .hero-actions button, .module-nav button, .project-actions a { transition: none; }
   .hero-actions button:hover { transform: none; }
 }
+
+/* Craft pass: richer hierarchy, project framing, and an evidence-led toolkit. */
+.view-heading h2 em { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; color: var(--lime); }
+.screen-view:not(.home-view) { background-image: radial-gradient(ellipse at 95% 0%, color-mix(in srgb, var(--steel) 7%, transparent), transparent 60%); }
+.view-heading { max-width: 1040px; }
+.view-heading > span, .view-heading > div > span { line-height: 1.7; }
+.project-visual { border-radius: 12px; overflow: hidden; box-shadow: 0 18px 45px #00000025; }
+.project-queue-item { transition: background 180ms, border-color 180ms; }
+.project-queue-item:hover { border-color: var(--steel); background: var(--surface-raised); }
+.credential-record-title h3 { letter-spacing: -.055em; }
+.credential-terminal, .credential-terminal > *, .credential-record-title, .credential-record-title h3 { min-width: 0; }
+.credential-record-title h3 { overflow-wrap: anywhere; }
+.contact-status { background: radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--lime) 14%, transparent), transparent 65%), var(--surface); }
+.contact-channels a { transition: background 180ms, padding 180ms; }
+.contact-channels a:hover { background: var(--surface-raised); padding-left: 28px; }
+.builder-workflow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 30px 0 20px; }
+.builder-workflow button { position: relative; min-width: 0; text-align: left; padding: 23px 20px; min-height: 148px; border: 1px solid var(--line); color: var(--text); background: var(--surface); cursor: pointer; transition: background 180ms, border-color 180ms, transform 180ms; }
+.builder-workflow button > span { display: block; font: 9px var(--font-mono); letter-spacing: 1px; color: var(--steel); margin-bottom: 22px; }
+.builder-workflow strong { display: block; font-size: clamp(15px, 1.4vw, 21px); letter-spacing: -.5px; font-weight: 600; }
+.builder-workflow small { display: block; color: var(--muted); font-size: 10px; margin-top: 8px; line-height: 1.5; }
+.builder-workflow b { position: absolute; top: 18px; right: 18px; font-size: 18px; color: var(--dim); font-weight: 400; }
+.builder-workflow button.is-active { color: var(--on-accent); background: var(--lime); border-color: var(--lime); }
+.builder-workflow button.is-active :is(span, small, b) { color: inherit; }
+.builder-workflow button:hover { transform: translateY(-3px); border-color: var(--lime); }
+.builder-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); border: 1px solid var(--line); background: var(--surface); }
+.skill-story { position: relative; overflow: hidden; padding: clamp(24px, 3vw, 42px); border-right: 1px solid var(--line); }
+.skill-story::after { content: ''; pointer-events: none; position: absolute; width: 220px; height: 220px; border: 1px solid color-mix(in srgb, var(--steel) 10%, transparent); border-radius: 50%; top: -130px; right: -60px; box-shadow: 0 0 0 22px color-mix(in srgb, var(--steel) 3%, transparent), 0 0 0 45px color-mix(in srgb, var(--steel) 3%, transparent); }
+.skill-stage-label { display: flex; justify-content: space-between; gap: 16px; font: 9px var(--font-mono); text-transform: uppercase; letter-spacing: 1px; color: var(--steel); }
+.skill-stage-label b { color: var(--lime); white-space: nowrap; }
+.skill-story h3 { margin: 26px 0 18px; font-size: clamp(28px, 3vw, 44px); font-weight: 500; line-height: 1.07; letter-spacing: -1.8px; max-width: 470px; }
+.skill-story > p { font-size: 13px; line-height: 1.85; color: var(--muted); max-width: 480px; }
+.skill-tool-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 24px; }
+.skill-tool-tags span { border: 1px solid var(--line); padding: 7px 9px; font: 9px var(--font-mono); color: var(--steel); }
+.skill-artifact { margin-top: 32px; padding-top: 18px; border-top: 1px solid var(--line); }
+.skill-artifact span { display: block; font: 8px var(--font-mono); letter-spacing: 1px; color: var(--dim); }
+.skill-artifact strong { display: block; margin-top: 8px; font-size: 13px; font-weight: 500; color: var(--text); }
+.skill-practice-list { padding: 10px 30px; display: grid; align-content: center; }
+.skill-practice-list article { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 22px 0; border-bottom: 1px solid var(--line-soft); }
+.skill-practice-list article:last-child { border-bottom: 0; }
+.skill-practice-list article > span { font: 10px var(--font-mono); color: var(--lime); padding-top: 3px; }
+.skill-practice-list h4 { margin: 0 0 9px; font-weight: 500; font-size: 17px; letter-spacing: -.3px; }
+.skill-practice-list p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.75; }
+.skill-evidence { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 30px; padding: 25px 30px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--steel) 7%, var(--surface)); }
+.skill-evidence > div > span { color: var(--steel); font: 9px var(--font-mono); letter-spacing: 1px; }
+.skill-evidence p { margin: 10px 0 0; font-size: 12px; line-height: 1.75; max-width: 700px; color: var(--muted); }
+.skill-evidence button, .builder-foundation button, .reading-guide button { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; flex-shrink: 0; padding: 12px 16px; background: transparent; color: var(--text); border: 1px solid var(--line); font-size: 11px; cursor: pointer; }
+.skill-evidence button:hover, .builder-foundation button:hover, .reading-guide button:hover { border-color: var(--lime); color: var(--lime); }
+.builder-foundation { display: grid; grid-template-columns: 1fr 1.2fr auto; align-items: center; gap: 14px 30px; padding: 30px 0 10px; }
+.builder-foundation > span { grid-column: 1 / -1; font: 9px var(--font-mono); letter-spacing: 1px; color: var(--steel); }
+.builder-foundation p { margin: 0; font: italic 26px/1.15 Georgia, serif; color: var(--text); }
+.builder-foundation small { font-size: 11px; line-height: 1.7; color: var(--muted); }
+.reading-guide { grid-column: 1 / -1; margin: 0 0 30px; padding: 22px 26px; border: 1px solid var(--line); border-left: 3px solid var(--lime); background: var(--surface); }
+.reading-guide[hidden] { display: none; }
+.home-view > .reading-guide { margin-bottom: 0; }
+.reading-guide-label { display: flex; justify-content: space-between; gap: 16px; font: 8px var(--font-mono); letter-spacing: 1px; color: var(--steel); text-transform: uppercase; }
+.reading-guide-label b { font-weight: 400; color: var(--lime); }
+.reading-guide-copy { display: flex; align-items: center; justify-content: space-between; gap: 28px; margin-top: 16px; }
+.reading-guide-copy strong { font-size: 22px; font-weight: 500; letter-spacing: -.5px; }
+.reading-guide-copy p { font-size: 12px; line-height: 1.65; color: var(--muted); margin: 8px 0 0; max-width: 750px; }
+.module-nav button.is-suggested > span { color: var(--lime); }
+.module-nav button.is-suggested::after { content: ''; position: absolute; right: 8px; top: 16px; width: 3px; height: 3px; border-radius: 50%; background: var(--steel); }
+
+/* Reading modes reshape the same content; navigation always stays complete. */
+html[data-reading="hiring"] .home-intro { grid-template-columns: minmax(250px, .8fr) minmax(0, 1.2fr); }
+html[data-reading="hiring"] .identity-feed { order: -1; min-height: 420px; border-radius: 160px 160px 8px 8px; }
+html[data-reading="hiring"] .portrait-coordinate { top: 60px; left: 48px; right: 48px; }
+html[data-reading="hiring"] .home-copy h1 { font-size: clamp(60px, 17cqi, 100px); }
+html[data-reading="hiring"] .view-heading h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; letter-spacing: -.04em; }
+html[data-reading="hiring"] :is(.reading-guide, .builder-detail, .project-workspace, .credential-terminal, .contact-console) { border-radius: 12px; }
+html[data-reading="hiring"] .builder-workflow button { border-radius: 10px; }
+html[data-reading="hiring"] .project-workspace-layout.has-visual { grid-template-columns: minmax(180px, .65fr) minmax(0, 1.35fr); }
+html[data-reading="hiring"] .project-workspace-body > div > span { font-size: 17px; }
+html[data-reading="hiring"] .contact-status strong { font-family: Georgia, serif; font-weight: 400; }
+html[data-reading="technical"] .screen-view { background-image: linear-gradient(color-mix(in srgb, var(--steel) 5%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--steel) 5%, transparent) 1px, transparent 1px); background-size: 32px 32px; }
+html[data-reading="technical"] .view-heading h2 { font-family: var(--font-mono); font-size: clamp(28px, 3vw, 42px); letter-spacing: -1.5px; }
+html[data-reading="technical"] .reading-guide { border-left-color: var(--steel); box-shadow: inset 0 2px var(--steel); }
+html[data-reading="technical"] .reading-guide-copy strong { font-family: var(--font-mono); font-size: 18px; }
+html[data-reading="technical"] .home-dashboard { grid-template-columns: minmax(0, .5fr) minmax(0, 1.5fr); }
+html[data-reading="technical"] .skill-artifact { background: var(--surface-raised); padding: 16px; border-left: 2px solid var(--steel); }
+html[data-reading="technical"] .project-workspace-layout.has-visual { grid-template-columns: minmax(180px, .6fr) minmax(0, 1.4fr); }
+html[data-reading="technical"] .project-template { padding: 18px; border: 1px solid var(--steel); background: var(--control-deep); }
+html[data-reading="technical"] .project-template dt { color: var(--steel); }
+html[data-reading="technical"] .skill-evidence { border-top: 2px solid var(--steel); }
+html[data-reading="technical"] .builder-detail { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+html[data-reading="hiring"] .contact-view, html[data-reading="technical"] .contact-view { grid-template-rows: auto auto minmax(0, 1fr); }
+
+@media (max-width: 1100px) {
+  .builder-workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .builder-workflow button { min-height: 120px; padding: 18px; }
+  .builder-workflow button > span { margin-bottom: 15px; }
+  .builder-foundation { grid-template-columns: 1fr 1fr; }
+  .builder-foundation button { justify-self: start; }
+}
+@media (max-width: 800px) {
+  .builder-workflow { gap: 8px; margin-top: 24px; }
+  .builder-workflow button { padding: 14px; min-height: 132px; }
+  .builder-workflow button > span { font-size: 7px; letter-spacing: .4px; padding-right: 15px; }
+  .builder-workflow b { top: 11px; right: 11px; font-size: 14px; }
+  .builder-workflow strong { font-size: 16px; }
+  .builder-detail, html[data-reading="technical"] .builder-detail { grid-template-columns: 1fr; }
+  .skill-story { padding: 24px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .skill-story h3 { font-size: 32px; }
+  .skill-practice-list { padding-inline: 24px; }
+  .skill-evidence { display: grid; gap: 20px; padding: 24px; }
+  .skill-evidence button { justify-self: start; }
+  .builder-foundation { grid-template-columns: 1fr; gap: 18px; }
+  .builder-foundation small { font-size: 12px; }
+  .reading-guide { padding: 18px; margin-bottom: 24px; }
+  .reading-guide-copy { flex-direction: column; align-items: start; gap: 16px; }
+  .reading-guide-copy strong { font-size: 20px; }
+  .reading-guide-label { flex-wrap: wrap; gap: 8px; font-size: 7px; }
+  .home-view > .reading-guide { margin-bottom: 26px; }
+  html[data-reading="hiring"] .identity-feed { order: 0; min-height: 380px; border-radius: 120px 120px 8px 8px; }
+  html[data-reading="hiring"] .home-copy h1 { font-size: clamp(56px, 20cqi, 100px); }
+  html[data-reading="technical"] .home-dashboard { grid-template-columns: 1fr; }
+  html[data-reading] .project-workspace-layout.has-visual { grid-template-columns: 1fr; }
+  html[data-reading="technical"] .project-template { padding: 14px; }
+  .contact-channels a:hover { padding-left: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .builder-workflow button, .project-queue-item, .contact-channels a { transition: none; }
+  .builder-workflow button:hover { transform: none; }
+}
