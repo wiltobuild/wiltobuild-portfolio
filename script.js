@@ -814,11 +814,9 @@ const READING_GUIDES = {
 function applyReadingExperience(preset) {
   document.documentElement.dataset.reading = preset;
   views.forEach(view => {
-    // Swap the home presentations without changing the other preset sections.
-    const guide = view.dataset.view === 'home'
-      ? (preset === 'explore' ? { ...READING_GUIDES.hiring, label: 'Full portfolio' }
-        : preset === 'hiring' ? null : READING_GUIDES[preset])
-      : READING_GUIDES[preset];
+    // Keep the default and hiring home focused on the introduction.
+    const guide = view.dataset.view === 'home' && preset !== 'technical'
+      ? null : READING_GUIDES[preset];
     let panel = view.querySelector('.reading-guide');
     if (!panel) {
       panel = document.createElement('aside');
