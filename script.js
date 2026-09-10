@@ -49,8 +49,8 @@ const MODULES = {
 
 const PRESETS = {
   explore: ["home", "experience", "agents", "skills", "projects", "credentials", "contact"],
-  hiring: ["home", "experience", "agents", "skills", "contact"],
-  technical: ["experience", "agents", "skills", "credentials", "contact"]
+  hiring: ["home", "projects", "experience", "skills", "credentials", "contact"],
+  technical: ["skills", "agents", "projects", "experience", "credentials", "contact"]
 };
 
 const NEXT_PROMPTS = {
@@ -191,9 +191,38 @@ const TRANSFER_STEPS = {
 };
 
 const SKILL_FOCUS = {
-  develop: "Turn a defined requirement into a working interface or small application.",
-  troubleshoot: "Trace dependencies, isolate faults, test assumptions, and verify behavior.",
-  communicate: "Explain technical decisions clearly to users, clients, and collaborators."
+  frame: {
+    number: '01', label: 'Problem framing', title: 'A better brief. A better build.',
+    description: 'Start with the person, the task, and the constraints. Give the agent enough context to make useful decisions, then agree on what a working result looks like.',
+    tools: ['Requirements', 'Context design', 'System boundaries'],
+    practices: [['Define the outcome', 'Describe the user journey, expected behavior, and the edge cases that matter.'], ['Make context explicit', 'Supply relevant files, constraints, and acceptance criteria instead of relying on a vague prompt.'], ['Choose the right boundary', 'Separate deterministic logic from the parts that benefit from AI assistance.']],
+    artifact: 'A scoped brief with acceptance criteria',
+    evidence: 'GitFit', project: 'gitfit', proof: 'Fitbot uses intent-routed logic against real studio data for everyday requests. The interface starts with what members and staff need to do.'
+  },
+  build: {
+    number: '02', label: 'Agent-assisted development', title: 'Direct the work. Connect the pieces.',
+    description: 'Use Claude Code and Codex to plan, implement, and review changes. Break the work into bounded tasks and keep the architecture and user experience coherent.',
+    tools: ['Claude Code', 'Codex', 'Git', 'HTML / CSS / JavaScript'],
+    practices: [['Scope each task', 'Give each implementation a clear boundary, relevant context, and an expected deliverable.'], ['Review the integration', 'Read changes together: interfaces, state, data flow, and failure behavior must agree.'], ['Keep work inspectable', 'Use diffs and small changes to understand what was built and what still needs attention.']],
+    artifact: 'A working change that can be reviewed',
+    evidence: 'iRYS', project: 'irys', proof: 'A C# and .NET desktop companion connects local agent activity to an eye-shaped interface through secured loopback events.'
+  },
+  verify: {
+    number: '03', label: 'Verification & debugging', title: 'Trust the evidence. Test the edges.',
+    description: 'Treat generated code as a proposal. Reproduce issues, trace dependencies, and check the result against the original requirement before calling it done.',
+    tools: ['Regression checks', 'Browser verification', 'Fault isolation'],
+    practices: [['Check the core logic', 'Use repeatable cases for calculations and behavior that must remain consistent.'], ['Walk the real flow', 'Inspect what the user sees, including responsive layouts, state changes, and failures.'], ['Trace the cause', 'Isolate inputs, dependencies, and assumptions rather than stacking fixes on symptoms.']],
+    artifact: 'Observed behavior against explicit checks',
+    evidence: 'CEPHALON', project: 'cephalon', proof: 'A standalone TypeScript calculation engine uses a formula-regression gate. The builder exposes live stat deltas and confidence.'
+  },
+  ship: {
+    number: '04', label: 'Product craft & handoff', title: 'Working is the start. Useful is the goal.',
+    description: 'Bring the implementation back to the person using it. Make states legible, interactions accessible, and technical decisions understandable to the next builder.',
+    tools: ['Responsive UI', 'Accessibility', 'Documentation', 'Iteration'],
+    practices: [['Design for real use', 'Build clear hierarchy, responsive layouts, keyboard access, and useful feedback.'], ['Explain the decisions', 'Document the boundaries, tradeoffs, and known limits of the implementation.'], ['Close the loop', 'Use observed behavior and feedback to guide the next change.']],
+    artifact: 'A usable interface and a clear handoff',
+    evidence: 'GitFit', project: 'gitfit', proof: 'Members, staff, and Fitbot share one role-aware studio application, with a shared design system and protected data boundaries.'
+  }
 };
 
 const CREDENTIALS = {
@@ -759,6 +788,60 @@ function createAgentConsole() {
   select("athena");
 }
 
+const READING_GUIDES = {
+  hiring: {
+    label: 'Hiring manager', eyebrow: 'THE FIT AT A GLANCE',
+    home: ['Systems experience. A software direction.', 'Explore the work first, then the habits behind it: clear requirements, careful verification, and communication.'],
+    experience: ['Experience that transfers.', 'Look for how requirements, troubleshooting, and handoff carry from automation into software.'],
+    agents: ['AI tools, with human judgment.', 'See how planning, implementation, and review are divided without losing ownership of the result.'],
+    skills: ['How I contribute to a build.', 'Explore four stages of delivery and the practical output of each one.'],
+    projects: ['The work behind the profile.', 'Three active builds show product thinking across desktop software, calculation systems, and studio operations.'],
+    credentials: ['A foundation in real systems.', 'These credentials support the automation and systems experience behind my move into software.'],
+    contact: ['Start a conversation.', 'Open to entry-level AI development and software engineering opportunities.']
+  },
+  technical: {
+    label: 'Technical', eyebrow: 'FOLLOW THE EVIDENCE',
+    home: ['Inspect the decisions behind the interface.', 'Start with verification, follow the agent workflow, then inspect the implementation boundaries in each project.'],
+    experience: ['Trace inputs, dependencies, and outputs.', 'The automated-room workflow shows the systems reasoning that informs my approach to software.'],
+    agents: ['Inspect the division of work.', 'Select a role to examine its scope, model, and place in the review loop.'],
+    skills: ['From claims to observable behavior.', 'Start with verification. Each stage connects an approach to a concrete project example.'],
+    projects: ['Architecture, boundaries, evidence.', 'Inspect the calculation engine, role and data model, or desktop event boundary. Open the public repositories for implementation details.'],
+    credentials: ['Practice behind the qualification.', 'Connect the training to control logic, state, dependencies, and system verification.'],
+    contact: ['Talk implementation.', 'Explore the public repositories or get in touch about the decisions behind a build.']
+  }
+};
+
+function applyReadingExperience(preset) {
+  document.documentElement.dataset.reading = preset;
+  const guide = READING_GUIDES[preset];
+  views.forEach(view => {
+    let panel = view.querySelector('.reading-guide');
+    if (!panel) {
+      panel = document.createElement('aside');
+      panel.className = 'reading-guide';
+      view.prepend(panel);
+      panel.addEventListener('click', event => {
+        const button = event.target.closest('[data-reading-next]');
+        if (button) activateModule(button.dataset.readingNext, { focusScreen: true });
+      });
+    }
+    panel.hidden = !guide;
+    if (!guide) return;
+    const name = view.dataset.view;
+    const [title, description] = guide[name];
+    const sequence = PRESETS[preset];
+    const index = sequence.indexOf(name);
+    const next = sequence[(index + 1) % sequence.length];
+    panel.setAttribute('aria-label', guide.label + ' reading guide');
+    panel.innerHTML = '<div class="reading-guide-label"><span>' + guide.eyebrow + '</span><b>' + guide.label + '</b></div><div class="reading-guide-copy"><div><strong>' + title + '</strong><p>' + description + '</p></div><button type="button" data-reading-next="' + next + '">Next: ' + MODULES[next].label + ' <span aria-hidden="true">↗</span></button></div>';
+  });
+  document.querySelectorAll('.module-nav [data-nav], .mobile-dock [data-nav]').forEach(button => {
+    button.classList.toggle('is-suggested', preset !== 'explore' && PRESETS[preset].includes(button.dataset.nav));
+  });
+  window.dispatchEvent(new CustomEvent('wiltobuild:preset', { detail: preset }));
+  requestAnimationFrame(updateScrollAffordance);
+}
+
 function createUtilityControls() {
   const drawer = document.querySelector("[data-utility-drawer]");
   const utilityButtons = Array.from(document.querySelectorAll("[data-utility]"));
@@ -848,6 +931,7 @@ function createUtilityControls() {
       button.classList.toggle("is-active", isActive);
       button.setAttribute("aria-pressed", String(isActive));
     });
+    applyReadingExperience(activePreset);
     updateInterface(activeModule);
     if (announce) {
       const presetLabel = { explore: "Full portfolio", hiring: "Hiring manager", technical: "Technical" }[activePreset];
@@ -1419,33 +1503,38 @@ function createServiceMode() {
 }
 
 function createSkillFilter() {
-  const buttons = Array.from(document.querySelectorAll("[data-skill-focus]"));
-  const routes = Array.from(document.querySelectorAll("[data-supports]"));
-  const summary = document.querySelector("[data-skill-summary]");
-  const status = document.querySelector("[data-skill-status]");
-  const reviewedFocuses = new Set();
-
-  function select(focusName) {
-    buttons.forEach((button) => {
-      const isActive = button.dataset.skillFocus === focusName;
-      button.classList.toggle("is-active", isActive);
-      button.setAttribute("aria-pressed", String(isActive));
+  const buttons = Array.from(document.querySelectorAll('[data-skill-focus]'));
+  const detail = document.querySelector('[data-skill-detail]');
+  const reviewed = new Set();
+  function select(name) {
+    const skill = SKILL_FOCUS[name];
+    if (!skill) return;
+    buttons.forEach(button => {
+      const selected = button.dataset.skillFocus === name;
+      button.classList.toggle('is-active', selected);
+      button.setAttribute('aria-pressed', String(selected));
     });
-    let supportedCount = 0;
-    routes.forEach((route) => {
-      const isSupported = route.dataset.supports.split(" ").includes(focusName);
-      route.classList.toggle("is-routed", isSupported);
-      route.querySelector("[data-route-state]").textContent = isSupported ? "Connected" : "Standby";
-      if (isSupported) supportedCount += 1;
-    });
-    summary.textContent = SKILL_FOCUS[focusName];
-    status.textContent = `${supportedCount} connected capabilities`;
-    reviewedFocuses.add(focusName);
-    if (reviewedFocuses.size === buttons.length) markModuleReviewed("skills", "Skills routes reviewed");
+    detail.dataset.stage = name;
+    detail.innerHTML = `
+      <article class="skill-story"><div class="skill-stage-label"><span>${skill.label}</span><b>${skill.number} / 04</b></div>
+      <h3>${skill.title}</h3><p>${skill.description}</p>
+      <div class="skill-tool-tags">${skill.tools.map(tool => '<span>' + tool + '</span>').join('')}</div>
+      <div class="skill-artifact"><span>WHAT THIS PRODUCES</span><strong>${skill.artifact}</strong></div></article>
+      <div class="skill-practice-list">${skill.practices.map(([title, description], index) => '<article><span>0' + (index + 1) + '</span><div><h4>' + title + '</h4><p>' + description + '</p></div></article>').join('')}</div>
+      <article class="skill-evidence"><div><span>IN THE WORK / ${skill.evidence}</span><p>${skill.proof}</p></div><button type="button" data-evidence-project="${skill.project}">Explore ${skill.evidence} <b aria-hidden="true">↗</b></button></article>`;
+    reviewed.add(name);
+    if (reviewed.size === buttons.length) markModuleReviewed('skills', 'Builder workflow explored');
+    updateScrollAffordance();
   }
-
-  buttons.forEach((button) => button.addEventListener("click", () => select(button.dataset.skillFocus)));
-  select("develop");
+  buttons.forEach(button => button.addEventListener('click', () => { select(button.dataset.skillFocus); playPanelTone(580); }));
+  detail.addEventListener('click', event => {
+    const button = event.target.closest('[data-evidence-project]');
+    if (!button) return;
+    activateModule('projects', { focusScreen: true });
+    window.dispatchEvent(new CustomEvent('wiltobuild:project', { detail: button.dataset.evidenceProject }));
+  });
+  window.addEventListener('wiltobuild:preset', () => select(activePreset === 'technical' ? 'verify' : 'frame'));
+  select(activePreset === 'technical' ? 'verify' : 'frame');
 }
 
 function createProjectCarousel() {
@@ -1532,6 +1621,10 @@ function createProjectCarousel() {
     goTo(currentIndex + (event.key === "ArrowRight" ? 1 : -1));
   });
   queueButtons.forEach((button, index) => button.addEventListener("click", () => goTo(index)));
+  window.addEventListener('wiltobuild:project', event => {
+    const index = PROJECTS.findIndex(project => project.id === event.detail);
+    if (index >= 0) goTo(index);
+  });
   setActive(currentIndex);
 }
 

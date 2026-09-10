@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <title>Wil Sheppard | WilToBuild</title>
     <link rel="stylesheet" href="./styles.css?v=20260718-experience" />
-    <link rel="stylesheet" href="./visual-refresh.css?v=20260910" />
+    <link rel="stylesheet" href="./visual-refresh.css?v=20260910-polish2" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -119,11 +119,11 @@
           </section>
           <section id="preset-panel" data-utility-panel="presets" hidden>
             <p>Exploration presets</p>
-            <span class="utility-note">Choose which portfolio screens appear in the Continue sequence. Direct navigation remains available.</span>
+            <span class="utility-note">Choose a reading experience. Each preset changes the layout, highlights, and guided path. Every section remains available in the navigation.</span>
             <div class="preset-options" role="group" aria-label="Choose a portfolio sequence">
-              <button type="button" class="is-active" data-preset="explore" aria-pressed="true"><strong>Full portfolio</strong><small>Complete seven-screen review</small><i>Home / Experience / Agents / Skills / Projects / Credentials / Contact</i></button>
-              <button type="button" data-preset="hiring" aria-pressed="false"><strong>Hiring manager</strong><small>Fast background and fit review</small><i>Home / Experience / Agents / Skills / Contact</i></button>
-              <button type="button" data-preset="technical" aria-pressed="false"><strong>Technical</strong><small>Systems, agents, tools, and training</small><i>Experience / Agents / Skills / Credentials / Contact</i></button>
+              <button type="button" class="is-active" data-preset="explore" aria-pressed="true"><strong>Full portfolio</strong><small>The complete visual portfolio</small><i>Home / Experience / Agents / Skills / Projects / Credentials / Contact</i></button>
+              <button type="button" data-preset="hiring" aria-pressed="false"><strong>Hiring manager</strong><small>Role fit, shipped work, and transferable experience</small><i>Home / Projects / Experience / Skills / Credentials / Contact</i></button>
+              <button type="button" data-preset="technical" aria-pressed="false"><strong>Technical</strong><small>Implementation decisions, verification, and architecture</small><i>Skills / Agents / Projects / Experience / Credentials / Contact</i></button>
             </div>
           </section>
           <section id="auxiliary-panel" data-utility-panel="auxiliary" hidden>
@@ -307,24 +307,15 @@
           </section>
 
           <section class="screen-view skills-view" data-view="skills" aria-labelledby="skills-title" hidden>
-            <header class="view-heading"><p>03 / Applied tools</p><h2 id="skills-title" tabindex="-1">Tools I use for specific development tasks.</h2><span>Choose a task to see which tools support it and how I use them.</span></header>
-            <div class="skill-router">
-              <div class="segmented-control" role="group" aria-label="Choose a development task">
-                <button type="button" class="is-active" aria-pressed="true" data-skill-focus="develop">Develop</button>
-                <button type="button" aria-pressed="false" data-skill-focus="troubleshoot">Troubleshoot</button>
-                <button type="button" aria-pressed="false" data-skill-focus="communicate">Communicate</button>
-              </div>
-              <div class="skill-output"><p class="skill-summary" data-skill-summary>Turn a defined requirement into a working interface or small application.</p><span data-skill-status>4 connected capabilities</span></div>
-              <div class="routing-matrix" aria-label="Task-to-tool routing matrix">
-                <div class="routing-heading"><span>Tool</span><span>How it contributes</span><span>Route</span></div>
-                <article data-supports="develop troubleshoot"><span>01</span><div><h3>Claude Code and Codex</h3><p>Plan changes, write code, review implementation, and check behavior.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
-                <article data-supports="develop communicate"><span>02</span><div><h3>HTML, CSS, and JavaScript</h3><p>Build accessible structure, responsive interfaces, and browser behavior.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
-                <article data-supports="troubleshoot develop"><span>03</span><div><h3>Crestron programming</h3><p>Work with control logic, device communication, interface behavior, and dependencies.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
-                <article data-supports="troubleshoot communicate"><span>04</span><div><h3>CTS and systems integration</h3><p>Apply requirements, signal flow, installation context, support, and communication.</p></div><i aria-hidden="true"></i><b data-route-state>Standby</b></article>
-                <article data-supports="develop communicate"><span>05</span><div><h3>Prompt design</h3><p>Write clear instructions, supply context, and review generated work.</p></div><i aria-hidden="true"></i><b data-route-state>Connected</b></article>
-                <article data-supports="communicate troubleshoot"><span>06</span><div><h3>Documentation and explanation</h3><p>Make technical decisions understandable to clients and collaborators.</p></div><i aria-hidden="true"></i><b data-route-state>Standby</b></article>
-              </div>
+            <header class="view-heading"><p>03 / The builder's toolkit</p><h2 id="skills-title" tabindex="-1">AI accelerates the work.<br /><em>Judgment makes it useful.</em></h2><span>How I turn a brief into working software with Claude Code and Codex. Explore each stage to see the decisions, tools, and evidence behind it.</span></header>
+            <div class="builder-workflow" role="group" aria-label="Explore my building workflow">
+              <button type="button" aria-pressed="true" data-skill-focus="frame"><span>01 / DEFINE</span><strong>Frame the problem</strong><small>Give the work a clear direction</small><b aria-hidden="true">↗</b></button>
+              <button type="button" aria-pressed="false" data-skill-focus="build"><span>02 / ORCHESTRATE</span><strong>Build with agents</strong><small>Context, tools, and boundaries</small><b aria-hidden="true">↗</b></button>
+              <button type="button" aria-pressed="false" data-skill-focus="verify"><span>03 / VALIDATE</span><strong>Verify the result</strong><small>Evidence before confidence</small><b aria-hidden="true">↗</b></button>
+              <button type="button" aria-pressed="false" data-skill-focus="ship"><span>04 / DELIVER</span><strong>Make it usable</strong><small>Interfaces, handoff, and iteration</small><b aria-hidden="true">↗</b></button>
             </div>
+            <div class="builder-detail" aria-live="polite" aria-atomic="true" data-skill-detail></div>
+            <div class="builder-foundation"><span>THE THROUGH LINE</span><p>Systems thinking, carried forward.</p><small>Crestron programming and AV integration taught me to trace dependencies, test real behavior, and make complex systems understandable. Those habits shape how I build with AI.</small><button type="button" data-nav="experience">Explore that foundation <b aria-hidden="true">→</b></button></div>
           </section>
 
           <section class="screen-view projects-view" data-view="projects" aria-labelledby="projects-title" hidden>
@@ -383,7 +374,6 @@
                 <a class="is-primary" data-social="linkedin" href="https://www.linkedin.com/in/william-sheppard-230a82132/" target="_blank" rel="noreferrer"><span>02</span><strong>Connect on LinkedIn</strong><small>Best direct contact channel</small><b>&#8599;</b></a>
                 <a data-social="x" href="https://x.com/WillBeBuilding" target="_blank" rel="noreferrer"><span>03</span><strong>X</strong><small>@WillBeBuilding</small><b>&#8599;</b></a>
                 <a href="mailto:wil.sheppard@gmail.com"><span>04</span><strong>Email Wil</strong><small>wil.sheppard@gmail.com</small><b>&#8594;</b></a>
-                <a class="contact-resume" href="assets/wil-sheppard-resume.pdf" download><span>05</span><strong>Download r&eacute;sum&eacute;</strong><small>PDF / current r&eacute;sum&eacute;</small><b>&#8595;</b></a>
               </div>
             </div>
           </section>
@@ -474,6 +464,6 @@
     </main>
 
     <div class="control-toast" data-control-toast role="status" aria-live="polite"></div>
-    <script src="./script.js?v=20260718-projects2"></script>
+    <script src="./script.js?v=20260910-polish2"></script>
   </body>
 </html>
