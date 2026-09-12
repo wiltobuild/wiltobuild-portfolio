@@ -50,6 +50,7 @@ html[data-reading="explore"] .home-intro { grid-template-columns: minmax(240px,.
 .home-copy > p.credential-line { font-size: 9px; letter-spacing: .2px; }
 .identity-feed, html[data-reading="explore"] .identity-feed { min-height: 560px; border-radius: 160px 160px 8px 8px; border: 7px solid var(--surface-raised); outline: 1px solid var(--line); background: radial-gradient(ellipse at 50% 45%,#6b7d7f 0%,#37474d 50%,#202c31 100%); box-shadow: inset 0 0 40px #0007,12px 18px 35px #0006,0 0 0 8px color-mix(in srgb,var(--screen) 80%,var(--line)); }
 .identity-feed::before { background: repeating-linear-gradient(0deg,transparent 0 3px,#b8ced306 3px 4px); z-index: 1; opacity: .6; pointer-events: none; }
+.identity-feed { filter: grayscale(1); }
 .identity-feed img { height: 94%; filter: grayscale(1) contrast(1.13); mix-blend-mode: luminosity; object-position: center top; }
 .identity-feed::after { background: linear-gradient(180deg,#192c3410 30%,#12232b55 65%,#101b21 100%); }
 .portrait-orbit { top: 17%; width: 124%; left: -12%; border-color: #b7ccd06b; transform: rotate(-20deg); }
