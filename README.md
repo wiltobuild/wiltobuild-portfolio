@@ -9,10 +9,13 @@ The site uses a responsive portfolio map to connect Experience, Skills, Projects
 - `index.html` - accessible page structure, portfolio content, social links, and metadata
 - `styles.css` - responsive layout, visual states, section components, and animation
 - `visual-refresh.css` - editorial hero, portrait treatment, warm palette, responsive visual refinements; loaded after the base component styles and compatible with all three lighting scenes
+- `studio.css` - graphite surfaces, dimensional framing, Barlow Condensed display typography, and responsive studio presentation
 - `script.js` - URL history, route interaction, Experience and Skills controls, and the project carousel
 - `assets/` - Wil Sheppard's headshot
 
 The project uses static HTML, CSS, and JavaScript and can be hosted directly with GitHub Pages.
+
+The social preview in `assets/hero-preview.png` is a browser capture of the styled `.identity-feed` on the default Work / Full Portfolio homepage, with its real filters, background, and framing. `assets/hero-icon.png` is a proportional 64px export of that capture for browser tabs.
 
 ## Reading experiences
 
