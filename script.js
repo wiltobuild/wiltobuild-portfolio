@@ -1043,8 +1043,39 @@ function createServiceMode() {
   let serviceLoaderTimer;
   let serviceReturnFocus = null;
   let serviceReturnScroll = 0;
+  const serviceNames = { routing: "Signal routing", snake: "WTB Snake", doom: "DOOM / Shareware" };
+  const doomPlayer = document.querySelector('[data-doom-player]');
+  const doomStart = document.querySelector('[data-doom-start]');
+  const doomStatus = document.querySelector('[data-doom-status]');
+
+  function stopDoom() {
+    doomPlayer.replaceChildren();
+    const hint = document.createElement('p');
+    hint.textContent = 'Load the player, then press its start button. A keyboard is recommended.';
+    doomPlayer.append(hint);
+    doomStart.textContent = 'Load DOOM';
+    doomStatus.textContent = 'The game loads only when you choose Load DOOM.';
+  }
+
+  doomStart.addEventListener('click', () => {
+    doomPlayer.replaceChildren();
+    const frame = document.createElement('iframe');
+    frame.title = 'DOOM shareware episode — Internet Archive DOSBox player';
+    frame.allow = 'autoplay; fullscreen; gamepad';
+    frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-pointer-lock');
+    frame.allowFullscreen = true;
+    frame.src = 'https://archive.org/embed/DoomsharewareEpisode';
+    frame.addEventListener('load', () => {
+      if (frame.isConnected) doomStatus.textContent = 'Press the start button inside the player. If it cannot load, use the Internet Archive link below.';
+    });
+    doomPlayer.append(frame);
+    doomStart.textContent = 'Restart DOOM';
+    doomStatus.textContent = 'Loading Internet Archive player…';
+  });
 
   function selectApp(appName) {
+    if (!serviceNames[appName]) return;
+    if (activeApp === 'doom' && appName !== 'doom') stopDoom();
     if (activeApp === "snake" && appName !== "snake") {
       if (snakeStarting) cancelSnakeCountdown();
       if (snakeRunning) {
@@ -1054,9 +1085,12 @@ function createServiceMode() {
       stopServiceAudio();
     }
     activeApp = appName;
-    appButtons.forEach((button) => button.classList.toggle("is-active", button.dataset.serviceApp === appName));
+    appButtons.forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.serviceApp === appName);
+      button.setAttribute('aria-pressed', String(button.dataset.serviceApp === appName));
+    });
     appViews.forEach((view) => { view.hidden = view.dataset.serviceView !== appName; });
-    serviceTitle.textContent = appName === "routing" ? "Signal routing" : "WTB Snake";
+    serviceTitle.textContent = serviceNames[appName];
     if (appName === "snake") drawSnake();
   }
 
@@ -1077,7 +1111,7 @@ function createServiceMode() {
     navigationSurfaces.forEach((surface) => { surface.inert = true; });
     controller.classList.add("is-servicing");
     serviceMode.classList.add("is-initializing");
-    serviceLoaderTitle.textContent = appName === "routing" ? "Signal routing" : "WTB Snake";
+    serviceLoaderTitle.textContent = serviceNames[appName];
     selectApp(appName);
     window.clearTimeout(serviceLoaderTimer);
     serviceLoaderTimer = window.setTimeout(() => {
@@ -1088,6 +1122,7 @@ function createServiceMode() {
   }
 
   function closeService() {
+    stopDoom();
     window.clearTimeout(serviceLoaderTimer);
     cancelSnakeCountdown();
     stopServiceAudio();

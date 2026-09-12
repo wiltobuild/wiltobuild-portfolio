@@ -21,7 +21,7 @@
     <title>Wil Sheppard | WilToBuild</title>
     <link rel="stylesheet" href="./styles.css?v=20260718-experience" />
     <link rel="stylesheet" href="./visual-refresh.css?v=20260910-home-swap" />
-    <link rel="stylesheet" href="./studio.css?v=20260912-monochrome" />
+    <link rel="stylesheet" href="./studio.css?v=20260912-doom" />
     <script>document.documentElement.classList.add("js");</script>
   </head>
   <body>
@@ -103,7 +103,7 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h7M15 18h5M14 4v4M6 10v4M11 16v4" /></svg>
               <span>Presets</span>
             </button>
-            <button type="button" data-utility="auxiliary" aria-expanded="false" aria-controls="auxiliary-panel" title="2 service applications">
+            <button type="button" data-utility="auxiliary" aria-expanded="false" aria-controls="auxiliary-panel" title="3 service applications">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 11h4M8 9v4M15.5 12h.01M18 10h.01M6.5 5h11A4.5 4.5 0 0 1 22 9.5v5a4.5 4.5 0 0 1-7.7 3.2L12 15.5l-2.3 2.2A4.5 4.5 0 0 1 2 14.5v-5A4.5 4.5 0 0 1 6.5 5Z" /></svg>
               <span>Auxiliary</span>
             </button>
@@ -135,6 +135,7 @@
             <div class="auxiliary-programs">
               <button type="button" data-service-launch="routing"><span>01</span><strong>Signal routing</strong><small>Complete a control path</small></button>
               <button type="button" data-service-launch="snake"><span>02</span><strong>WTB Snake</strong><small>Classic auxiliary program</small></button>
+              <button type="button" data-service-launch="doom"><span>03</span><strong>DOOM</strong><small>Free shareware episode</small></button>
             </div>
           </section>
         </aside>
@@ -397,6 +398,7 @@
           <nav aria-label="Service applications">
             <button type="button" class="is-active" data-service-app="routing">Signal routing</button>
             <button type="button" data-service-app="snake">WTB Snake</button>
+            <button type="button" data-service-app="doom">DOOM</button>
           </nav>
           <div class="service-app routing-game" data-service-view="routing">
             <div class="service-heading">
@@ -409,6 +411,12 @@
               <p data-routing-status>0 of 5 modules carrying signal</p>
               <button type="button" data-routing-reset>New route</button>
             </div>
+          </div>
+          <div class="service-app doom-game" data-service-view="doom" hidden>
+            <div class="doom-heading"><div><span>WTB-AUX-03 / id Software / 1993</span><h2>DOOM</h2><p>The original free shareware episode, played through Internet Archive.</p></div><button type="button" data-doom-start>Load DOOM</button></div>
+            <div class="doom-player" data-doom-player><p>Load the player, then press its start button.<br />A keyboard is recommended.</p></div>
+            <p class="doom-status" data-doom-status role="status">The game loads only when you choose Load DOOM.</p>
+            <div class="doom-controls"><p><b>Arrows</b> Move / turn <b>Ctrl</b> Fire <b>Space</b> Use <b>Enter</b> Select <b>Esc</b> Game menu</p><p>Click inside the player to control the game. Use <b>Exit service mode</b> above to return. Switching applications closes DOOM and resets the session.</p><a href="https://archive.org/details/DoomsharewareEpisode" target="_blank" rel="noopener noreferrer">Player unavailable? Open DOOM on Internet Archive ↗</a></div>
           </div>
           <div class="service-app snake-game" data-service-view="snake" hidden>
             <div class="service-heading">
@@ -468,6 +476,6 @@
     </main>
 
     <div class="control-toast" data-control-toast role="status" aria-live="polite"></div>
-    <script src="./script.js?v=20260910-home-focus"></script>
+    <script src="./script.js?v=20260912-doom"></script>
   </body>
 </html>

@@ -26,3 +26,7 @@ Skills presents four interactive stages: framing, agent-assisted building, verif
 ## Social profile configuration
 
 Social destinations are defined in `SOCIAL_URLS` near the top of `script.js`. GitHub is configured for `wiltobuild`; replace the LinkedIn and X homepage values with Wil's exact profile URLs before publishing.
+
+## DOOM service application
+
+Auxiliary includes DOOM's free shareware episode through Internet Archive's DOSBox embed. The external player is created only after Load DOOM is selected. Switching applications or exiting service mode removes it, stopping the game and audio. A keyboard is recommended; the panel includes controls and a direct Internet Archive fallback link. Game files are not bundled with the portfolio.

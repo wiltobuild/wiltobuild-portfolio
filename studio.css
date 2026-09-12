@@ -1,4 +1,17 @@
 /* Studio edition: precision hardware, editorial composition, material depth. */
+.utility-strip button[data-utility="auxiliary"]::before { content: "3"; }
+.doom-game { overflow:auto; padding:24px; }
+.doom-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:18px; }
+.doom-heading span { font:10px var(--font-mono); color:var(--steel); }
+.doom-heading h2 { font-family:var(--font-display); font-size:48px; margin:8px 0; line-height:1; }
+.doom-heading p,.doom-controls p,.doom-status { color:var(--muted); font-size:13px; line-height:1.5; }
+.doom-heading button { min-height:44px; padding:12px 20px; background:var(--lime); color:var(--on-accent); cursor:pointer; flex-shrink:0; }
+.doom-player { display:grid; place-items:center; width:100%; max-width:900px; height:clamp(220px, 42vh, 540px); min-height:220px; background:#000; border:1px solid var(--line); margin-inline:auto; }
+.doom-player > p { padding:24px; color:#b7c5c9; text-align:center; line-height:1.8; }
+.doom-player iframe { width:100%; height:100%; border:0; min-height:220px; }
+.doom-controls b { color:var(--text); margin-left:8px; }
+.doom-controls a { color:var(--lime); font-size:13px; }
+@media(max-width:800px) { .doom-game { padding:16px; }.doom-heading { align-items:start; flex-direction:column; }.doom-player { height:260px; min-height:260px; }.doom-player iframe { min-height:260px; } }
 :root {
   --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   --page: #101315; --shell: #1a1f22; --shell-raised: #252b2e;
