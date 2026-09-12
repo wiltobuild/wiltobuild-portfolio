@@ -1047,6 +1047,20 @@ function createServiceMode() {
   const doomPlayer = document.querySelector('[data-doom-player]');
   const doomStart = document.querySelector('[data-doom-start]');
   const doomStatus = document.querySelector('[data-doom-status]');
+  const doomView = document.querySelector('[data-service-view="doom"]');
+
+  // Archive's DOSBox canvas is fixed at 640 × 400. Scale the complete iframe,
+  // keeping its native viewport intact instead of cropping its canvas.
+  new ResizeObserver(() => {
+    if (!doomView.clientWidth) return;
+    const style = getComputedStyle(doomView);
+    const availableWidth = doomView.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    const availableHeight = Math.max(1, doomView.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom));
+    const width = Math.min(640, availableWidth, availableHeight * 1.6);
+    doomPlayer.style.width = `${width}px`;
+    doomPlayer.style.setProperty('--doom-scale', width / 640);
+    if (doomPlayer.querySelector('iframe')) doomPlayer.scrollIntoView({ block: 'nearest' });
+  }).observe(doomView);
 
   function stopDoom() {
     doomPlayer.replaceChildren();
@@ -1069,6 +1083,7 @@ function createServiceMode() {
       if (frame.isConnected) doomStatus.textContent = 'Press the start button inside the player. If it cannot load, use the Internet Archive link below.';
     });
     doomPlayer.append(frame);
+    doomPlayer.scrollIntoView({ block: 'nearest' });
     doomStart.textContent = 'Restart DOOM';
     doomStatus.textContent = 'Loading Internet Archive player…';
   });

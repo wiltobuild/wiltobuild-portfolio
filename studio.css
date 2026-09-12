@@ -6,12 +6,13 @@
 .doom-heading h2 { font-family:var(--font-display); font-size:48px; margin:8px 0; line-height:1; }
 .doom-heading p,.doom-controls p,.doom-status { color:var(--muted); font-size:13px; line-height:1.5; }
 .doom-heading button { min-height:44px; padding:12px 20px; background:var(--lime); color:var(--on-accent); cursor:pointer; flex-shrink:0; }
-.doom-player { display:grid; place-items:center; width:100%; max-width:900px; height:clamp(220px, 42vh, 540px); min-height:220px; background:#000; border:1px solid var(--line); margin-inline:auto; }
+.doom-player { position:relative; display:grid; place-items:center; width:100%; max-width:640px; aspect-ratio:8/5; background:#000; outline:1px solid var(--line); margin-inline:auto; overflow:hidden; }
 .doom-player > p { padding:24px; color:#b7c5c9; text-align:center; line-height:1.8; }
-.doom-player iframe { width:100%; height:100%; border:0; min-height:220px; }
+.doom-player { scroll-margin-block:12px; }
+.doom-player iframe { position:absolute; inset:0; width:640px; height:400px; max-width:none; border:0; transform:scale(var(--doom-scale, 1)); transform-origin:top left; }
 .doom-controls b { color:var(--text); margin-left:8px; }
 .doom-controls a { color:var(--lime); font-size:13px; }
-@media(max-width:800px) { .doom-game { padding:16px; }.doom-heading { align-items:start; flex-direction:column; }.doom-player { height:260px; min-height:260px; }.doom-player iframe { min-height:260px; } }
+@media(max-width:800px) { .doom-game { padding:16px; }.doom-heading { align-items:start; flex-direction:column; } }
 :root {
   --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   --page: #101315; --shell: #1a1f22; --shell-raised: #252b2e;
