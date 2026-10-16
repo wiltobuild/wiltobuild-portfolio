@@ -177,6 +177,13 @@
       .mote { offset-distance: 62%; opacity: 0.5; }
       .ghost, .pulse { opacity: 0; }
     }
+    @media(max-height:320px) {
+      .visual { height:100%; min-height:0; }
+      .content { padding:8px; }
+      .shard-stage { width:min(30%,160px); }
+      .name { font-size:24px; margin-top:5px; }
+      .tagline { font-size:8px; margin-top:4px; }
+    }
   </style>
 </head>
 <body>
