@@ -122,6 +122,10 @@ const icons = {
     rect(13, 12, 3, 3, "#ff0000") +
     rect(10, 29, 13, 2, "#808080"),
 };
+icons.cephalon = icons.agents;
+icons["rush-hour"] = icons.projects;
+icons.gitfit = icons.about;
+icons.salesscope = icons.experience;
 export function desktopIcon(name) {
   if (!icons[name]) return null;
   const img = document.createElement("img");

@@ -4,7 +4,7 @@ import {
   normalizeRect,
   restoreRect,
   monitorEdgeDirection,
-} from "./window-geometry.js?v=fde-20261017";
+} from "./window-geometry.js?v=embedded-fde-20261017";
 
 const STORAGE = "wtb-desktop-layout-v2";
 const monitorIds = ["about", "projects", "contact"];

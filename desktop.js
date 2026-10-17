@@ -1,17 +1,17 @@
-import { aboutPage } from "./about-page.js?v=fde-20261017";
+import { aboutPage } from "./about-page.js?v=embedded-fde-20261017";
 import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=fde-20261017";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=fde-20261017";
-import { createWindowManager } from "./window-manager.js?v=fde-20261017";
+} from "./desktop-apps.js?v=embedded-fde-20261017";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=embedded-fde-20261017";
+import { createWindowManager } from "./window-manager.js?v=embedded-fde-20261017";
 import { createBoot } from "./boot.js";
-import { arrangeDesktopIcons } from "./icon-layout.js?v=fde-20261017";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=embedded-fde-20261017";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=fde-20261017";
+} from "./desktop-icons.js?v=embedded-fde-20261017";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -822,7 +822,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=fde-20261017");
+const sceneModule = import("./scene.js?v=embedded-fde-20261017");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
