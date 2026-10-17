@@ -35,11 +35,11 @@
       href="https://wiltobuild.github.io/wiltobuild-portfolio/"
     />
     <link rel="icon" href="./assets/desktop-icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./desktop.css?v=eggs-20261017" />
-    <link rel="stylesheet" href="./easter-eggs.css?v=eggs-20261017" />
-    <link rel="stylesheet" href="./monitor.css?v=eggs-20261017" />
-    <link rel="stylesheet" href="./windows.css?v=eggs-20261017" />
-    <link rel="stylesheet" href="./about.css?v=eggs-20261017" />
+    <link rel="stylesheet" href="./desktop.css?v=disk-20261017" />
+    <link rel="stylesheet" href="./easter-eggs.css?v=disk-20261017" />
+    <link rel="stylesheet" href="./monitor.css?v=disk-20261017" />
+    <link rel="stylesheet" href="./windows.css?v=disk-20261017" />
+    <link rel="stylesheet" href="./about.css?v=disk-20261017" />
     <link rel="stylesheet" href="./boot.css" />
     <title>WilToBuild — Wil Sheppard’s workspace</title>
     <script type="importmap">
@@ -146,6 +146,11 @@
         <span class="status-dot"></span> Assembling the workspace…
       </div>
       <span id="hover-label" aria-hidden="true"></span>
+      <aside id="disk-loading" hidden aria-label="Floppy drive activity">
+        <span id="disk-progress" role="status">A: Preparing floppy drive…</span>
+        <button id="disk-sound" aria-pressed="false">Sound: OFF</button>
+        <button id="cancel-disk">Cancel / Esc</button>
+      </aside>
       <div class="scene-tools" aria-label="Workspace controls">
         <button
           data-discover="floppy"
@@ -391,6 +396,6 @@
         </p>
       </div></noscript
     >
-    <script type="module" src="./desktop.js?v=eggs-20261017"></script>
+    <script type="module" src="./desktop.js?v=disk-20261017"></script>
   </body>
 </html>

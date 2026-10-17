@@ -1,22 +1,23 @@
-import { aboutPage } from "./about-page.js?v=eggs-20261017";
+import { aboutPage } from "./about-page.js?v=disk-20261017";
+import { createFloppySound } from "./floppy-drive.js?v=disk-20261017";
 import {
   createEasterEggs,
   EGG_TITLES,
   eggPage,
-} from "./easter-eggs.js?v=eggs-20261017";
+} from "./easter-eggs.js?v=disk-20261017";
 import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=eggs-20261017";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=eggs-20261017";
-import { createWindowManager } from "./window-manager.js?v=eggs-20261017";
+} from "./desktop-apps.js?v=disk-20261017";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=disk-20261017";
+import { createWindowManager } from "./window-manager.js?v=disk-20261017";
 import { createBoot } from "./boot.js";
-import { arrangeDesktopIcons } from "./icon-layout.js?v=eggs-20261017";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=disk-20261017";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=eggs-20261017";
+} from "./desktop-icons.js?v=disk-20261017";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -61,6 +62,9 @@ let workspace = null,
   sound = false,
   audio = null,
   toastTimer;
+const diskSound = createFloppySound(() => (audio ||= new AudioContext()));
+let diskLoading = false,
+  diskLoadVersion = 0;
 arrangeDesktopIcons(
   screens,
   (id, x, y) => workspace?.pointOnScreen(id, x, y),
@@ -306,6 +310,7 @@ function setStart(value) {
 const eggs = createEasterEggs({
   navigate,
   toast,
+  onReadDisk: loadFloppy,
   onChange: (state) => workspace?.setDiscoveries(state),
 });
 const windows = createWindowManager({
@@ -342,6 +347,9 @@ const windows = createWindowManager({
 });
 function setSound(value) {
   sound = value;
+  diskSound.setEnabled(value && !document.hidden);
+  $("#disk-sound").textContent = value ? "Sound: ON" : "Sound: OFF";
+  $("#disk-sound").setAttribute("aria-pressed", String(value));
   $("#sound").setAttribute("aria-pressed", String(sound));
   $("#sound").setAttribute(
     "aria-label",
@@ -395,6 +403,10 @@ function enterMonitor(id, name) {
   );
 }
 function open(route) {
+  if (route === "floppy") {
+    loadFloppy();
+    return;
+  }
   if (route === "coffee") {
     navigate("coffee");
     return;
@@ -405,7 +417,77 @@ function open(route) {
     navigate(route);
   }
 }
+async function loadFloppy() {
+  if (diskLoading) return;
+  if (!workspace) {
+    eggs.diskReady();
+    navigate("floppy");
+    return;
+  }
+  diskLoading = true;
+  const version = ++diskLoadVersion;
+  ++navigationVersion;
+  previousFocus = document.activeElement;
+  windows.suspend();
+  setStart(false);
+  setScreensInteractive(null);
+  currentMonitor = requestedMonitor = null;
+  inspectingCoffee = false;
+  document.body.classList.remove(
+    "monitor-mode",
+    "arrange-mode",
+    "coffee-mode",
+    "moving-camera",
+  );
+  document.body.classList.add("disk-mode");
+  $("#monitor-controls").hidden = $("#desktop-dock").hidden = true;
+  $("#coffee-controls").hidden = $("#coffee-card").hidden = true;
+  setOverviewInert(false);
+  $("#disk-loading").hidden = false;
+  $("#cancel-disk").focus({ preventScroll: true });
+  const completed = await workspace.readFloppy((phase) => {
+    diskSound.setPhase(phase);
+    $("#disk-progress").textContent =
+      {
+        positioning: "A: Preparing floppy drive…",
+        inserting: "A: Inserting disk…",
+        reading: "A: Reading rune archive…",
+        ready: "A: Archive ready.",
+      }[phase] || "A: Read cancelled.";
+  });
+  if (version !== diskLoadVersion) return;
+  if (!completed) {
+    cancelDiskLoad();
+    return;
+  }
+  diskLoading = false;
+  diskSound.stop();
+  $("#disk-loading").hidden = true;
+  document.body.classList.remove("disk-mode");
+  eggs.diskReady();
+  requestedMonitor = windows.monitorOf("floppy") || monitorFor("floppy");
+  navigate("floppy");
+}
+function cancelDiskLoad(returnHome = true) {
+  if (!diskLoading) return;
+  diskLoading = false;
+  ++diskLoadVersion;
+  workspace?.cancelFloppy();
+  diskSound.stop();
+  $("#disk-loading").hidden = true;
+  document.body.classList.remove("disk-mode", "moving-camera");
+  document.body.style.overflow = "";
+  workspace?.leave();
+  if (returnHome) {
+    history.replaceState(null, "", "#home");
+    document.querySelector('[data-discover="floppy"]').focus({ preventScroll: true });
+  }
+}
 function close() {
+  if (diskLoading) {
+    cancelDiskLoad();
+    return;
+  }
   if (currentMonitor || inspectingCoffee) location.hash = "home";
 }
 async function arrangeWindows(force = false) {
@@ -470,6 +552,7 @@ async function inspectCoffee() {
 }
 async function routePage() {
   if (!sceneSettled || boot.isActive()) return;
+  if (diskLoading) cancelDiskLoad(false);
   const version = ++navigationVersion,
     name = location.hash.slice(1).split("/")[0],
     projectId = location.hash.slice(1).split("/")[1];
@@ -565,7 +648,10 @@ function panMonitor(direction) {
 window.addEventListener("hashchange", routePage);
 document.addEventListener("keydown", (event) => {
   if (boot.isActive()) return;
-  if (event.key === "Escape" && (currentMonitor || inspectingCoffee)) {
+  if (
+    event.key === "Escape" &&
+    (currentMonitor || inspectingCoffee || diskLoading)
+  ) {
     event.preventDefault();
     close();
   }
@@ -576,6 +662,15 @@ document.addEventListener("keydown", (event) => {
 });
 $("#leave-monitor").addEventListener("click", close);
 $("#inspect-coffee").addEventListener("click", () => navigate("coffee"));
+$("#cancel-disk").addEventListener("click", () => cancelDiskLoad());
+$("#disk-sound").addEventListener("click", () => setSound(!sound));
+document.addEventListener("visibilitychange", () =>
+  diskSound.setEnabled(sound && !document.hidden),
+);
+window.addEventListener("pagehide", () => {
+  cancelDiskLoad(false);
+  diskSound.stop();
+});
 document
   .querySelectorAll("[data-discover]")
   .forEach((button) =>
@@ -626,6 +721,7 @@ screens.forEach((el, id) => {
   el.querySelector(".role-restart-computer").onclick = restartBoot;
 });
 function restartBoot() {
+  cancelDiskLoad(false);
   windows.suspend();
   setStart(false);
   location.hash = "home";
@@ -840,7 +936,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=eggs-20261017");
+const sceneModule = import("./scene.js?v=disk-20261017");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule

@@ -1,6 +1,11 @@
 import * as THREE from "three";
 import { CSS3DObject, CSS3DRenderer } from "./assets/vendor/CSS3DRenderer.js";
 import { createLavaLamp } from "./lava-lamp.js?v=lava-20261017";
+import {
+  floppyFrame,
+  DISK_HOME,
+  DISK_INSERTED,
+} from "./floppy-drive.js?v=disk-20261017";
 
 // Original, procedural workstation. All geometry and screen artwork is local.
 export function createWorkspace(container, onOpen, screens) {
@@ -277,8 +282,10 @@ export function createWorkspace(container, onOpen, screens) {
   box(tower, 0.82, 1.74, 0.12, lightCream, 0, 0, 0.9, 0.03);
   box(tower, 0.67, 0.2, 0.03, darkCream, 0, 0.52, 0.98);
   box(tower, 0.53, 0.045, 0.035, black, -0.04, 0.53, 1.0);
-  box(tower, 0.67, 0.25, 0.04, darkCream, 0, 0.19, 0.98);
-  box(tower, 0.36, 0.035, 0.04, black, -0.05, 0.2, 1.01);
+  const floppyBay = box(tower, 0.67, 0.25, 0.04, darkCream, 0, 0.19, 0.98);
+  const floppySlot = box(tower, 0.48, 0.075, 0.04, black, -0.05, 0.2, 1.01);
+  const driveLight = new THREE.MeshBasicMaterial({ color: "#344226" });
+  box(tower, 0.055, 0.025, 0.025, driveLight, 0.23, 0.14, 1.02);
   for (let i = 0; i < 10; i++)
     box(tower, 0.56, 0.018, 0.025, black, 0, -0.26 - i * 0.045, 0.98);
   cylinder(tower, 0.07, 0.07, 0.03, green, 0.23, -0.02, 1.02).rotation.x =
@@ -910,34 +917,105 @@ export function createWorkspace(container, onOpen, screens) {
   );
   nl.rotation.x = -Math.PI / 2;
   box(notebook, 0.025, 0.035, 0.8, mat("#ad783b"), 0.24, 0.075, 0.03);
-  const disk = box(
-    desk,
-    0.42,
-    0.04,
-    0.44,
-    mat("#373f42"),
-    3.2,
-    2.35,
-    1.45,
-    0.02,
-  );
-  disk.rotation.y = 0.21;
-  box(desk, 0.26, 0.015, 0.18, metal, 3.2, 2.382, 1.57);
+  const diskGroup = new THREE.Group();
+  diskGroup.position.fromArray(DISK_HOME);
+  diskGroup.rotation.y = 0.21;
+  desk.add(diskGroup);
+  const disk = box(diskGroup, 0.42, 0.04, 0.44, mat("#373f42"), 0, 0, 0, 0);
+  const shutter = box(diskGroup, 0.26, 0.01, 0.15, metal, 0, 0.025, -0.12);
   const dl = label(
-    desk,
+    diskGroup,
     "NOT A GAME",
     0.3,
     0.13,
-    3.2,
-    2.387,
-    1.33,
+    0,
+    0.026,
+    0.09,
     "#e4dbad",
     "#394a36",
     35,
   );
   dl.rotation.x = -Math.PI / 2;
-  disk.userData.route = dl.userData.route = "floppy";
-  hits.push(disk, dl);
+  const diskParts = [disk, dl, shutter];
+  [...diskParts, floppyBay, floppySlot].forEach((mesh) => {
+    mesh.userData.route = "floppy";
+    hits.push(mesh);
+  });
+  let diskJob = null,
+    diskInserted = false;
+  function diskHitTargets(visible) {
+    diskParts.forEach((mesh) => {
+      const index = hits.indexOf(mesh);
+      if (visible && index < 0) hits.push(mesh);
+      if (!visible && index >= 0) hits.splice(index, 1);
+    });
+  }
+  function cancelFloppy() {
+    if (!diskJob) return;
+    const job = diskJob;
+    diskJob = null;
+    diskGroup.position.fromArray(diskInserted ? DISK_INSERTED : DISK_HOME);
+    diskGroup.rotation.y = diskInserted ? 0 : 0.21;
+    diskGroup.visible = !diskInserted;
+    diskHitTargets(!diskInserted);
+    driveLight.color.set("#344226");
+    container.dataset.diskPhase = "idle";
+    container.dataset.driveLight = "off";
+    job.onPhase("idle");
+    job.resolve(false);
+    dirty = true;
+  }
+  function readFloppy(onPhase) {
+    if (diskJob) return diskJob.promise;
+    let resolve;
+    const promise = new Promise((done) => {
+      resolve = done;
+    });
+    const job = {
+      resolve,
+      promise,
+      onPhase,
+      started: null,
+      phase: "positioning",
+      reduced: reduced.matches,
+      inserted: diskInserted,
+    };
+    diskJob = job;
+    diskHitTargets(false);
+    container.dataset.diskPhase = "positioning";
+    onPhase("positioning");
+    flyTo("drive").then((arrived) => {
+      if (diskJob !== job) return;
+      if (!arrived) {
+        cancelFloppy();
+        return;
+      }
+      job.started = performance.now();
+      dirty = true;
+    });
+    return promise;
+  }
+  function animateFloppy(time) {
+    if (!diskJob || diskJob.started === null) return;
+    const job = diskJob,
+      state = floppyFrame(time - job.started, job);
+    diskGroup.position.fromArray(state.position);
+    diskGroup.rotation.y = state.yaw;
+    diskGroup.visible = state.phase === "inserting";
+    driveLight.color.set(state.light ? "#caff57" : "#344226");
+    container.dataset.driveLight = state.light ? "on" : "off";
+    container.dataset.diskPhase = state.phase;
+    if (job.phase !== state.phase) {
+      job.phase = state.phase;
+      job.onPhase(state.phase);
+    }
+    if (state.done) {
+      diskInserted = true;
+      diskJob = null;
+      job.resolve(true);
+    }
+    dirty = true;
+  }
   // A physical pager and collectible souvenirs, built from the same low-poly materials.
   const pager = new THREE.Group();
   pager.position.set(1.8, 2.39, 1.85);
@@ -1092,6 +1170,7 @@ export function createWorkspace(container, onOpen, screens) {
     focusedMonitor = null,
     arranging = false,
     inspectingCoffee = false,
+    inspectingDrive = false,
     touring = false,
     tourStopped = false,
     tourStarted = 0;
@@ -1185,13 +1264,30 @@ export function createWorkspace(container, onOpen, screens) {
     return { position, quaternion: poseCamera.quaternion.clone() };
   }
   const destinationPose = () =>
-    inspectingCoffee
-      ? coffeePose()
-      : arranging
-        ? arrangePose()
-        : focusedMonitor
-          ? monitorPose(focusedMonitor)
-          : overviewPose();
+    inspectingDrive
+      ? drivePose()
+      : inspectingCoffee
+        ? coffeePose()
+        : arranging
+          ? arrangePose()
+          : focusedMonitor
+            ? monitorPose(focusedMonitor)
+            : overviewPose();
+  function drivePose() {
+    const target = new THREE.Vector3(3.5, 1.8, 1.6);
+    const distance = Math.max(
+      5,
+      2.9 / (2 * Math.tan(THREE.MathUtils.degToRad(16)) * camera.aspect * 0.85),
+    );
+    const position = target
+      .clone()
+      .add(
+        new THREE.Vector3(0.24, 0.26, 1).normalize().multiplyScalar(distance),
+      );
+    poseCamera.position.copy(position);
+    poseCamera.lookAt(target);
+    return { position, quaternion: poseCamera.quaternion.clone() };
+  }
   function resize() {
     const w = container.clientWidth,
       h = container.clientHeight;
@@ -1218,7 +1314,8 @@ export function createWorkspace(container, onOpen, screens) {
     stopTour();
     transition?.resolve(false);
     inspectingCoffee = id === "coffee";
-    focusedMonitor = inspectingCoffee ? null : id;
+    inspectingDrive = id === "drive";
+    focusedMonitor = inspectingCoffee || inspectingDrive ? null : id;
     arranging = arrange;
     drag = null;
     zoom = targetZoom = follow ? Math.min(zoom, 1.25) : 1;
@@ -1296,7 +1393,7 @@ export function createWorkspace(container, onOpen, screens) {
   };
   document.addEventListener("pointerdown", stopOnInput, { capture: true });
   renderer.domElement.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0 || transition) return;
+    if (e.button !== 0 || transition || diskJob) return;
     stopTour();
     drag = {
       x: e.clientX,
@@ -1373,6 +1470,7 @@ export function createWorkspace(container, onOpen, screens) {
     hover.classList.remove("visible"),
   );
   function zoomBy(delta) {
+    if (diskJob) return;
     stopTour();
     targetZoom = THREE.MathUtils.clamp(
       targetZoom * Math.exp(delta),
@@ -1402,6 +1500,7 @@ export function createWorkspace(container, onOpen, screens) {
   function draw(time) {
     frame = requestAnimationFrame(draw);
     if (document.hidden) return;
+    animateFloppy(time);
     const dt = Math.min(64, Math.max(0, time - last));
     last = time;
     if (
@@ -1476,6 +1575,7 @@ export function createWorkspace(container, onOpen, screens) {
   }
   draw(0);
   renderer.domElement.addEventListener("webglcontextlost", (e) => {
+    cancelFloppy();
     e.preventDefault();
     document.querySelector("#load-status").hidden = false;
     document.querySelector("#load-status").textContent =
@@ -1486,6 +1586,8 @@ export function createWorkspace(container, onOpen, screens) {
     document.querySelector("#load-status").hidden = true;
   });
   return {
+    readFloppy,
+    cancelFloppy,
     setDiscoveries,
     focus: (id) => flyTo(id),
     follow: (id) => flyTo(id, false, true),
@@ -1520,6 +1622,7 @@ export function createWorkspace(container, onOpen, screens) {
       dirty = true;
     },
     dispose() {
+      cancelFloppy();
       transition?.resolve(false);
       cancelAnimationFrame(frame);
       ro.disconnect();
