@@ -1,3 +1,44 @@
+#disk-loading {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 80;
+  width: max-content;
+  max-width: calc(100vw - 24px);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  background: #c0c0c0;
+  color: #111;
+  border: 3px outset #fff;
+  box-shadow: 3px 3px #333;
+  font:
+    bold 14px/1.5 "Courier New",
+    monospace;
+}
+#disk-loading[hidden] {
+  display: none;
+}
+#disk-loading button {
+  padding: 6px 10px;
+  background: #c0c0c0;
+  color: #111;
+  border: 2px outset #fff;
+  font: inherit;
+  cursor: pointer;
+}
+#disk-loading button:focus-visible {
+  outline: 2px dotted #000080;
+  outline-offset: 2px;
+}
+.disk-mode .workspace-bottom,
+.disk-mode .workspace-stamp {
+  visibility: hidden;
+}
 .egg-app {
   font:
     16px/1.55 Tahoma,
