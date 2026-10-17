@@ -87,7 +87,7 @@
   margin-left: auto;
   color: var(--muted);
 }
-#monitor-screen {
+.monitor-screen {
   color: #292d29;
   background: #37645d;
   border-radius: 17px;
@@ -95,7 +95,7 @@
   backface-visibility: hidden;
   user-select: text !important;
 }
-#monitor-screen .os-frame {
+.monitor-screen .os-frame {
   height: 100%;
   width: 100%;
   border: 0;
@@ -103,16 +103,16 @@
   box-shadow: none;
   position: relative;
 }
-#monitor-screen .os-top {
+.monitor-screen .os-top {
   display: none;
 }
-#monitor-screen .os-desktop {
+.monitor-screen .os-desktop {
   padding: 12px;
   gap: 12px;
   flex-direction: row;
   position: relative;
 }
-#monitor-screen .desktop-icons {
+.monitor-screen .desktop-icons {
   width: 60px;
   gap: 10px;
   flex-direction: column;
@@ -120,89 +120,89 @@
   overflow-x: hidden;
   scrollbar-width: thin;
 }
-#monitor-screen .desktop-icons a {
+.monitor-screen .desktop-icons a {
   font-size: 8px;
   min-width: 0;
 }
-#monitor-screen .pixel-icon {
+.monitor-screen .pixel-icon {
   font-size: 27px;
 }
-#monitor-screen .app-window {
+.monitor-screen .app-window {
   min-height: 0;
 }
-#monitor-screen .window-content {
+.monitor-screen .window-content {
   padding: 22px;
   min-height: 0;
 }
-#monitor-screen .doc-title {
+.monitor-screen .doc-title {
   font-size: 30px;
   letter-spacing: -1px;
   margin-bottom: 14px;
 }
-#monitor-screen .doc-lede {
+.monitor-screen .doc-lede {
   font-size: 12px;
   line-height: 1.75;
 }
-#monitor-screen .doc-kicker {
+.monitor-screen .doc-kicker {
   font-size: 8px;
   margin-bottom: 13px;
 }
-#monitor-screen .about-grid {
+.monitor-screen .about-grid {
   gap: 20px;
 }
-#monitor-screen .about-photo img {
+.monitor-screen .about-photo img {
   max-height: 230px;
 }
-#monitor-screen .doc-actions {
+.monitor-screen .doc-actions {
   margin: 17px 0;
 }
-#monitor-screen .doc-button {
+.monitor-screen .doc-button {
   font-size: 10px;
   padding: 9px 11px;
   gap: 10px;
 }
-#monitor-screen .fact-strip {
+.monitor-screen .fact-strip {
   gap: 12px;
   margin-top: 22px;
   padding-top: 16px;
 }
-#monitor-screen .fact-strip b {
+.monitor-screen .fact-strip b {
   font-size: 17px;
 }
-#monitor-screen .project-visual {
+.monitor-screen .project-visual {
   height: 170px;
 }
-#monitor-screen .project-tabs {
+.monitor-screen .project-tabs {
   margin: 15px 0;
 }
-#monitor-screen .project-tabs button {
+.monitor-screen .project-tabs button {
   padding: 8px 11px;
   font-size: 10px;
 }
-#monitor-screen .taskbar-app {
+.monitor-screen .taskbar-app {
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-#monitor-screen #start-menu {
+.monitor-screen .role-start-menu {
   max-height: calc(100% - 44px);
   overflow-y: auto;
 }
-#monitor-screen #start-menu a,
-#monitor-screen #start-menu button {
+.monitor-screen .role-start-menu a,
+.monitor-screen .role-start-menu button {
   padding: 9px 12px;
 }
-#monitor-screen #start-menu b {
+.monitor-screen .role-start-menu b {
   padding: 10px 12px;
 }
-#monitor-screen.app-maximized .desktop-icons {
+.monitor-screen.app-maximized .desktop-icons {
   display: none;
 }
-#monitor-screen.app-maximized .os-desktop {
+.monitor-screen.app-maximized .os-desktop {
   padding: 3px;
 }
-#monitor-screen.desktop-only .desktop-icons {
+.monitor-screen.desktop-only .desktop-icons {
   display: grid;
   grid-template-columns: repeat(3, 68px);
   align-content: start;
@@ -210,7 +210,7 @@
   gap: 18px 8px;
   z-index: 1;
 }
-#monitor-screen.desktop-only .os-desktop::after {
+.monitor-screen.desktop-only .os-desktop::after {
   content: "WilToBuild 95";
   position: absolute;
   right: 24px;
@@ -219,142 +219,142 @@
   font: 500 27px var(--sans);
   letter-spacing: -1px;
 }
-#monitor-screen.compact-screen {
+.monitor-screen.compact-screen {
   border-radius: 10px;
 }
-#monitor-screen.compact-screen .os-desktop {
+.monitor-screen.compact-screen .os-desktop {
   padding: 6px;
 }
-#monitor-screen.compact-screen .desktop-icons {
+.monitor-screen.compact-screen .desktop-icons {
   display: none;
 }
-#monitor-screen.compact-screen.desktop-only .desktop-icons {
+.monitor-screen.compact-screen.desktop-only .desktop-icons {
   display: grid;
 }
-#monitor-screen.compact-screen .window-content {
+.monitor-screen.compact-screen .window-content {
   padding: 13px;
 }
-#monitor-screen.compact-screen .window-menubar,
-#monitor-screen.compact-screen .window-status {
+.monitor-screen.compact-screen .window-menubar,
+.monitor-screen.compact-screen .window-status {
   display: none;
 }
-#monitor-screen.compact-screen .window-titlebar {
+.monitor-screen.compact-screen .window-titlebar {
   padding: 3px 4px 3px 7px;
 }
-#monitor-screen.compact-screen .window-titlebar h2 {
+.monitor-screen.compact-screen .window-titlebar h2 {
   font-size: 9px;
 }
-#monitor-screen.compact-screen .about-grid {
+.monitor-screen.compact-screen .about-grid {
   grid-template-columns: 1fr;
   gap: 14px;
 }
-#monitor-screen.compact-screen .about-photo {
+.monitor-screen.compact-screen .about-photo {
   display: flex;
   gap: 12px;
   align-items: center;
   order: -1;
 }
-#monitor-screen.compact-screen .about-photo img {
+.monitor-screen.compact-screen .about-photo img {
   width: 68px;
   height: 72px;
   border-width: 3px;
 }
-#monitor-screen.compact-screen .about-photo figcaption {
+.monitor-screen.compact-screen .about-photo figcaption {
   font-size: 7px;
   line-height: 1.6;
   margin: 0;
 }
-#monitor-screen.compact-screen .doc-title {
+.monitor-screen.compact-screen .doc-title {
   font-size: 23px;
 }
-#monitor-screen.compact-screen .doc-kicker {
+.monitor-screen.compact-screen .doc-kicker {
   font-size: 7px;
 }
-#monitor-screen.compact-screen .doc-lede {
+.monitor-screen.compact-screen .doc-lede {
   font-size: 12px;
 }
-#monitor-screen.compact-screen .project-grid {
+.monitor-screen.compact-screen .project-grid {
   grid-template-columns: 1fr;
   gap: 12px;
 }
-#monitor-screen.compact-screen .project-visual {
+.monitor-screen.compact-screen .project-visual {
   height: 130px;
 }
-#monitor-screen.compact-screen .fact-strip b {
+.monitor-screen.compact-screen .fact-strip b {
   font-size: 14px;
 }
-#monitor-screen.compact-screen .fact-strip span {
+.monitor-screen.compact-screen .fact-strip span {
   font-size: 8px;
 }
-#monitor-screen.compact-screen .file-row {
+.monitor-screen.compact-screen .file-row {
   grid-template-columns: 22px 1fr;
   gap: 8px;
 }
-#monitor-screen.compact-screen .agent-grid {
+.monitor-screen.compact-screen .agent-grid {
   grid-template-columns: 1fr 1fr;
 }
-#monitor-screen.compact-screen .agent-tree {
+.monitor-screen.compact-screen .agent-tree {
   padding: 12px;
 }
-#monitor-screen.compact-screen .credential {
+.monitor-screen.compact-screen .credential {
   gap: 12px;
 }
-#monitor-screen.compact-screen .credential img {
+.monitor-screen.compact-screen .credential img {
   width: 60px;
 }
-#monitor-screen.compact-screen .os-taskbar {
+.monitor-screen.compact-screen .os-taskbar {
   height: 29px;
   padding: 2px 4px;
 }
-#monitor-screen.compact-screen .os-taskbar button {
+.monitor-screen.compact-screen .os-taskbar button {
   height: 23px;
   font-size: 10px;
   padding: 3px 7px;
 }
-#monitor-screen.compact-screen .taskbar-app {
+.monitor-screen.compact-screen .taskbar-app {
   font-size: 8px;
   padding: 4px 6px;
   flex: 1;
 }
-#monitor-screen.compact-screen .taskbar-right {
+.monitor-screen.compact-screen .taskbar-right {
   font-size: 8px;
   gap: 5px;
   padding: 4px;
 }
-#monitor-screen.compact-screen #start-menu {
+.monitor-screen.compact-screen .role-start-menu {
   bottom: 28px;
   max-height: calc(100% - 33px);
   width: 210px;
 }
-#monitor-screen.compact-screen #start-menu a,
-#monitor-screen.compact-screen #start-menu button {
+.monitor-screen.compact-screen .role-start-menu a,
+.monitor-screen.compact-screen .role-start-menu button {
   padding: 8px;
   font-size: 10px;
 }
-#monitor-screen.compact-screen .snake-wrap {
+.monitor-screen.compact-screen .snake-wrap {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-#monitor-screen.compact-screen [data-ui="snake"] {
+.monitor-screen.compact-screen [data-ui="snake"] {
   width: 100%;
   max-width: 180px;
 }
-#monitor-screen.compact-screen .snake-info {
+.monitor-screen.compact-screen .snake-info {
   width: auto;
   font-size: 10px;
 }
-#monitor-screen.compact-screen .snake-info p {
+.monitor-screen.compact-screen .snake-info p {
   margin-top: 0;
 }
-#monitor-screen.compact-screen .snake-pad {
+.monitor-screen.compact-screen .snake-pad {
   margin-top: 8px;
 }
-#monitor-screen.compact-screen .snake-pad button {
+.monitor-screen.compact-screen .snake-pad button {
   width: 28px;
   height: 25px;
 }
-.no-webgl.monitor-mode #monitor-screen {
+.no-webgl.monitor-mode .monitor-screen {
   position: fixed;
   inset: 70px 5% 5%;
   width: auto;
@@ -398,7 +398,7 @@
   .screen-renderer,
   .screen-renderer > div,
   .screen-renderer > div > div,
-  #monitor-screen {
+  .monitor-screen {
     position: static !important;
     transform: none !important;
     width: 100% !important;
@@ -413,8 +413,8 @@
   #monitor-controls {
     display: none !important;
   }
-  #monitor-screen .os-desktop,
-  #monitor-screen .window-content {
+  .monitor-screen .os-desktop,
+  .monitor-screen .window-content {
     padding: 0;
   }
 }

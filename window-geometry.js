@@ -1,5 +1,28 @@
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
+export function normalizeRect(rect, bounds) {
+  return {
+    x: rect.x / bounds.width,
+    y: rect.y / bounds.height,
+    w: rect.w / bounds.width,
+    h: rect.h / bounds.height,
+  };
+}
+export function restoreRect(rect, bounds) {
+  const valid =
+    rect && ["x", "y", "w", "h"].every((k) => Number.isFinite(rect[k]));
+  const r = valid ? rect : { x: 0.1, y: 0.05, w: 0.8, h: 0.85 };
+  return fitWindow(
+    {
+      x: r.x * bounds.width,
+      y: r.y * bounds.height,
+      w: r.w * bounds.width,
+      h: r.h * bounds.height,
+    },
+    bounds,
+  );
+}
+
 export function fitWindow(rect, bounds) {
   const width = Math.max(1, bounds.width - 4);
   const height = Math.max(1, bounds.height - 4);
