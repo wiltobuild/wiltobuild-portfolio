@@ -165,12 +165,18 @@ export function createWorkspace(container, onOpen, screens) {
     parent.add(m);
     return m;
   }
-  function cable(points, material = black, r = 0.025, parent = desk) {
+  function cable(
+    points,
+    material = black,
+    r = 0.025,
+    parent = desk,
+    segments = 40,
+  ) {
     const curve = new THREE.CatmullRomCurve3(
       points.map((p) => new THREE.Vector3(...p)),
     );
     const m = new THREE.Mesh(
-      new THREE.TubeGeometry(curve, 40, r, 6, false),
+      new THREE.TubeGeometry(curve, segments, r, 8, false),
       material,
     );
     m.castShadow = true;
@@ -278,6 +284,53 @@ export function createWorkspace(container, onOpen, screens) {
     Math.PI / 2;
   const led = new THREE.MeshBasicMaterial({ color: "#a4dd74" });
   box(tower, 0.04, 0.025, 0.02, led, -0.25, -0.04, 1.03);
+  // Rear I/O plate with separate PS/2 sockets and plugged-in strain reliefs.
+  box(tower, 0.65, 0.82, 0.035, metal, 0, 0.34, -0.86, 0.018);
+  for (const [x, color] of [
+    [-0.16, "#765997"],
+    [0.16, "#5f9065"],
+  ]) {
+    const socket = cylinder(
+      tower,
+      0.052,
+      0.052,
+      0.025,
+      mat(color),
+      x,
+      0.56,
+      -0.89,
+      24,
+    );
+    socket.rotation.x = Math.PI / 2;
+    const plug = cylinder(
+      tower,
+      0.041,
+      0.041,
+      0.11,
+      mat(color),
+      x,
+      0.56,
+      -0.95,
+      24,
+    );
+    plug.rotation.x = Math.PI / 2;
+    const tail = cylinder(tower, 0.019, 0.019, 0.1, black, x, 0.56, -1.04, 16);
+    tail.rotation.x = Math.PI / 2;
+    for (let i = 0; i < 5; i++) {
+      const strain = cylinder(
+        tower,
+        0.03 - i * 0.002,
+        0.03 - i * 0.002,
+        0.014,
+        black,
+        x,
+        0.56,
+        -1.01 - i * 0.017,
+        16,
+      );
+      strain.rotation.x = Math.PI / 2;
+    }
+  }
   const hits = [],
     monitors = [];
   function drawScreen(type) {
@@ -627,9 +680,21 @@ export function createWorkspace(container, onOpen, screens) {
       [-0.4, 2.34, 0.5],
       [-0.7, 2.34, 0.4],
       [-1.4, 2.34, -0.65],
+      [-1.55, 2.34, -1.85],
+      [-0.65, 2.34, -2.12],
+      [1.4, 2.34, -2.12],
+      [2.8, 2.34, -2.12],
+      [3.25, 2.34, -2.18],
+      [3.44, 2.25, -2.4],
+      [3.44, 1.75, -2.48],
+      [3.44, 1.35, -1.85],
+      [3.44, 1.43, -1.3],
+      [3.44, 1.51, -0.93],
     ],
     black,
     0.018,
+    desk,
+    160,
   );
   const pad = box(
     desk,
@@ -657,9 +722,20 @@ export function createWorkspace(container, onOpen, screens) {
       [2.05, 2.36, 0.57],
       [1.75, 2.34, 0.25],
       [1.9, 2.34, -0.3],
+      [1.6, 2.34, -0.65],
+      [1.7, 2.34, -1.6],
+      [2.2, 2.34, -2.02],
+      [3.35, 2.34, -2.08],
+      [3.76, 2.23, -2.4],
+      [3.78, 1.74, -2.47],
+      [3.76, 1.33, -1.82],
+      [3.76, 1.44, -1.25],
+      [3.76, 1.51, -0.93],
     ],
     black,
     0.014,
+    desk,
+    160,
   );
   // A pair of compact speakers.
   for (const x of [-4.22, 4.2]) {

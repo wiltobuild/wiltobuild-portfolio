@@ -1,5 +1,10 @@
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=seamless-20261016";
-import { createWindowManager } from "./window-manager.js?v=seamless-20261016";
+import {
+  DESKTOP_APPS,
+  appMarkup,
+  mountDesktopApp,
+} from "./desktop-apps.js?v=apps-20261017";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=apps-20261017";
+import { createWindowManager } from "./window-manager.js?v=apps-20261017";
 import { createBoot } from "./boot.js";
 const template = document.querySelector("#monitor-screen");
 const screens = new Map();
@@ -71,7 +76,9 @@ function setOverviewInert(value) {
     });
 }
 const files = {
-  runelord: "Runelord.exe",
+  ...Object.fromEntries(
+    Object.entries(DESKTOP_APPS).map(([id, app]) => [id, app.title]),
+  ),
   about: "Hello, world.txt",
   projects: "My Projects",
   experience: "Experience.txt",
@@ -115,8 +122,9 @@ function rows(items) {
   return `<div class="file-list">${items.map(([title, desc], i) => `<article class="file-row"><span class="file-number">0${i + 1}</span><div><h3>${title}</h3><p>${desc}</p></div></article>`).join("")}</div>`;
 }
 const pages = {
-  runelord: () =>
-    `<iframe class="runelord-game" src="https://wiltobuild.github.io/runelord/" title="Runelord playable game" allow="autoplay; gamepad" sandbox="allow-scripts allow-same-origin allow-pointer-lock"></iframe>`,
+  ...Object.fromEntries(
+    Object.keys(DESKTOP_APPS).map((id) => [id, () => appMarkup(id)]),
+  ),
   about: () =>
     `<div class="about-grid"><div><p class="doc-kicker">01 / A LITTLE ABOUT ME</p><h3 class="doc-title">Hi, I’m Wil.<br>I connect the pieces.</h3><p class="doc-lede">I build software the way I approach a complex system: understand the people using it, trace the connections, and make it work.</p><p class="doc-lede">My background is in Crestron programming, AV automation, and systems integration. Today, I’m bringing that practical experience into AI and software development with Claude Code and Codex.</p><div class="doc-actions"><a class="doc-button" href="#projects">Explore my work ↗</a><a class="doc-button secondary" href="#contact">Say hello →</a></div></div><figure class="about-photo"><img src="./assets/wil-sheppard-headshot.png" alt="Wil Sheppard" width="380" height="440"><figcaption>WIL SHEPPARD<br>BUILT ON EXPERIENCE. DRIVEN BY CURIOSITY.</figcaption></figure></div><div class="fact-strip"><div><b>Since 2012</b><span>Independent AV integration<br>& project leadership</span></div><div><b>AI + software</b><span>Current direction<br>Pursuit Native AI Fellow</span></div><div><b>Human outcomes</b><span>Complex systems,<br>made useful for people</span></div></div>`,
   experience: () =>
@@ -211,9 +219,14 @@ const pages = {
     ),
 };
 function renderProject(entry) {
-  const p = projects[entry.projectIndex];
+  const p = projects[entry.projectIndex],
+    app = DESKTOP_APPS[p.id];
+  const appAction = app
+    ? `<a class="doc-button" href="#${p.id}">${app.game ? "Play" : "Open"} in desktop →</a>`
+    : "";
+  const links = (p.links || []).filter((link) => !app || link.url !== app.url);
   entry.content.querySelector('[data-ui="project-detail"]').innerHTML =
-    `<iframe class="project-visual" src="./${p.visual}" title="${p.title} animated project preview" loading="lazy" sandbox="allow-scripts"></iframe><div class="project-grid"><div><span class="tag">${p.status.toUpperCase()}</span><h3>${p.title}</h3><p>${p.description}</p><div class="doc-actions">${p.id === "runelord" ? '<a class="doc-button" href="#runelord">Play inside the monitor →</a>' : ""}${(p.links || []).map((link, i) => `<a class="doc-button ${i ? "secondary" : ""}" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}</div>${p.access ? `<p class="small-note">${p.access}</p>` : ""}</div><ul class="evidence-list">${p.evidence.map((e, i) => `<li><b>${p.labels[i]}</b>${e}</li>`).join("")}</ul></div>`;
+    `<iframe class="project-visual" src="./${p.visual}" title="${p.title} animated project preview" loading="lazy" sandbox="allow-scripts"></iframe><div class="project-grid"><div><span class="tag">${p.status.toUpperCase()}</span><h3>${p.title}</h3><p>${p.description}</p><div class="doc-actions">${appAction}${links.map((link, i) => `<a class="doc-button ${i ? "secondary" : ""}" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}</div>${p.access ? `<p class="small-note">${p.access}</p>` : ""}</div><ul class="evidence-list">${p.evidence.map((e, i) => `<li><b>${p.labels[i]}</b>${e}</li>`).join("")}</ul></div>`;
   entry.content
     .querySelectorAll("[data-project]")
     .forEach((button) =>
@@ -230,20 +243,7 @@ function renderApp(entry) {
     /id="([^"]+)"/g,
     (_, id) => `id="${entry.key}-${id}" data-ui="${id}"`,
   );
-  if (entry.name === "runelord") {
-    entry.el.classList.add("game-window");
-    // Give the game a complete desktop viewport, then fit it inside any CRT
-    // window so its title controls and combat HUD cannot be cropped on phones.
-    const observer = new ResizeObserver(() => {
-      const scale = Math.min(
-        entry.content.clientWidth / 1280,
-        entry.content.clientHeight / 720,
-      );
-      entry.content.style.setProperty("--game-scale", String(scale));
-    });
-    observer.observe(entry.content);
-    entry.cleanup = () => observer.disconnect();
-  }
+  if (DESKTOP_APPS[entry.name]) mountDesktopApp(entry);
   if (entry.name === "projects") {
     renderProject(entry);
     entry.content.querySelectorAll("[data-project]").forEach((button) =>
@@ -789,7 +789,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=seamless-20261016");
+const sceneModule = import("./scene.js?v=apps-20261017");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
