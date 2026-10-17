@@ -1,16 +1,17 @@
+import { aboutPage } from "./about-page.js?v=fde-20261017";
 import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=icon-drag-20261017";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=icon-drag-20261017";
-import { createWindowManager } from "./window-manager.js?v=icon-drag-20261017";
+} from "./desktop-apps.js?v=fde-20261017";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=fde-20261017";
+import { createWindowManager } from "./window-manager.js?v=fde-20261017";
 import { createBoot } from "./boot.js";
-import { arrangeDesktopIcons } from "./icon-layout.js?v=icon-drag-20261017";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=fde-20261017";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=icon-drag-20261017";
+} from "./desktop-icons.js?v=fde-20261017";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -68,13 +69,13 @@ let sceneSettled = false,
   navigationVersion = 0;
 const monitorNames = {
   about: "01 / Runelord",
-  projects: "02 / The work",
+  projects: "02 / Start here",
   contact: "03 / The connection",
 };
 const monitorFor = (name) =>
   name === "contact"
     ? "contact"
-    : ["projects", "snake"].includes(name)
+    : ["about", "projects", "snake"].includes(name)
       ? "projects"
       : "about";
 function setOverviewInert(value) {
@@ -90,7 +91,7 @@ const files = {
   ...Object.fromEntries(
     Object.entries(DESKTOP_APPS).map(([id, app]) => [id, app.title]),
   ),
-  about: "Hello, world.txt",
+  about: "About Wil — Start here",
   projects: "My Projects",
   experience: "Experience.txt",
   skills: "Builder’s toolkit",
@@ -136,13 +137,12 @@ const pages = {
   ...Object.fromEntries(
     Object.keys(DESKTOP_APPS).map((id) => [id, () => appMarkup(id)]),
   ),
-  about: () =>
-    `<div class="about-grid"><div><p class="doc-kicker">01 / A LITTLE ABOUT ME</p><h3 class="doc-title">Hi, I’m Wil.<br>I connect the pieces.</h3><p class="doc-lede">I build software the way I approach a complex system: understand the people using it, trace the connections, and make it work.</p><p class="doc-lede">My background is in Crestron programming, AV automation, and systems integration. Today, I’m bringing that practical experience into AI and software development with Claude Code and Codex.</p><div class="doc-actions"><a class="doc-button" href="#projects">Explore my work ↗</a><a class="doc-button secondary" href="#contact">Say hello →</a></div></div><figure class="about-photo"><img src="./assets/wil-sheppard-headshot.png" alt="Wil Sheppard" width="380" height="440"><figcaption>WIL SHEPPARD<br>BUILT ON EXPERIENCE. DRIVEN BY CURIOSITY.</figcaption></figure></div><div class="fact-strip"><div><b>Since 2012</b><span>Independent AV integration<br>& project leadership</span></div><div><b>AI + software</b><span>Current direction<br>Pursuit Native AI Fellow</span></div><div><b>Human outcomes</b><span>Complex systems,<br>made useful for people</span></div></div>`,
+  about: aboutPage,
   experience: () =>
     page(
       "BACKGROUND / SYSTEMS PRACTICE",
       "Complex systems.<br>Real-world experience.",
-      `<p class="doc-lede">Independent AV systems integrator and project lead since 2012. I design, program, commission, and support systems across residential, commercial, enterprise, healthcare, and hospitality environments.</p><div class="fact-strip"><div><b>2,400+</b><span>Endpoints in the largest deployment</span></div><div><b>5 sectors</b><span>Residential to healthcare</span></div><div><b>Crestron</b><span>SIMPL Windows programming</span></div></div>${rows(
+      `<p class="doc-lede">For 10+ years, I worked on-site with clients as an AV systems integrator and IT technician. I programmed Crestron control systems and supported deployments of 2,400+ connected endpoints in healthcare environments. I bring that experience with ambiguous requirements, real-world constraints, and customer handoff into full-stack software delivery.</p><div class="fact-strip"><div><b>2,400+</b><span>Connected endpoints in healthcare deployments supported</span></div><div><b>5 sectors</b><span>Residential to healthcare</span></div><div><b>Crestron</b><span>SIMPL Windows programming</span></div></div>${rows(
         [
           [
             "Understand the room",
@@ -175,11 +175,11 @@ const pages = {
           ],
           [
             "Build with agents",
-            "Claude Code, Codex, Git, HTML, CSS, and JavaScript. Break work into bounded tasks, review changes, and connect the pieces.",
+            "TypeScript, JavaScript, React, Next.js, Node.js, PostgreSQL, and Supabase. Claude Code and Codex support bounded tasks, review, and integration.",
           ],
           [
             "Verify the result",
-            "Regression checks, browser verification, and fault isolation. Treat generated code as a proposal and test what the user actually experiences.",
+            "Zod, Vitest, Playwright, regression checks, and fault isolation. Label what is verified, estimated, or unknown; test what the user actually experiences.",
           ],
           [
             "Make it usable",
@@ -214,7 +214,7 @@ const pages = {
     page(
       "03 / OPEN A CONNECTION",
       "Good things start<br>with a conversation.",
-      `<p class="doc-lede">I’m interested in entry-level AI development and software engineering opportunities where careful problem definition, testing, and clear communication matter.</p><span class="tag">● OPEN TO OPPORTUNITIES</span><div class="contact-links"><a href="mailto:wil.sheppard@gmail.com"><span><strong>Email me</strong><small>wil.sheppard@gmail.com</small></span><span>↗</span></a><a href="https://www.linkedin.com/in/william-sheppard-230a82132/" target="_blank" rel="noopener noreferrer"><span><strong>Connect on LinkedIn</strong><small>William Sheppard</small></span><span>↗</span></a><a href="https://github.com/wiltobuild" target="_blank" rel="noopener noreferrer"><span><strong>See what I’m building</strong><small>github.com/wiltobuild</small></span><span>↗</span></a><a href="https://x.com/WillBeBuilding" target="_blank" rel="noopener noreferrer"><span><strong>Follow along</strong><small>@WillBeBuilding</small></span><span>↗</span></a></div><button class="copy-email" id="copy-email">Copy email address</button>`,
+      `<p class="doc-lede">I’m looking for Forward Deployed Engineer, Product Engineer, or Software Engineer roles where I can work close to customers and ship dependable software. Based in NYC, open to on-site, hybrid, or remote work, and happy to travel to client sites.</p><span class="tag">● OPEN TO OPPORTUNITIES</span><div class="contact-links"><a href="mailto:wil.sheppard@gmail.com"><span><strong>Email me</strong><small>wil.sheppard@gmail.com</small></span><span>↗</span></a><a href="https://www.linkedin.com/in/wilsheppard/" target="_blank" rel="noopener noreferrer"><span><strong>Connect on LinkedIn</strong><small>William Sheppard</small></span><span>↗</span></a><a href="https://github.com/wiltobuild" target="_blank" rel="noopener noreferrer"><span><strong>See what I’m building</strong><small>github.com/wiltobuild</small></span><span>↗</span></a><a href="https://x.com/WillBeBuilding" target="_blank" rel="noopener noreferrer"><span><strong>Follow along</strong><small>@WillBeBuilding</small></span><span>↗</span></a></div><button class="copy-email" id="copy-email">Copy email address</button>`,
     ),
   projects: () =>
     page(
@@ -237,7 +237,7 @@ function renderProject(entry) {
     : "";
   const links = (p.links || []).filter((link) => !app || link.url !== app.url);
   entry.content.querySelector('[data-ui="project-detail"]').innerHTML =
-    `<iframe class="project-visual" src="./${p.visual}" title="${p.title} animated project preview" loading="lazy" sandbox="allow-scripts"></iframe><div class="project-grid"><div><span class="tag">${p.status.toUpperCase()}</span><h3>${p.title}</h3><p>${p.description}</p><div class="doc-actions">${appAction}${links.map((link, i) => `<a class="doc-button ${i ? "secondary" : ""}" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}</div>${p.access ? `<p class="small-note">${p.access}</p>` : ""}</div><ul class="evidence-list">${p.evidence.map((e, i) => `<li><b>${p.labels[i]}</b>${e}</li>`).join("")}</ul></div>`;
+    `${p.visual ? `<iframe class="project-visual" src="./${p.visual}" title="${p.title} animated project preview" loading="lazy" sandbox="allow-scripts"></iframe>` : `<div class="project-summary-banner">${p.kind}</div>`}<div class="project-grid"><div><span class="tag">${p.status.toUpperCase()}</span><h3>${p.title}</h3><p>${p.description}</p><div class="doc-actions">${appAction}${links.map((link, i) => `<a class="doc-button ${i ? "secondary" : ""}" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}</div>${p.access ? `<p class="small-note">${p.access}</p>` : ""}</div><ul class="evidence-list">${p.evidence.map((e, i) => `<li><b>${p.labels[i]}</b>${e}</li>`).join("")}</ul></div>`;
   entry.content
     .querySelectorAll("[data-project]")
     .forEach((button) =>
@@ -259,6 +259,12 @@ function renderApp(entry) {
     /id="([^"]+)"/g,
     (_, id) => `id="${entry.key}-${id}" data-ui="${id}"`,
   );
+  if (entry.name !== "about" && !DESKTOP_APPS[entry.name]) {
+    entry.content.insertAdjacentHTML(
+      "afterbegin",
+      '<nav class="document-home" aria-label="Portfolio home"><a href="#about">← About Wil / Start here</a></nav>',
+    );
+  }
   if (DESKTOP_APPS[entry.name]) mountDesktopApp(entry);
   if (entry.name === "projects") {
     renderProject(entry);
@@ -332,7 +338,8 @@ function setSound(value) {
 }
 const boot = createBoot({
   onFinish: () => {
-    workspace?.startTour();
+    if (!location.hash) history.replaceState(null, "", "#about");
+    if (location.hash === "#home") workspace?.startTour();
     routePage();
     if (!currentMonitor) $("#workspace-nav a").focus({ preventScroll: true });
   },
@@ -451,7 +458,8 @@ async function inspectCoffee() {
 async function routePage() {
   if (!sceneSettled || boot.isActive()) return;
   const version = ++navigationVersion,
-    name = location.hash.slice(1).split("/")[0];
+    name = location.hash.slice(1).split("/")[0],
+    projectId = location.hash.slice(1).split("/")[1];
   if (name === "coffee") {
     await inspectCoffee();
     return;
@@ -520,6 +528,14 @@ async function routePage() {
   }
   windows.setMonitor(id);
   const entry = resume ? windows.resume() : windows.open(name);
+  if (name === "projects" && projectId && entry) {
+    const selected = projects.findIndex((p) => p.id === projectId);
+    if (selected >= 0) {
+      entry.projectIndex = selected;
+      renderProject(entry);
+      history.replaceState(null, "", `#projects/${projectId}`);
+    }
+  }
   if (flight) await flight;
   if (version !== navigationVersion) return;
   document.body.classList.remove("moving-camera");
@@ -571,7 +587,8 @@ screens.forEach((el, id) => {
       currentMonitor = id;
       screen = el;
       setStart(false);
-      requestedMonitor = windows.monitorOf(link.hash.slice(1)) || id;
+      requestedMonitor =
+        windows.monitorOf(link.hash.slice(1).split("/")[0]) || id;
       navigate(link.hash.slice(1));
     }
     if (!event.target.closest(".role-start-menu,.role-start"))
@@ -805,7 +822,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=icon-drag-20261017");
+const sceneModule = import("./scene.js?v=fde-20261017");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
@@ -856,7 +873,7 @@ boot.track(
 );
 boot.track("crestron.bmp", preloadImage("./assets/credential-crestron.png"));
 boot.track("cts.bmp", preloadImage("./assets/credential-cts.png"));
-for (const project of projects)
+for (const project of projects.filter((p) => p.visual))
   boot.track(
     `${project.title.toLowerCase()}.app`,
     fetch(`./${project.visual}`, { signal: AbortSignal.timeout(8000) }).then(

@@ -150,6 +150,43 @@ export const PROJECTS = [
     ],
   },
   {
+    id: "rush-hour",
+    status: "Public / Active build",
+    kind: "NYC traffic analysis tool",
+    title: "Rush Hour",
+    description:
+      "An analyst tool built around 1.87M NYC DOT traffic records, focused on helping transportation teams understand where, when, and how traffic was measured.",
+    labels: ["Data quality", "Browser architecture", "Product judgment"],
+    evidence: [
+      "Surfaced four year-shifted deployments missing from the city’s official errata",
+      "Reduced the shipped database from 46 MB to 5.6 MB by computing profiles live in the browser",
+      "Designed around measurement coverage and limitations, not just row counts",
+    ],
+    links: [
+      { label: "Open live project", url: "https://rush-hour-bay.vercel.app/" },
+    ],
+  },
+  {
+    id: "salesscope",
+    status: "Public / Active build",
+    kind: "Sales decision reporting",
+    title: "SalesScope",
+    description:
+      "Turns raw sales exports into weekly decision reports. Built for sales coordinators who need to explain what changed and give managers useful answers.",
+    labels: ["Messy inputs", "Decision support", "Integration"],
+    evidence: [
+      "Handles missing fields, different column combinations, discount interpretation, and text encoding challenges",
+      "Weekly and monthly reports, year-over-year comparisons, customer insights, and drill-downs",
+      "Live Kaggle integration running entirely in the browser",
+    ],
+    links: [
+      {
+        label: "Open live project",
+        url: "https://wiltobuild.github.io/SalesScope/",
+      },
+    ],
+  },
+  {
     id: "slot-4",
     status: "Reserved",
     kind: "Future case study",

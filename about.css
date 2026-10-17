@@ -1,0 +1,258 @@
+.monitor-screen [data-app="about"] .window-content {
+  background: #ecece4;
+  padding: 18px;
+}
+.fde-home {
+  color: #202c2d;
+  font-family: Arial, sans-serif;
+}
+.fde-location {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 9px;
+  background: #d6d6ce;
+  border: 1px solid;
+  border-color: #82867e #fff #fff #82867e;
+  font: 9px monospace;
+}
+.fde-hero {
+  display: grid;
+  grid-template-columns: 1fr 145px;
+  gap: 24px;
+  align-items: center;
+  padding: 22px 2px 16px;
+}
+.monitor-screen .fde-hero .doc-kicker {
+  color: #075452;
+  font-size: 9px;
+  letter-spacing: 1px;
+  margin: 0 0 12px;
+}
+.fde-hero h3 {
+  font:
+    bold 30px/1.12 Georgia,
+    serif;
+  letter-spacing: -0.7px;
+  margin: 0 0 14px;
+}
+.fde-intro {
+  font-size: 12px;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 540px;
+}
+.fde-portrait {
+  margin: 0;
+  padding: 5px;
+  background: #c0c0c0;
+  border: 2px solid;
+  border-color: #fff #666 #666 #fff;
+}
+.fde-portrait img {
+  display: block;
+  width: 100%;
+  height: 152px;
+  object-fit: cover;
+  object-position: top;
+  filter: saturate(0.65);
+}
+.fde-portrait figcaption {
+  font:
+    bold 11px/1.5 Arial,
+    sans-serif;
+  padding: 7px 3px 2px;
+}
+.fde-portrait figcaption span {
+  font: 8px monospace;
+}
+.fde-proof {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: #dce7de;
+  border: 1px solid #9aaba1;
+}
+.fde-proof > span {
+  padding: 12px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.fde-proof b {
+  display: block;
+  font-size: 13px;
+  color: #124c40;
+}
+.fde-section {
+  margin-top: 22px;
+}
+.fde-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font:
+    bold 13px Arial,
+    sans-serif;
+  margin: 0 0 12px;
+}
+.fde-section h4:after {
+  content: "";
+  height: 2px;
+  flex: 1;
+  background: #c2c6bc;
+  border-bottom: 1px solid white;
+}
+.fde-directory,
+.fde-projects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+.fde-directory a,
+.fde-projects a {
+  display: grid;
+  gap: 7px;
+  text-decoration: none;
+  color: inherit;
+  padding: 12px;
+  background: #f9f9f1;
+  border: 2px solid;
+  border-color: #fff #858b80 #858b80 #fff;
+  box-shadow: 1px 1px 0 #d3d3c8;
+}
+.fde-home a:hover {
+  background: #e1eadf;
+}
+.fde-home a:focus-visible {
+  outline: 2px dotted #000080;
+  outline-offset: 2px;
+}
+.fde-directory b,
+.fde-projects b {
+  color: #003e58;
+  font-size: 12px;
+}
+.fde-directory span,
+.fde-projects span,
+.fde-context,
+.fde-connect p {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.fde-projects small {
+  font: 9px/1.5 monospace;
+  color: #465d50;
+}
+.fde-process {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  counter-reset: steps;
+}
+.fde-process li {
+  counter-increment: steps;
+  border-top: 3px solid #24675b;
+  padding-top: 9px;
+}
+.fde-process b {
+  font-size: 12px;
+  display: block;
+  margin-bottom: 7px;
+}
+.fde-process b:before {
+  content: "0" counter(steps) " / ";
+  color: #687c70;
+  font: 10px monospace;
+}
+.fde-process span {
+  font-size: 10px;
+  line-height: 1.6;
+  display: block;
+}
+.fde-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin: 12px 0 0;
+}
+.fde-links a {
+  color: #000080;
+  font-size: 11px;
+  text-underline-offset: 3px;
+}
+.fde-stack {
+  font: 11px/1.8 monospace;
+  padding: 12px;
+  background: #fff;
+  border: 1px inset #aaa;
+}
+.fde-connect {
+  background: #d2d7d0;
+  padding: 15px;
+  margin-top: 22px;
+  border: 2px solid;
+  border-color: #fff #858b80 #858b80 #fff;
+}
+.fde-connect b {
+  font:
+    bold 18px Georgia,
+    serif;
+}
+.project-summary-banner {
+  padding: 28px;
+  background: #dce7de;
+  border: 2px inset #bbb;
+  font:
+    18px Georgia,
+    serif;
+  margin-bottom: 20px;
+}
+.compact-window .fde-hero,
+.compact-screen .fde-hero {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.compact-window .fde-portrait,
+.compact-screen .fde-portrait {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  order: -1;
+}
+.compact-window .fde-portrait img,
+.compact-screen .fde-portrait img {
+  width: 58px;
+  height: 64px;
+}
+.compact-window .fde-hero h3,
+.compact-screen .fde-hero h3 {
+  font-size: 25px;
+}
+.compact-window .fde-directory,
+.compact-window .fde-projects,
+.compact-screen .fde-directory,
+.compact-screen .fde-projects {
+  grid-template-columns: 1fr;
+}
+.compact-window .fde-process,
+.compact-screen .fde-process {
+  grid-template-columns: 1fr 1fr;
+}
+.compact-window .fde-proof,
+.compact-screen .fde-proof {
+  grid-template-columns: 1fr;
+}
+.compact-window .fde-location span:last-child,
+.compact-screen .fde-location span:last-child {
+  display: none;
+}
+
+.document-home {
+  margin: 0 0 16px;
+  font: 10px monospace;
+}
+.document-home a {
+  color: #000080;
+  text-underline-offset: 3px;
+}
