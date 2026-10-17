@@ -2,14 +2,15 @@ import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=lava-20261017";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=lava-20261017";
-import { createWindowManager } from "./window-manager.js?v=lava-20261017";
+} from "./desktop-apps.js?v=icon-drag-20261017";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=icon-drag-20261017";
+import { createWindowManager } from "./window-manager.js?v=icon-drag-20261017";
 import { createBoot } from "./boot.js";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=icon-drag-20261017";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=lava-20261017";
+} from "./desktop-icons.js?v=icon-drag-20261017";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -54,6 +55,11 @@ let workspace = null,
   sound = false,
   audio = null,
   toastTimer;
+arrangeDesktopIcons(
+  screens,
+  (id, x, y) => workspace?.pointOnScreen(id, x, y),
+  () => toast("Your browser could not save icon positions."),
+);
 let sceneSettled = false,
   currentMonitor = null,
   inspectingCoffee = false,
@@ -799,7 +805,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=lava-20261017");
+const sceneModule = import("./scene.js?v=icon-drag-20261017");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
