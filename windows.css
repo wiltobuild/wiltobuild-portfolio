@@ -153,26 +153,60 @@
   isolation: isolate;
   overflow: hidden;
 }
-.monitor-screen .desktop-icons {
+.monitor-screen .desktop-icons,
+.monitor-screen.desktop-only .desktop-icons,
+.monitor-screen.compact-screen .desktop-icons {
   position: absolute;
-  left: 10px;
-  top: 12px;
-  bottom: 8px;
-  width: 70px;
-  display: flex;
-  gap: 14px;
+  inset: 12px 10px 8px;
+  width: auto;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  grid-auto-rows: 76px;
+  align-content: start;
+  gap: 8px 4px;
+  overflow: visible;
   z-index: 0;
 }
 .monitor-screen .desktop-icons a {
-  font-size: 9px;
-  min-height: 44px;
+  font:
+    11px/1.25 Arial,
+    sans-serif;
+  min-width: 0;
+  min-height: 0;
+  padding: 5px 2px;
+  gap: 5px;
+  text-align: center;
+  justify-content: start;
+  overflow-wrap: anywhere;
+  text-shadow: 1px 1px #003c3c;
 }
 .monitor-screen .desktop-icons a[aria-current="page"] {
   background: #00008055;
 }
-.monitor-screen.desktop-only .desktop-icons {
-  width: auto;
-  bottom: auto;
+.win95-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+  vertical-align: middle;
+}
+.monitor-screen .role-start-menu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.monitor-screen .role-start-menu .win95-icon,
+.monitor-screen .window-titlebar .win95-icon,
+.monitor-screen .window-task .win95-icon {
+  width: 16px;
+  height: 16px;
+}
+.monitor-screen .window-titlebar .win95-icon,
+.monitor-screen .window-task .win95-icon {
+  margin-right: 5px;
 }
 .monitor-screen .os-desktop::after {
   content: "Desktop 95";
