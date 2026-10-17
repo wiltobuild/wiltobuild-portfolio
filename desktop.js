@@ -1,17 +1,22 @@
-import { aboutPage } from "./about-page.js?v=embedded-fde-20261017";
+import { aboutPage } from "./about-page.js?v=eggs-20261017";
+import {
+  createEasterEggs,
+  EGG_TITLES,
+  eggPage,
+} from "./easter-eggs.js?v=eggs-20261017";
 import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=embedded-fde-20261017";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=embedded-fde-20261017";
-import { createWindowManager } from "./window-manager.js?v=embedded-fde-20261017";
+} from "./desktop-apps.js?v=eggs-20261017";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=eggs-20261017";
+import { createWindowManager } from "./window-manager.js?v=eggs-20261017";
 import { createBoot } from "./boot.js";
-import { arrangeDesktopIcons } from "./icon-layout.js?v=embedded-fde-20261017";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=eggs-20261017";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=embedded-fde-20261017";
+} from "./desktop-icons.js?v=eggs-20261017";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -88,6 +93,7 @@ function setOverviewInert(value) {
     });
 }
 const files = {
+  ...EGG_TITLES,
   ...Object.fromEntries(
     Object.entries(DESKTOP_APPS).map(([id, app]) => [id, app.title]),
   ),
@@ -134,6 +140,7 @@ function rows(items) {
   return `<div class="file-list">${items.map(([title, desc], i) => `<article class="file-row"><span class="file-number">0${i + 1}</span><div><h3>${title}</h3><p>${desc}</p></div></article>`).join("")}</div>`;
 }
 const pages = {
+  ...Object.fromEntries(Object.keys(EGG_TITLES).map((id) => [id, eggPage])),
   ...Object.fromEntries(
     Object.keys(DESKTOP_APPS).map((id) => [id, () => appMarkup(id)]),
   ),
@@ -266,6 +273,7 @@ function renderApp(entry) {
     );
   }
   if (DESKTOP_APPS[entry.name]) mountDesktopApp(entry);
+  if (EGG_TITLES[entry.name]) eggs.mount(entry);
   if (entry.name === "projects") {
     renderProject(entry);
     entry.content.querySelectorAll("[data-project]").forEach((button) =>
@@ -295,6 +303,11 @@ function setStart(value) {
   $("#start-menu").hidden = !value;
   $("#start").setAttribute("aria-expanded", String(value));
 }
+const eggs = createEasterEggs({
+  navigate,
+  toast,
+  onChange: (state) => workspace?.setDiscoveries(state),
+});
 const windows = createWindowManager({
   screens,
   pointOnScreen: (id, x, y) => workspace?.pointOnScreen(id, x, y),
@@ -563,6 +576,11 @@ document.addEventListener("keydown", (event) => {
 });
 $("#leave-monitor").addEventListener("click", close);
 $("#inspect-coffee").addEventListener("click", () => navigate("coffee"));
+document
+  .querySelectorAll("[data-discover]")
+  .forEach((button) =>
+    button.addEventListener("click", () => open(button.dataset.discover)),
+  );
 $("#leave-coffee").addEventListener("click", close);
 $("#arrange-windows").addEventListener("click", () => arrangeWindows());
 document
@@ -822,12 +840,13 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=embedded-fde-20261017");
+const sceneModule = import("./scene.js?v=eggs-20261017");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
   .then(({ createWorkspace }) => {
     workspace = createWorkspace($("#scene"), open, screens);
+    workspace.setDiscoveries(eggs.snapshot());
     workspace.setNight(document.body.classList.contains("night"));
     $("#load-status").hidden = true;
     $("#scene").setAttribute("aria-busy", "false");

@@ -35,10 +35,11 @@
       href="https://wiltobuild.github.io/wiltobuild-portfolio/"
     />
     <link rel="icon" href="./assets/desktop-icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./desktop.css?v=embedded-fde-20261017" />
-    <link rel="stylesheet" href="./monitor.css?v=embedded-fde-20261017" />
-    <link rel="stylesheet" href="./windows.css?v=embedded-fde-20261017" />
-    <link rel="stylesheet" href="./about.css?v=embedded-fde-20261017" />
+    <link rel="stylesheet" href="./desktop.css?v=eggs-20261017" />
+    <link rel="stylesheet" href="./easter-eggs.css?v=eggs-20261017" />
+    <link rel="stylesheet" href="./monitor.css?v=eggs-20261017" />
+    <link rel="stylesheet" href="./windows.css?v=eggs-20261017" />
+    <link rel="stylesheet" href="./about.css?v=eggs-20261017" />
     <link rel="stylesheet" href="./boot.css" />
     <title>WilToBuild — Wil Sheppard’s workspace</title>
     <script type="importmap">
@@ -146,6 +147,20 @@
       </div>
       <span id="hover-label" aria-hidden="true"></span>
       <div class="scene-tools" aria-label="Workspace controls">
+        <button
+          data-discover="floppy"
+          title="Inspect the floppy disk"
+          aria-label="Inspect the floppy disk"
+        >
+          ▣
+        </button>
+        <button
+          data-discover="incident"
+          title="Check the pager"
+          aria-label="Check the pager"
+        >
+          ▤
+        </button>
         <button
           id="inspect-coffee"
           title="Inspect the coffee"
@@ -296,6 +311,9 @@
               ><span class="pixel-icon" aria-hidden="true">▣</span>SalesScope</a
             ><a href="#snake"
               ><span class="pixel-icon" aria-hidden="true">▦</span>Snake.exe</a
+            ><a href="#stickers"
+              ><span class="pixel-icon" aria-hidden="true">✧</span>Sticker
+              album</a
             >
           </nav>
           <div id="window-layer" aria-label="Application windows"></div>
@@ -325,6 +343,8 @@
           ><a href="#gitfit">☺ &nbsp; GitFit</a
           ><a href="#salesscope">▤ &nbsp; SalesScope</a
           ><a href="#snake">▦ &nbsp; Snake.exe</a
+          ><a href="#terminal">▣ &nbsp; Run…</a
+          ><a href="#stickers">✧ &nbsp; Sticker album</a
           ><a href="./classic.html">↗ &nbsp; Classic portfolio</a
           ><button id="restart-computer">↻ &nbsp; Restart computer</button>
           <button id="shutdown">⏻ &nbsp; Return to workspace</button>
@@ -371,6 +391,6 @@
         </p>
       </div></noscript
     >
-    <script type="module" src="./desktop.js?v=embedded-fde-20261017"></script>
+    <script type="module" src="./desktop.js?v=eggs-20261017"></script>
   </body>
 </html>

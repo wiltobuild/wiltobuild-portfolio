@@ -126,6 +126,27 @@ icons.cephalon = icons.agents;
 icons["rush-hour"] = icons.projects;
 icons.gitfit = icons.about;
 icons.salesscope = icons.experience;
+icons.terminal =
+  rect(2, 3, 28, 25, "#c0c0c0") +
+  rect(4, 5, 24, 20, "#000") +
+  shape("M7 10l4 4-4 4", "none", "#fff") +
+  rect(14, 18, 9, 2, "#fff");
+icons.floppy =
+  rect(4, 2, 24, 28, "#263a72") +
+  rect(9, 2, 15, 10, "#c0c0c0") +
+  rect(18, 4, 3, 6, "#000") +
+  rect(8, 17, 16, 11, "#ffffdc") +
+  rect(11, 20, 10, 1, "#808080");
+icons.incident =
+  rect(2, 5, 28, 22, "#333") +
+  rect(5, 8, 22, 11, "#a9b98b") +
+  rect(7, 11, 15, 2, "#25331b") +
+  rect(7, 15, 9, 1, "#25331b") +
+  rect(21, 22, 4, 2, "#f00");
+icons.stickers =
+  rect(3, 3, 26, 26, "#ffffc0") +
+  rect(6, 6, 20, 20, "#000080") +
+  shape("M16 8l3 6 6 1-5 4 1 6-5-3-5 3 1-6-5-4 6-1z", "#ffff00");
 export function desktopIcon(name) {
   if (!icons[name]) return null;
   const img = document.createElement("img");

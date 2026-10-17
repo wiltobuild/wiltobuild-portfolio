@@ -925,7 +925,7 @@ export function createWorkspace(container, onOpen, screens) {
   box(desk, 0.26, 0.015, 0.18, metal, 3.2, 2.382, 1.57);
   const dl = label(
     desk,
-    "SNAKE.EXE",
+    "NOT A GAME",
     0.3,
     0.13,
     3.2,
@@ -936,8 +936,88 @@ export function createWorkspace(container, onOpen, screens) {
     35,
   );
   dl.rotation.x = -Math.PI / 2;
-  disk.userData.route = "snake";
-  hits.push(disk);
+  disk.userData.route = dl.userData.route = "floppy";
+  hits.push(disk, dl);
+  // A physical pager and collectible souvenirs, built from the same low-poly materials.
+  const pager = new THREE.Group();
+  pager.position.set(1.8, 2.39, 1.85);
+  pager.rotation.y = -0.15;
+  desk.add(pager);
+  box(pager, 0.65, 0.13, 0.4, black, 0, 0, 0, 0.025);
+  const pagerText = label(
+    pager,
+    "DEMO: 403",
+    0.46,
+    0.19,
+    -0.04,
+    0.071,
+    0,
+    "#a9b98b",
+    "#25331b",
+    48,
+  );
+  pagerText.rotation.x = -Math.PI / 2;
+  box(pager, 0.06, 0.02, 0.06, mat("#bd6452"), 0.25, 0.075, 0.08);
+  pager.traverse((o) => {
+    if (o.isMesh) {
+      o.userData.route = "incident";
+      hits.push(o);
+    }
+  });
+  const caseStickers = [
+    ["terminal", "C:\\> EXPLORER", "#c7e4bc"],
+    ["floppy", "DISK DETECTIVE", "#e9c787"],
+    ["rune", "RUNE KEEPER", "#c9c4ef"],
+    ["incident", "FRIDAY SURVIVOR", "#b6dfdf"],
+  ].map(([id, text, color], i) => {
+    const sticker = label(
+      tower,
+      text,
+      0.66,
+      0.14,
+      0,
+      -0.4 - i * 0.155,
+      1.025,
+      color,
+      "#182a32",
+      34,
+    );
+    sticker.rotation.z = i % 2 ? -0.045 : 0.035;
+    sticker.userData.route = "stickers";
+    return { id, sticker };
+  });
+  const trophy = new THREE.Group();
+  trophy.position.set(4.05, 2.39, 1.35);
+  desk.add(trophy);
+  box(trophy, 0.36, 0.07, 0.32, black, 0, 0, 0);
+  const runeMedal = label(
+    trophy,
+    "ᚱ",
+    0.25,
+    0.32,
+    0,
+    0.21,
+    0.02,
+    "#b89a4b",
+    "#fff0b0",
+    90,
+  );
+  trophy.traverse((o) => {
+    if (o.isMesh) o.userData.route = "stickers";
+  });
+  function setDiscoveries(state) {
+    caseStickers.forEach(({ id, sticker }) => {
+      sticker.visible = state.stickers.includes(id);
+      const index = hits.indexOf(sticker);
+      if (sticker.visible && index < 0) hits.push(sticker);
+      if (!sticker.visible && index >= 0) hits.splice(index, 1);
+    });
+    trophy.visible = state.stickers.includes("rune");
+    const index = hits.indexOf(runeMedal);
+    if (trophy.visible && index < 0) hits.push(runeMedal);
+    if (!trophy.visible && index >= 0) hits.splice(index, 1);
+    dirty = true;
+  }
   const note = label(
     desk,
     "keep building :)",
@@ -1250,13 +1330,17 @@ export function createWorkspace(container, onOpen, screens) {
     hover.textContent =
       route === "coffee"
         ? "Inspect coffee ↗"
-        : route === "snake"
-          ? "Insert disk: Snake.exe ↗"
-          : route
-            ? "Enter monitor " +
-              (["about", "projects", "contact"].indexOf(route) + 1) +
-              " ↗"
-            : "";
+        : route === "floppy"
+          ? "Read mysterious floppy ↗"
+          : route === "incident"
+            ? "Check the pager ↗"
+            : route === "stickers"
+              ? "Inspect your stickers ↗"
+              : route
+                ? "Enter monitor " +
+                  (["about", "projects", "contact"].indexOf(route) + 1) +
+                  " ↗"
+                : "";
     hover.style.left = `${Math.min(e.clientX + 16, innerWidth - 210)}px`;
     hover.style.top = `${e.clientY + 16}px`;
     hover.classList.toggle("visible", !!route);
@@ -1402,6 +1486,7 @@ export function createWorkspace(container, onOpen, screens) {
     document.querySelector("#load-status").hidden = true;
   });
   return {
+    setDiscoveries,
     focus: (id) => flyTo(id),
     follow: (id) => flyTo(id, false, true),
     inspectCoffee: () => flyTo("coffee"),
