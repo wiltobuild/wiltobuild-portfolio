@@ -37,12 +37,84 @@
     <link rel="icon" href="./assets/desktop-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./desktop.css" />
     <link rel="stylesheet" href="./monitor.css" />
+    <link rel="stylesheet" href="./windows.css" />
+    <link rel="stylesheet" href="./boot.css" />
     <title>WilToBuild — Wil Sheppard’s workspace</title>
     <script type="importmap">
       { "imports": { "three": "./assets/vendor/three.module.js" } }
     </script>
   </head>
-  <body>
+  <body class="booting">
+    <section id="boot-screen" aria-label="WilToBuild 95 startup" tabindex="-1">
+      <div id="boot-welcome">
+        <div class="boot-start-card">
+          <p>
+            <strong>Wil Sheppard — Personal Workstation 2026</strong>Three
+            screens. One curious builder.
+          </p>
+          <p>Click start to begin.</p>
+          <div class="boot-start-actions">
+            <button id="boot-start">START</button
+            ><button data-boot-sound aria-pressed="false">Sound: OFF</button>
+          </div>
+          <div class="boot-welcome-links">
+            <button id="boot-skip-welcome" class="boot-text-button">
+              Skip intro</button
+            ><a href="./classic.html">Classic portfolio</a>
+          </div>
+        </div>
+      </div>
+      <div id="boot-terminal" hidden>
+        <div class="bios-header">
+          <p>WilToBuild,<br />Wil Sheppard.</p>
+          <p>Personal Edition: 2026<br />WTBIOS (C)2026 Wil Sheppard</p>
+        </div>
+        <p class="bios-model">
+          WTB-003 MULTI-DISPLAY WORKSTATION<br /><br />WilToBuild Showcase(tm)
+          95 / AV + AI
+        </p>
+        <p class="bios-memory">
+          Checking virtual RAM : <span id="boot-memory">0</span>
+        </p>
+        <p id="boot-resource-state">INITIALIZING SYSTEM</p>
+        <div id="boot-log"></div>
+        <pre id="boot-adapters"></pre>
+        <p class="boot-command-line">
+          <span id="boot-command"></span><span class="boot-cursor"></span>
+        </p>
+        <footer class="bios-footer">
+          <p>
+            <button id="boot-setup-button">
+              Press <b>DEL</b> to enter SETUP</button
+            ><span class="boot-footer-separator"> , </span
+            ><button id="boot-skip">Press <b>ESC</b> to skip startup</button>
+          </p>
+          <p id="boot-date"></p>
+        </footer>
+      </div>
+      <div id="boot-setup" hidden>
+        <div class="setup-panel">
+          <h2>WTBIOS — CMOS SETUP UTILITY</h2>
+          <dl>
+            <dt>Owner</dt>
+            <dd>Wil Sheppard</dd>
+            <dt>System</dt>
+            <dd>WilToBuild 95</dd>
+            <dt>Display adapters</dt>
+            <dd>3 × color CRT</dd>
+            <dt>Virtual memory</dt>
+            <dd>65,536 KB</dd>
+            <dt>Boot device</dt>
+            <dd>C:\WIL\PORTFOLIO</dd>
+          </dl>
+          <button data-boot-sound aria-pressed="false">Sound: OFF</button>
+          <button id="boot-continue">Continue boot</button>
+        </div>
+      </div>
+      <p id="boot-status" class="sr-only" role="status" aria-live="polite">
+        Ready to start WilToBuild 95.
+      </p>
+    </section>
     <a class="skip-link" href="#workspace-nav">Skip to portfolio navigation</a>
     <header class="site-header">
       <a class="wordmark" href="#home" aria-label="WilToBuild home"
@@ -104,6 +176,13 @@
         >
           ♪<span class="sound-slash">/</span>
         </button>
+        <button
+          id="replay-boot"
+          title="Replay startup sequence"
+          aria-label="Replay startup sequence"
+        >
+          ⏻
+        </button>
       </div>
       <div class="workspace-bottom">
         <p class="interaction-hint">
@@ -148,15 +227,6 @@
     </nav>
     <section id="monitor-screen" aria-label="WilToBuild desktop" hidden inert>
       <div class="os-frame">
-        <div class="os-top">
-          <span><i class="status-dot"></i> WilToBuild OS <b>95</b></span
-          ><button
-            id="exit-desktop"
-            aria-label="Close portfolio and return to 3D workspace"
-          >
-            Back to workspace <span>×</span>
-          </button>
-        </div>
         <div class="os-desktop">
           <nav class="desktop-icons" aria-label="Desktop applications">
             <a href="#about"
@@ -180,36 +250,12 @@
               ><span class="pixel-icon" aria-hidden="true">▦</span>Snake.exe</a
             >
           </nav>
-          <section class="app-window">
-            <header class="window-titlebar">
-              <h2 id="window-title">Welcome.txt</h2>
-              <div>
-                <button
-                  id="maximize"
-                  aria-label="Maximize portfolio window"
-                  aria-pressed="false"
-                >
-                  □</button
-                ><button
-                  id="close-window"
-                  aria-label="Close window and show desktop"
-                >
-                  ×
-                </button>
-              </div>
-            </header>
-            <div class="window-menubar">
-              <span id="window-location">C:\WIL\ABOUT</span
-              ><button id="print-profile" title="Print current portfolio page">
-                Print
-              </button>
-            </div>
-            <div id="window-content" tabindex="0"></div>
-            <footer class="window-status">
-              <span id="window-status">Ready</span
-              ><span>WilToBuild / Personal edition</span>
-            </footer>
-          </section>
+          <div id="window-layer" aria-label="Application windows"></div>
+          <p id="window-help" class="sr-only">
+            Drag a title bar to move a window. Drag an edge or corner to resize.
+            With the title bar focused, arrow keys move; Shift and arrow keys
+            resize. Double-click a title bar to maximize or restore.
+          </p>
         </div>
         <div id="start-menu" hidden>
           <b>WilToBuild 95</b><a href="#projects">▰ &nbsp; My Projects</a
@@ -221,13 +267,21 @@
           ><a href="#credentials">✧ &nbsp; Credentials</a
           ><a href="#snake">▦ &nbsp; Snake.exe</a
           ><a href="./classic.html">↗ &nbsp; Classic portfolio</a
-          ><button id="shutdown">⏻ &nbsp; Return to workspace</button>
+          ><button id="restart-computer">↻ &nbsp; Restart computer</button>
+          <button id="shutdown">⏻ &nbsp; Return to workspace</button>
         </div>
         <footer class="os-taskbar">
           <button id="start" aria-expanded="false" aria-controls="start-menu">
             <span class="start-icon">▦</span> Start</button
-          ><span class="taskbar-app" id="taskbar-app">Welcome.txt</span
-          ><span class="taskbar-right"
+          ><button
+            id="show-desktop"
+            aria-label="Show desktop"
+            title="Minimize all windows"
+          >
+            ▧
+          </button>
+          <div id="taskbar-windows" aria-label="Open applications"></div>
+          <span class="taskbar-right"
             ><span aria-hidden="true">▣</span
             ><time id="clock">12:00 PM</time></span
           >
@@ -236,7 +290,15 @@
     </section>
     <div id="toast" role="status" aria-live="polite"></div>
     <noscript
-      ><div class="noscript">
+      ><style>
+        #boot-screen {
+          display: none !important;
+        }
+        body.booting {
+          overflow: auto;
+        }
+      </style>
+      <div class="noscript">
         <h2>Hi, I’m Wil Sheppard.</h2>
         <p>
           I build AI and software projects, drawing on experience in Crestron

@@ -130,7 +130,7 @@
 #monitor-screen .app-window {
   min-height: 0;
 }
-#monitor-screen #window-content {
+#monitor-screen .window-content {
   padding: 22px;
   min-height: 0;
 }
@@ -231,7 +231,7 @@
 #monitor-screen.compact-screen.desktop-only .desktop-icons {
   display: grid;
 }
-#monitor-screen.compact-screen #window-content {
+#monitor-screen.compact-screen .window-content {
   padding: 13px;
 }
 #monitor-screen.compact-screen .window-menubar,
@@ -336,7 +336,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-#monitor-screen.compact-screen #snake {
+#monitor-screen.compact-screen [data-ui="snake"] {
   width: 100%;
   max-width: 180px;
 }
@@ -414,7 +414,7 @@
     display: none !important;
   }
   #monitor-screen .os-desktop,
-  #monitor-screen #window-content {
+  #monitor-screen .window-content {
     padding: 0;
   }
 }
