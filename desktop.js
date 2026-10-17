@@ -1,5 +1,5 @@
-import { PROJECTS, AGENTS } from "./portfolio-data.js";
-import { createWindowManager } from "./window-manager.js?v=shared-20261016";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=seamless-20261016";
+import { createWindowManager } from "./window-manager.js?v=seamless-20261016";
 import { createBoot } from "./boot.js";
 const template = document.querySelector("#monitor-screen");
 const screens = new Map();
@@ -46,6 +46,7 @@ let workspace = null,
   toastTimer;
 let sceneSettled = false,
   currentMonitor = null,
+  inspectingCoffee = false,
   requestedMonitor = null,
   requestedDesktop = false,
   navigationVersion = 0;
@@ -60,17 +61,6 @@ const monitorFor = (name) =>
     : ["projects", "snake"].includes(name)
       ? "projects"
       : "about";
-function placeStage() {
-  const rect = $("#workspace").getBoundingClientRect();
-  document.documentElement.style.setProperty("--stage-top", `${rect.top}px`);
-  document.documentElement.style.setProperty(
-    "--stage-height",
-    `${rect.height}px`,
-  );
-}
-placeStage();
-window.addEventListener("resize", placeStage);
-window.addEventListener("scroll", placeStage, { passive: true });
 function setOverviewInert(value) {
   document
     .querySelectorAll(
@@ -223,7 +213,7 @@ const pages = {
 function renderProject(entry) {
   const p = projects[entry.projectIndex];
   entry.content.querySelector('[data-ui="project-detail"]').innerHTML =
-    `<iframe class="project-visual" src="./${p.visual}" title="${p.title} animated project preview" loading="lazy" sandbox="allow-scripts"></iframe><div class="project-grid"><div><span class="tag">${p.status.toUpperCase()}</span><h3>${p.title}</h3><p>${p.description}</p><div class="doc-actions">${(p.links || []).map((link, i) => `<a class="doc-button ${i ? "secondary" : ""}" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}</div>${p.access ? `<p class="small-note">${p.access}</p>` : ""}</div><ul class="evidence-list">${p.evidence.map((e, i) => `<li><b>${p.labels[i]}</b>${e}</li>`).join("")}</ul></div>`;
+    `<iframe class="project-visual" src="./${p.visual}" title="${p.title} animated project preview" loading="lazy" sandbox="allow-scripts"></iframe><div class="project-grid"><div><span class="tag">${p.status.toUpperCase()}</span><h3>${p.title}</h3><p>${p.description}</p><div class="doc-actions">${p.id === "runelord" ? '<a class="doc-button" href="#runelord">Play inside the monitor →</a>' : ""}${(p.links || []).map((link, i) => `<a class="doc-button ${i ? "secondary" : ""}" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}</div>${p.access ? `<p class="small-note">${p.access}</p>` : ""}</div><ul class="evidence-list">${p.evidence.map((e, i) => `<li><b>${p.labels[i]}</b>${e}</li>`).join("")}</ul></div>`;
   entry.content
     .querySelectorAll("[data-project]")
     .forEach((button) =>
@@ -287,8 +277,9 @@ const windows = createWindowManager({
   screens,
   pointOnScreen: (id, x, y) => workspace?.pointOnScreen(id, x, y),
   hitScreen: (x, y) => workspace?.hitScreen(x, y),
-  onArrange: () => arrangeWindows(true),
-  onTransfer: (entry) => {
+  onFollow: followWindow,
+  onTransfer: (entry, following) => {
+    if (following) return;
     toast("Moved to " + monitorNames[entry.monitor] + " · position saved");
     if (!document.body.classList.contains("arrange-mode"))
       enterMonitor(entry.monitor, entry.name);
@@ -368,6 +359,10 @@ function enterMonitor(id, name) {
   );
 }
 function open(route) {
+  if (route === "coffee") {
+    navigate("coffee");
+    return;
+  }
   if (["about", "projects", "contact"].includes(route)) enterMonitor(route);
   else {
     requestedMonitor = windows.monitorOf(route) || monitorFor(route);
@@ -375,7 +370,7 @@ function open(route) {
   }
 }
 function close() {
-  if (currentMonitor) location.hash = "home";
+  if (currentMonitor || inspectingCoffee) location.hash = "home";
 }
 async function arrangeWindows(force = false) {
   if (!workspace) return;
@@ -385,7 +380,7 @@ async function arrangeWindows(force = false) {
   }
   const version = ++navigationVersion;
   currentMonitor ||= "projects";
-  document.body.classList.add("monitor-mode", "arrange-mode");
+  document.body.classList.add("monitor-mode", "arrange-mode", "moving-camera");
   setOverviewInert(true);
   $("#monitor-controls").hidden = false;
   $("#desktop-dock").hidden = false;
@@ -399,12 +394,58 @@ async function arrangeWindows(force = false) {
   document.body.classList.remove("moving-camera");
   setScreensInteractive(null, true);
 }
+async function followWindow(entry) {
+  const version = ++navigationVersion;
+  currentMonitor = entry.monitor;
+  screen = screens.get(currentMonitor);
+  requestedMonitor = null;
+  requestedDesktop = false;
+  document.body.classList.add("monitor-mode", "moving-camera");
+  document.body.classList.remove("arrange-mode");
+  setScreensInteractive(currentMonitor);
+  updateMonitorControls();
+  $("#desktop-hint").textContent =
+    "Following your window · release anywhere to keep its position";
+  await workspace?.follow(currentMonitor);
+  if (version !== navigationVersion) return;
+  document.body.classList.remove("moving-camera");
+  $("#desktop-hint").textContent =
+    "Drag a title bar to either screen edge to move between monitors";
+}
+async function inspectCoffee() {
+  const version = ++navigationVersion;
+  previousFocus = document.activeElement;
+  windows.suspend();
+  inspectingCoffee = true;
+  document.body.style.overflow = "hidden";
+  currentMonitor = null;
+  requestedMonitor = null;
+  setScreensInteractive(null);
+  setOverviewInert(true);
+  document.body.classList.remove("monitor-mode", "arrange-mode");
+  document.body.classList.add("coffee-mode", "moving-camera");
+  $("#monitor-controls").hidden = $("#desktop-dock").hidden = true;
+  $("#coffee-controls").hidden = $("#coffee-card").hidden = false;
+  document.title = "Coffee break | WilToBuild";
+  await workspace?.inspectCoffee();
+  if (version !== navigationVersion) return;
+  document.body.classList.remove("moving-camera");
+  $("#leave-coffee").focus({ preventScroll: true });
+}
 async function routePage() {
   if (!sceneSettled || boot.isActive()) return;
   const version = ++navigationVersion,
     name = location.hash.slice(1).split("/")[0];
+  if (name === "coffee") {
+    await inspectCoffee();
+    return;
+  }
+  const wasCoffee = inspectingCoffee;
+  inspectingCoffee = false;
+  document.body.classList.remove("coffee-mode");
+  $("#coffee-controls").hidden = $("#coffee-card").hidden = true;
   if (!files[name]) {
-    if (currentMonitor) {
+    if (currentMonitor || wasCoffee) {
       windows.suspend();
       setStart(false);
       setScreensInteractive(null);
@@ -451,7 +492,7 @@ async function routePage() {
   $("#desktop-dock").hidden = false;
   $("#arrange-windows").setAttribute("aria-pressed", "false");
   $("#desktop-hint").textContent =
-    "Scroll outside a window to zoom · Alt + ← / → to pan";
+    "Drag a title bar to a screen edge · Alt + ← / → to pan · scroll to zoom";
   updateMonitorControls();
   setStart(false);
   tone();
@@ -479,7 +520,7 @@ function panMonitor(direction) {
 window.addEventListener("hashchange", routePage);
 document.addEventListener("keydown", (event) => {
   if (boot.isActive()) return;
-  if (event.key === "Escape" && currentMonitor) {
+  if (event.key === "Escape" && (currentMonitor || inspectingCoffee)) {
     event.preventDefault();
     close();
   }
@@ -489,6 +530,8 @@ document.addEventListener("keydown", (event) => {
   }
 });
 $("#leave-monitor").addEventListener("click", close);
+$("#inspect-coffee").addEventListener("click", () => navigate("coffee"));
+$("#leave-coffee").addEventListener("click", close);
 $("#arrange-windows").addEventListener("click", () => arrangeWindows());
 document
   .querySelectorAll("[data-monitor],[data-drop-monitor]")
@@ -746,7 +789,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=shared-20261016");
+const sceneModule = import("./scene.js?v=seamless-20261016");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
@@ -772,6 +815,7 @@ const sceneReady = sceneModule
     });
     windows.initialize();
     $("#arrange-windows").hidden = true;
+    $("#inspect-coffee").hidden = true;
     sceneSettled = true;
   });
 boot.track("workstation.3d", sceneReady);

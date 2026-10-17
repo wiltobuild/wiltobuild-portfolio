@@ -252,53 +252,165 @@ const CREDENTIALS = {
 
 const PROJECTS = [
   {
+    id: "runelord",
+    status: "Public / Playable demo",
+    kind: "Browser deckbuilding roguelike",
+    title: "Runelord",
+    description:
+      "An original deckbuilding roguelike where every hero leads a warband. Build a deck, choose a pact, and fight through encounters with animated allies at your side. Play it right here on the left monitor.",
+    visual: "assets/project-identities/index.html?project=runelord",
+    labels: ["Combat", "Characters", "Play anywhere"],
+    evidence: [
+      "Tactical cards, pacts, and allied warbands",
+      "Original animated heroes and enemies",
+      "Playable directly in your browser",
+    ],
+    links: [
+      { label: "Play Runelord", url: "https://wiltobuild.github.io/runelord/" },
+      {
+        label: "View repository",
+        url: "https://github.com/wiltobuild/runelord",
+      },
+    ],
+  },
+  {
+    id: "vexa",
+    status: "Public / Active build",
+    kind: "Community workspace for gamers",
+    title: "Vexa",
+    description:
+      "A gamer-focused community workspace with channels, messaging, customizable avatars, and on-device voice transcription. The public demo keeps its data locally in your browser.",
+    visual: "assets/project-identities/index.html?project=vexa",
+    labels: ["Interface", "Community tools", "Voice"],
+    evidence: [
+      "Responsive React and TypeScript workspace",
+      "Local demo channels, messages, reactions, and avatars",
+      "On-device Whisper transcription",
+    ],
+    links: [
+      { label: "Open Vexa", url: "https://vexa-livid.vercel.app/" },
+      { label: "View repository", url: "https://github.com/wiltobuild/Vexa" },
+    ],
+  },
+  {
+    id: "runespeak",
+    status: "Public / Playable demo",
+    kind: "Spanish-learning dungeon crawler",
+    title: "RuneSpeak",
+    description:
+      "Learn Spanish one encounter at a time. Vocabulary, grammar, and word-order challenges become spells as you explore branching dungeons with illustrated heroes and creatures.",
+    visual: "assets/project-identities/index.html?project=runespeak",
+    labels: ["Learning", "Exploration", "Progress"],
+    evidence: [
+      "52 authored beginner Spanish challenges",
+      "Seeded nine-room dungeon runs",
+      "Local autosave, vocabulary journal, and optional pronunciation",
+    ],
+    links: [
+      {
+        label: "Play RuneSpeak",
+        url: "https://wiltobuild.github.io/RuneSpeak/",
+      },
+      {
+        label: "View repository",
+        url: "https://github.com/wiltobuild/RuneSpeak",
+      },
+    ],
+  },
+  {
+    id: "triagepilot",
+    status: "Private / Active build",
+    kind: "AI support-ticket triage agent",
+    title: "TriagePilot",
+    description:
+      "An AI agent that triages SaaS support tickets and explains every decision. Built around making the reasoning behind support triage understandable.",
+    visual: "assets/project-identities/index.html?project=triagepilot",
+    labels: ["Input", "Agent", "Transparency"],
+    evidence: [
+      "SaaS support tickets",
+      "AI-assisted ticket triage",
+      "An explanation for every decision",
+    ],
+    access:
+      "Private repository and access-controlled preview during active development",
+  },
+  {
     id: "irys",
     status: "Private / Active build",
     kind: "Windows desktop companion",
     title: "iRYS",
-    description: "A lightweight Windows companion with an eye-shaped overlay that communicates local application and coding-agent activity through distinct visual states.",
+    description:
+      "A lightweight Windows companion with an eye-shaped overlay that communicates local application and coding-agent activity through distinct visual states.",
     visual: "assets/irys-animated-visual/index.html",
     labels: ["Platform", "System boundary", "Current evidence"],
-    evidence: ["C# and .NET 8 desktop application", "Local tray controls and secured loopback events", "Interactive overlay states, local settings, and test project"],
-    access: "Repository private during active development"
+    evidence: [
+      "C# and .NET 8 desktop application",
+      "Local tray controls and secured loopback events",
+      "Interactive overlay states, local settings, and test project",
+    ],
+    access: "Repository private during active development",
   },
   {
     id: "cephalon",
     status: "Public / Active build",
     kind: "Warframe companion web application",
     title: "CEPHALON",
-    description: "An all-in-one Warframe companion: a deterministic build and damage engine, an arsenal workspace, and farming, relic, and mastery planning, wrapped around a searchable library of vetted builds.",
+    description:
+      "An all-in-one Warframe companion: a deterministic build and damage engine, an arsenal workspace, and farming, relic, and mastery planning, wrapped around a searchable library of vetted builds.",
     visual: "assets/cephalon-animated-visual/index.html",
     labels: ["Calculation engine", "Arsenal workspace", "Build library"],
-    evidence: ["Next.js app over a standalone TypeScript calculation engine with a formula-regression gate", "Server-side weapon and Warframe builder with live stat deltas and confidence", "394-build guide library across Warframe, weapon, Archwing, and companion categories"],
+    evidence: [
+      "Next.js app over a standalone TypeScript calculation engine with a formula-regression gate",
+      "Server-side weapon and Warframe builder with live stat deltas and confidence",
+      "394-build guide library across Warframe, weapon, Archwing, and companion categories",
+    ],
     links: [
       { label: "Open live project", url: "https://cephalon.vercel.app/" },
-      { label: "View repository", url: "https://github.com/wiltobuild/cephalon" }
-    ]
+      {
+        label: "View repository",
+        url: "https://github.com/wiltobuild/cephalon",
+      },
+    ],
   },
   {
     id: "gitfit",
     status: "Public / Active build",
     kind: "Fitness studio management suite",
     title: "GitFit",
-    description: "A unified fitness-management platform for one studio: members book classes and track momentum, staff run a live operations console, and Fitbot — a deterministic-first assistant — ties it together as the suite's native interface.",
+    description:
+      "A unified fitness-management platform for one studio: members book classes and track momentum, staff run a live operations console, and Fitbot — a deterministic-first assistant — ties it together as the suite's native interface.",
     visual: "assets/gitfit-animated-visual/index.html",
-    labels: ["Suite architecture", "Role and data model", "Deterministic assistant"],
-    evidence: ["One Next.js app, four role-aware modules on a shared design system and auth model", "Supabase Postgres with row-level security and a trigger-protected client/staff role boundary", "Fitbot answers everyday requests with intent-routed logic against real data, not an LLM call per message"],
+    labels: [
+      "Suite architecture",
+      "Role and data model",
+      "Deterministic assistant",
+    ],
+    evidence: [
+      "One Next.js app, four role-aware modules on a shared design system and auth model",
+      "Supabase Postgres with row-level security and a trigger-protected client/staff role boundary",
+      "Fitbot answers everyday requests with intent-routed logic against real data, not an LLM call per message",
+    ],
     links: [
-      { label: "Open live project", url: "https://gitfit-pursuit6.vercel.app/" },
-      { label: "View repository", url: "https://github.com/wiltobuild/gitfit-fitbot" }
-    ]
+      {
+        label: "Open live project",
+        url: "https://gitfit-pursuit6.vercel.app/",
+      },
+      {
+        label: "View repository",
+        url: "https://github.com/wiltobuild/gitfit-fitbot",
+      },
+    ],
   },
   {
     id: "slot-4",
     status: "Reserved",
     kind: "Future case study",
     title: "Systems utility",
-    description: "Space for a small software tool informed by automation, diagnostics, or support work.",
+    description:
+      "Space for a small software tool informed by automation, diagnostics, or support work.",
     labels: ["Context", "Decisions", "Evidence"],
-    evidence: ["Operational problem", "Diagnostic logic", "Observed result"]
-  }
+    evidence: ["Operational problem", "Diagnostic logic", "Observed result"],
+  },
 ];
 
 let activeModule = "home";

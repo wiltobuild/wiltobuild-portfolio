@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Project identity</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #131c24;
+        color: #efe9d8;
+        font-family: Georgia, serif;
+        overflow: hidden;
+        --accent: #dfb775;
+        --muted: #aca89d;
+      }
+      main {
+        height: 100vh;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        position: relative;
+        isolation: isolate;
+        padding: 6% 7%;
+        gap: 4%;
+        background: radial-gradient(
+          ellipse at 80% 80%,
+          color-mix(in srgb, var(--accent) 18%, transparent),
+          transparent 60%
+        );
+      }
+      main:before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        opacity: 0.17;
+        background-image:
+          linear-gradient(#aaa1 1px, transparent 1px),
+          linear-gradient(90deg, #aaa1 1px, transparent 1px);
+        background-size: 30px 30px;
+      }
+      section {
+        width: 56%;
+        z-index: 2;
+      }
+      small {
+        font:
+          9px ui-monospace,
+          monospace;
+        letter-spacing: 0.19em;
+        color: var(--accent);
+      }
+      h1 {
+        font-size: clamp(28px, 7vw, 68px);
+        letter-spacing: -0.04em;
+        margin: 10px 0;
+      }
+      p {
+        font:
+          11px/1.6 ui-monospace,
+          monospace;
+        color: var(--muted);
+        max-width: 28em;
+      }
+      .art {
+        position: relative;
+        flex: 1;
+        height: 160px;
+        display: grid;
+        place-items: center;
+      }
+      .card {
+        position: absolute;
+        border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+        border-radius: 9px;
+        width: 90px;
+        height: 125px;
+        background: linear-gradient(140deg, #ffffff15, #0003);
+        box-shadow: 0 15px 30px #0004;
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        font: 42px Georgia;
+        animation: breathe 5s ease-in-out infinite;
+      }
+      .card:nth-child(1) {
+        transform: translate(-48px, 10px) rotate(-16deg);
+        animation-delay: -1.5s;
+      }
+      .card:nth-child(2) {
+        z-index: 2;
+        transform: translateY(-5px);
+      }
+      .card:nth-child(3) {
+        transform: translate(48px, 10px) rotate(16deg);
+        animation-delay: -3s;
+      }
+      .orbit {
+        position: absolute;
+        width: 170px;
+        height: 170px;
+        border: 1px solid #b48df644;
+        border-radius: 50%;
+        transform: rotateX(58deg) rotateZ(-25deg);
+      }
+      .orbit:after {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border-top: 3px solid var(--accent);
+        animation: orbit 12s linear infinite;
+      }
+      .planet {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        box-shadow:
+          inset -20px -10px 25px #0e092c,
+          0 0 80px #9165ce55;
+        background: radial-gradient(
+          circle at 30% 25%,
+          #dfb6ff,
+          #7250a1 55%,
+          #181331
+        );
+      }
+      .word {
+        background: #213c32;
+        border: 1px solid #88d7a7;
+        border-radius: 14px;
+        padding: 20px;
+        font: 22px Georgia;
+        color: #ddf5c8;
+        box-shadow: 0 8px 0 #0d221d;
+        animation: breathe 4s ease-in-out infinite;
+      }
+      .word span {
+        font:
+          9px ui-monospace,
+          monospace;
+        display: block;
+        margin-top: 12px;
+        letter-spacing: 0.18em;
+        color: #8ebd9d;
+      }
+      .ticket {
+        width: 170px;
+        background: #132b39;
+        border: 1px solid #63bcca66;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 15px 30px #0003;
+        animation: breathe 5s ease-in-out infinite;
+      }
+      .ticket i {
+        display: block;
+        width: 80%;
+        height: 4px;
+        background: #6a94a3;
+        margin: 8px 0;
+        border-radius: 2px;
+      }
+      .ticket i:nth-child(3) {
+        width: 55%;
+      }
+      .ticket b {
+        font:
+          9px ui-monospace,
+          monospace;
+        color: #92e4dc;
+        display: block;
+        margin-top: 20px;
+      }
+      .ticket b:before {
+        content: "✓";
+        margin-right: 7px;
+      }
+      .art .flow {
+        position: absolute;
+        bottom: 5px;
+        width: 130px;
+        height: 1px;
+        background: var(--accent);
+        opacity: 0.5;
+      }
+      @keyframes breathe {
+        50% {
+          translate: 0 -7px;
+        }
+      }
+      @keyframes orbit {
+        to {
+          rotate: 360deg;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+        }
+      }
+      @media (max-width: 450px) {
+        .art {
+          scale: 0.7;
+          transform-origin: center right;
+        }
+        main {
+          gap: 0;
+        }
+        p {
+          font-size: 9px;
+        }
+        small {
+          font-size: 8px;
+        }
+        .card {
+          width: 70px;
+          height: 105px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <small id="kind"></small>
+        <h1 id="title"></h1>
+        <p id="tagline"></p>
+      </section>
+      <div class="art" aria-hidden="true" id="art"></div>
+    </main>
+    <script>
+      const projects = {
+        runelord: {
+          title: "Runelord",
+          kind: "CARDS · PACTS · WARBANDS",
+          tagline: "Build your deck. Lead your warband.",
+          accent: "#dfb775",
+          art: '<div class="card">ᚱ</div><div class="card">⚔</div><div class="card">ᚨ</div>',
+        },
+        vexa: {
+          title: "Vexa",
+          kind: "COMMUNITY · VOICE · CONNECTION",
+          tagline: "Your squad, in sync.",
+          accent: "#c69aff",
+          art: '<div class="planet"></div><div class="orbit"></div>',
+        },
+        runespeak: {
+          title: "RuneSpeak",
+          kind: "WORDS BECOME YOUR WEAPONS",
+          tagline: "A little Spanish. A grand adventure.",
+          accent: "#a3d99b",
+          art: '<div class="word">¡Hola, aventura!<span>LEARN · EXPLORE · CAST</span></div>',
+        },
+        triagepilot: {
+          title: "TriagePilot",
+          kind: "SUPPORT · TRIAGE · EXPLANATION",
+          tagline: "Every ticket. Every decision. Explained.",
+          accent: "#8ad6dc",
+          art: '<div class="ticket"><i></i><i></i><i></i><b>REASONING INCLUDED</b></div><div class="flow"></div>',
+        },
+      };
+      const project =
+        projects[new URLSearchParams(location.search).get("project")] ||
+        projects.runelord;
+      document.title = project.title + " — project identity";
+      for (const key of ["title", "kind", "tagline"])
+        document.getElementById(key).textContent = project[key];
+      document.getElementById("art").innerHTML = project.art;
+      document.body.style.setProperty("--accent", project.accent);
+    </script>
+  </body>
+</html>
