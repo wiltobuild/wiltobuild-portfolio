@@ -185,6 +185,28 @@
 .monitor-screen .desktop-icons a[aria-current="page"] {
   background: #00008055;
 }
+.monitor-screen .desktop-icons.free-icons a {
+  position: absolute;
+  width: 90px;
+  height: 76px;
+  box-sizing: border-box;
+  user-select: none;
+  touch-action: none;
+  -webkit-user-drag: none;
+}
+.monitor-screen .desktop-icons a:focus-visible {
+  outline: 1px dotted white;
+  background: #00008088;
+}
+.monitor-screen .desktop-icons a.dragging-icon {
+  cursor: grabbing;
+  background: #00008088;
+  outline: 1px dotted white;
+  z-index: 1;
+}
+body.dragging-desktop-icon iframe {
+  pointer-events: none;
+}
 .win95-icon {
   display: inline-block;
   width: 32px;
