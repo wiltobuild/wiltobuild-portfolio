@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { CSS3DObject, CSS3DRenderer } from "./assets/vendor/CSS3DRenderer.js";
+import { createLavaLamp } from "./lava-lamp.js?v=lava-20261017";
 
 // Original, procedural workstation. All geometry and screen artwork is local.
 export function createWorkspace(container, onOpen, screens) {
@@ -746,39 +747,18 @@ export function createWorkspace(container, onOpen, screens) {
     center.rotation.x = Math.PI / 2;
     box(desk, 0.016, 0.025, 0.015, led, x + 0.12, 2.46, 0.43);
   }
-  // Desk lamp, including a visible warm bulb and practical pool of light.
-  cylinder(desk, 0.31, 0.36, 0.08, green, -4.48, 2.36, -1.45);
+  const lavaLamp = createLavaLamp(desk);
   cable(
     [
-      [-4.48, 2.4, -1.45],
-      [-4.48, 4.36, -1.55],
-      [-4.3, 5.15, -1.5],
-      [-3.85, 5.2, -1.4],
+      [-4.65, 2.36, -1.1],
+      [-4.7, 2.34, -1.6],
+      [-4.35, 2.34, -2.1],
+      [-4.2, 2.0, -2.4],
+      [-4.1, 0.15, -2.45],
     ],
-    green,
-    0.035,
+    black,
+    0.018,
   );
-  const shade = new THREE.Mesh(
-    new THREE.ConeGeometry(0.43, 0.48, 40, 1, true),
-    new THREE.MeshStandardMaterial({
-      color: "#4a654d",
-      roughness: 0.6,
-      side: THREE.DoubleSide,
-    }),
-  );
-  shade.position.set(-3.78, 4.98, -1.35);
-  shade.rotation.z = -0.35;
-  shade.castShadow = true;
-  desk.add(shade);
-  const bulb = new THREE.Mesh(
-    new THREE.SphereGeometry(0.1, 16, 12),
-    new THREE.MeshBasicMaterial({ color: "#fff0b9" }),
-  );
-  bulb.position.set(-3.74, 4.84, -1.35);
-  desk.add(bulb);
-  const lampLight = new THREE.PointLight(0xffcf7f, 4, 5, 2);
-  lampLight.position.copy(bulb.position);
-  scene.add(lampLight);
   // Coffee mug, floppy disk, notebook, pencil and sticky note.
   const mug = new THREE.Group();
   mug.position.set(-3.47, 2.33, 1.5);
@@ -1404,6 +1384,7 @@ export function createWorkspace(container, onOpen, screens) {
       camera.quaternion.copy(destination.quaternion);
     }
     camera.updateMatrixWorld();
+    lavaLamp.update(time, camera, reduced.matches);
     renderer.render(scene, camera);
     cssRenderer.render(cssScene, camera);
     dirty = false;
@@ -1448,7 +1429,7 @@ export function createWorkspace(container, onOpen, screens) {
       hemi.intensity = value ? 1 : 2.8;
       sun.intensity = value ? 1.3 : 4.4;
       fill.intensity = value ? 0.7 : 1.2;
-      lampLight.intensity = value ? 10 : 4;
+      lavaLamp.setNight(value);
       renderer.toneMappingExposure = value ? 1.05 : 1.35;
       ground.material.opacity = value ? 0.45 : 0.23;
       dirty = true;

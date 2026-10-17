@@ -2,11 +2,16 @@ import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=apps-20261017";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=apps-20261017";
-import { createWindowManager } from "./window-manager.js?v=apps-20261017";
+} from "./desktop-apps.js?v=lava-20261017";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=lava-20261017";
+import { createWindowManager } from "./window-manager.js?v=lava-20261017";
 import { createBoot } from "./boot.js";
+import {
+  decorateDesktop,
+  desktopIcon,
+} from "./desktop-icons.js?v=lava-20261017";
 const template = document.querySelector("#monitor-screen");
+decorateDesktop(template);
 const screens = new Map();
 for (const id of ["about", "projects", "contact"]) {
   const el = template.cloneNode(true);
@@ -239,6 +244,11 @@ function renderProject(entry) {
     `${entry.projectIndex + 1} of ${projects.length} projects / ${p.title}`;
 }
 function renderApp(entry) {
+  const icon = desktopIcon(entry.name);
+  if (icon) {
+    entry.el.querySelector(".window-titlebar h2").prepend(icon);
+    entry.task.prepend(icon.cloneNode());
+  }
   entry.content.innerHTML = pages[entry.name]().replace(
     /id="([^"]+)"/g,
     (_, id) => `id="${entry.key}-${id}" data-ui="${id}"`,
@@ -789,7 +799,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=apps-20261017");
+const sceneModule = import("./scene.js?v=lava-20261017");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
