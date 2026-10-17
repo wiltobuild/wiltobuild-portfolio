@@ -33,7 +33,7 @@ const reviewedModules = new Set(loadReviewedModules());
 
 const SOCIAL_URLS = {
   github: "https://github.com/wiltobuild",
-  linkedin: "https://www.linkedin.com/in/william-sheppard-230a82132/",
+  linkedin: "https://www.linkedin.com/in/wilsheppard/",
   x: "https://x.com/WillBeBuilding"
 };
 
@@ -909,7 +909,7 @@ const READING_GUIDES = {
     skills: ['How I contribute to a build.', 'Explore four stages of delivery and the practical output of each one.'],
     projects: ['The work behind the profile.', 'Three active builds show product thinking across desktop software, calculation systems, and studio operations.'],
     credentials: ['A foundation in real systems.', 'These credentials support the automation and systems experience behind my move into software.'],
-    contact: ['Start a conversation.', 'Open to entry-level AI development and software engineering opportunities.']
+    contact: ['Start a conversation.', 'Open to Forward Deployed Engineer, Product Engineer, and Software Engineer opportunities.']
   },
   technical: {
     label: 'Technical', eyebrow: 'FOLLOW THE EVIDENCE',

@@ -4,7 +4,7 @@ import {
   normalizeRect,
   restoreRect,
   monitorEdgeDirection,
-} from "./window-geometry.js?v=icon-drag-20261017";
+} from "./window-geometry.js?v=fde-20261017";
 
 const STORAGE = "wtb-desktop-layout-v2";
 const monitorIds = ["about", "projects", "contact"];
@@ -499,9 +499,12 @@ export function createWindowManager({
           .forEach((e) => open(e.name, e));
       } else {
         open("runelord", { monitor: "about", maximized: true });
-        open("projects", { monitor: "projects" });
         open("contact", { monitor: "contact" });
       }
+      // Make About the landing window without resetting other windows or icon positions.
+      const landing = open("about", { monitor: "projects", maximized: true });
+      landing.maximized = true;
+      apply(landing);
       restoring = false;
       deactivate(focused);
       focused = null;
