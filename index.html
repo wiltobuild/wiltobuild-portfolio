@@ -36,6 +36,7 @@
     />
     <link rel="icon" href="./assets/desktop-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./desktop.css" />
+    <link rel="stylesheet" href="./monitor.css" />
     <title>WilToBuild — Wil Sheppard’s workspace</title>
     <script type="importmap">
       { "imports": { "three": "./assets/vendor/three.module.js" } }
@@ -73,8 +74,8 @@
       </div>
       <div
         id="scene"
-        role="img"
-        aria-label="An interactive 3D 1990s workspace with three beige CRT monitors, a keyboard, computer tower, desk lamp, and plant. Use the portfolio buttons to explore."
+        role="region"
+        aria-label="Interactive 3D workstation"
         aria-busy="true"
       ></div>
       <div id="load-status" role="status">
@@ -130,7 +131,22 @@
         OPPORTUNITIES</span
       ><a href="./classic.html">Classic portfolio ↗</a>
     </footer>
-    <dialog id="portfolio-dialog" aria-labelledby="window-title">
+    <nav id="monitor-controls" aria-label="Monitor controls" hidden>
+      <button id="leave-monitor">← Back to desk <kbd>Esc</kbd></button>
+      <div class="monitor-switcher" role="group" aria-label="Choose a screen">
+        <button data-monitor="about" aria-pressed="false">
+          01 <span>About</span>
+        </button>
+        <button data-monitor="projects" aria-pressed="false">
+          02 <span>Work</span>
+        </button>
+        <button data-monitor="contact" aria-pressed="false">
+          03 <span>Contact</span>
+        </button>
+      </div>
+      <span id="monitor-caption" role="status">Connecting to monitor…</span>
+    </nav>
+    <section id="monitor-screen" aria-label="WilToBuild desktop" hidden inert>
       <div class="os-frame">
         <div class="os-top">
           <span><i class="status-dot"></i> WilToBuild OS <b>95</b></span
@@ -174,7 +190,10 @@
                   aria-pressed="false"
                 >
                   □</button
-                ><button id="close-window" aria-label="Close portfolio window">
+                ><button
+                  id="close-window"
+                  aria-label="Close window and show desktop"
+                >
                   ×
                 </button>
               </div>
@@ -196,6 +215,10 @@
           <b>WilToBuild 95</b><a href="#projects">▰ &nbsp; My Projects</a
           ><a href="#about">☺ &nbsp; About Wil</a
           ><a href="#contact">✉ &nbsp; Contact</a
+          ><a href="#experience">▤ &nbsp; Experience</a
+          ><a href="#skills">⌘ &nbsp; Toolkit</a
+          ><a href="#agents">⌘ &nbsp; Pantheon</a
+          ><a href="#credentials">✧ &nbsp; Credentials</a
           ><a href="#snake">▦ &nbsp; Snake.exe</a
           ><a href="./classic.html">↗ &nbsp; Classic portfolio</a
           ><button id="shutdown">⏻ &nbsp; Return to workspace</button>
@@ -210,7 +233,7 @@
           >
         </footer>
       </div>
-    </dialog>
+    </section>
     <div id="toast" role="status" aria-live="polite"></div>
     <noscript
       ><div class="noscript">

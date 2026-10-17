@@ -1,7 +1,8 @@
 import * as THREE from "three";
+import { CSS3DObject, CSS3DRenderer } from "./assets/vendor/CSS3DRenderer.js";
 
 // Original, procedural workstation. All geometry and screen artwork is local.
-export function createWorkspace(container, onOpen) {
+export function createWorkspace(container, onOpen, screenElement) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -15,6 +16,14 @@ export function createWorkspace(container, onOpen) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.35;
   container.append(renderer.domElement);
+  renderer.domElement.setAttribute("aria-hidden", "true");
+  const cssRenderer = new CSS3DRenderer();
+  cssRenderer.domElement.className = "screen-renderer";
+  container.append(cssRenderer.domElement);
+  const cssScene = new THREE.Scene();
+  const screenObject = new CSS3DObject(screenElement);
+  screenObject.visible = false;
+  cssScene.add(screenObject);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
   const hemi = new THREE.HemisphereLight(0xfffaf0, 0x7b8270, 2.8);
@@ -416,6 +425,7 @@ export function createWorkspace(container, onOpen) {
         hits.push(o);
       }
     });
+    g.userData.route = type;
     monitors.push(g);
     cable(
       [
@@ -705,42 +715,111 @@ export function createWorkspace(container, onOpen) {
   let yaw = 0.2,
     targetYaw = 0.2,
     pitch = 0.38,
-    targetPitch = 0.38,
-    drag = null,
-    paused = false,
+    targetPitch = 0.38;
+  let drag = null,
     frame = 0,
     last = 0,
-    dirty = true;
-  const target = new THREE.Vector3(),
-    currentTarget = new THREE.Vector3();
+    dirty = true,
+    transition = null;
+  let focusedMonitor = null;
+  const poseCamera = new THREE.PerspectiveCamera();
+  const screenRatio = 2.14 / 1.53;
+  const hover = document.querySelector("#hover-label");
+
+  function screenPixels() {
+    // One CSS pixel is approximately one rendered pixel when the camera lands.
+    return Math.max(
+      280,
+      Math.min(innerWidth * 0.86, innerHeight * 0.76 * screenRatio),
+    );
+  }
+  function attachScreen(id) {
+    const monitor = monitors.find((m) => m.userData.route === id);
+    const width = Math.round(screenPixels());
+    screenElement.style.width = `${width}px`;
+    screenElement.style.height = `${width / screenRatio}px`;
+    screenElement.classList.toggle("compact-screen", width < 550);
+    monitor.updateWorldMatrix(true, false);
+    screenObject.position.copy(
+      monitor.localToWorld(new THREE.Vector3(0, 1.65, 0.57)),
+    );
+    monitor.getWorldQuaternion(screenObject.quaternion);
+    screenObject.scale.setScalar((2.14 * monitor.scale.x) / width);
+    screenObject.updateMatrixWorld(true);
+  }
+  function overviewPose() {
+    const mobile = container.clientWidth < 650;
+    const distance = mobile ? 42 : camera.aspect < 1.45 ? 23 : 20;
+    const target = new THREE.Vector3(
+      mobile ? 0.6 : -0.25,
+      mobile ? 3.05 : 2.4,
+      0,
+    );
+    const position = new THREE.Vector3(
+      Math.sin(yaw) * Math.cos(pitch) * distance + target.x,
+      Math.sin(pitch) * distance + target.y,
+      Math.cos(yaw) * Math.cos(pitch) * distance,
+    );
+    poseCamera.position.copy(position);
+    poseCamera.lookAt(target);
+    return { position, quaternion: poseCamera.quaternion.clone() };
+  }
+  function monitorPose(id) {
+    const monitor = monitors.find((m) => m.userData.route === id);
+    const center = monitor.localToWorld(new THREE.Vector3(0, 1.65, 0.57));
+    const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(
+      monitor.quaternion,
+    );
+    const focalPixels =
+      container.clientHeight /
+      (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
+    const distance = (2.14 * monitor.scale.x * focalPixels) / screenPixels();
+    const position = center.clone().addScaledVector(normal, distance);
+    poseCamera.position.copy(position);
+    poseCamera.lookAt(center);
+    return { position, quaternion: poseCamera.quaternion.clone() };
+  }
   function resize() {
     const w = container.clientWidth,
       h = container.clientHeight;
     renderer.setSize(w, h);
+    cssRenderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    if (focusedMonitor) attachScreen(focusedMonitor);
     dirty = true;
   }
   const ro = new ResizeObserver(resize);
   ro.observe(container);
   resize();
-  function positionCamera() {
-    const mobile = container.clientWidth < 650;
-    const aspect = camera.aspect;
-    const distance = mobile ? 42 : aspect < 1.45 ? 23 : 20;
-    target.set(mobile ? 0.6 : -0.25, mobile ? 3.05 : 2.4, 0);
-    currentTarget.lerp(target, 0.12);
-    const r = distance;
-    camera.position.set(
-      Math.sin(yaw) * Math.cos(pitch) * r + currentTarget.x,
-      Math.sin(pitch) * r + currentTarget.y,
-      Math.cos(yaw) * Math.cos(pitch) * r,
-    );
-    camera.lookAt(currentTarget);
+  const initialPose = overviewPose();
+  camera.position.copy(initialPose.position);
+  camera.quaternion.copy(initialPose.quaternion);
+
+  function flyTo(id) {
+    transition?.resolve(false);
+    focusedMonitor = id;
+    drag = null;
+    hover.classList.remove("visible");
+    screenElement.style.pointerEvents = "none";
+    if (id) {
+      attachScreen(id);
+      screenObject.visible = true;
+      screenElement.hidden = false;
+    }
+    return new Promise((resolve) => {
+      transition = {
+        fromPosition: camera.position.clone(),
+        fromQuaternion: camera.quaternion.clone(),
+        started: performance.now(),
+        duration: reduced.matches ? 0 : 1100,
+        resolve,
+      };
+      dirty = true;
+    });
   }
   const raycaster = new THREE.Raycaster(),
     pointer = new THREE.Vector2();
-  const hover = document.querySelector("#hover-label");
   function hit(e) {
     const r = container.getBoundingClientRect();
     pointer.set(
@@ -751,7 +830,7 @@ export function createWorkspace(container, onOpen) {
     return raycaster.intersectObjects(hits, false)[0]?.object.userData.route;
   }
   renderer.domElement.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || focusedMonitor || transition) return;
     drag = {
       x: e.clientX,
       y: e.clientY,
@@ -762,6 +841,7 @@ export function createWorkspace(container, onOpen) {
     renderer.domElement.setPointerCapture(e.pointerId);
   });
   renderer.domElement.addEventListener("pointermove", (e) => {
+    if (focusedMonitor || transition) return;
     if (drag) {
       const dx = e.clientX - drag.x,
         dy = e.clientY - drag.y;
@@ -776,9 +856,9 @@ export function createWorkspace(container, onOpen) {
     renderer.domElement.style.cursor = route ? "pointer" : "grab";
     hover.textContent =
       {
-        about: "01 / Meet Wil ↗",
-        projects: "02 / Open my projects ↗",
-        contact: "03 / Let’s connect ↗",
+        about: "01 / Enter this monitor ↗",
+        projects: "02 / Enter this monitor ↗",
+        contact: "03 / Enter this monitor ↗",
         snake: "Insert disk: Snake.exe ↗",
       }[route] || "";
     hover.style.left = `${Math.min(e.clientX + 16, innerWidth - 210)}px`;
@@ -786,7 +866,7 @@ export function createWorkspace(container, onOpen) {
     hover.classList.toggle("visible", !!route);
   });
   renderer.domElement.addEventListener("pointerup", (e) => {
-    if (drag && !drag.moved) {
+    if (drag && !drag.moved && !focusedMonitor && !transition) {
       const route = hit(e);
       if (route) onOpen(route);
     }
@@ -801,31 +881,68 @@ export function createWorkspace(container, onOpen) {
   );
   function draw(time) {
     frame = requestAnimationFrame(draw);
-    if (paused || document.hidden || time - last < 32) return;
+    if (document.hidden || time - last < 16) return;
     last = time;
-    const moving =
+    const orbitMoving =
+      !focusedMonitor &&
+      !transition &&
       Math.abs(yaw - targetYaw) + Math.abs(pitch - targetPitch) > 0.0001;
-    const factor = reduced.matches ? 1 : 0.09;
-    yaw += (targetYaw - yaw) * factor;
-    pitch += (targetPitch - pitch) * factor;
-    if (!dirty && !moving && currentTarget.distanceTo(target) < 0.001) return;
-    positionCamera();
+    if (!dirty && !transition && !orbitMoving) return;
+    if (orbitMoving) {
+      const factor = reduced.matches ? 1 : 0.09;
+      yaw += (targetYaw - yaw) * factor;
+      pitch += (targetPitch - pitch) * factor;
+    }
+    const destination = focusedMonitor
+      ? monitorPose(focusedMonitor)
+      : overviewPose();
+    if (transition) {
+      const t = transition.duration
+        ? Math.min(1, (time - transition.started) / transition.duration)
+        : 1;
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      camera.position.lerpVectors(
+        transition.fromPosition,
+        destination.position,
+        ease,
+      );
+      camera.quaternion.slerpQuaternions(
+        transition.fromQuaternion,
+        destination.quaternion,
+        ease,
+      );
+      if (t === 1) {
+        const done = transition.resolve;
+        transition = null;
+        if (!focusedMonitor) {
+          screenObject.visible = false;
+          screenElement.hidden = true;
+        }
+        done(true);
+      }
+    } else {
+      camera.position.copy(destination.position);
+      camera.quaternion.copy(destination.quaternion);
+    }
+    camera.updateMatrixWorld();
     renderer.render(scene, camera);
+    cssRenderer.render(cssScene, camera);
     dirty = false;
   }
-  currentTarget.set(0, 2.4, 0);
   draw(0);
   renderer.domElement.addEventListener("webglcontextlost", (e) => {
     e.preventDefault();
     document.querySelector("#load-status").hidden = false;
     document.querySelector("#load-status").textContent =
-      "The 3D view paused. Your portfolio is still available below.";
+      "The 3D view paused. Use Classic portfolio below to keep exploring.";
   });
   renderer.domElement.addEventListener("webglcontextrestored", () => {
     dirty = true;
     document.querySelector("#load-status").hidden = true;
   });
   return {
+    focus: flyTo,
+    leave: () => flyTo(null),
     reset() {
       targetYaw = 0.2;
       targetPitch = 0.38;
@@ -840,15 +957,12 @@ export function createWorkspace(container, onOpen) {
       ground.material.opacity = value ? 0.45 : 0.23;
       dirty = true;
     },
-    pause(value) {
-      paused = value;
-      dirty = true;
-      hover.classList.remove("visible");
-    },
     dispose() {
+      transition?.resolve(false);
       cancelAnimationFrame(frame);
       ro.disconnect();
       renderer.dispose();
+      cssRenderer.domElement.remove();
     },
   };
 }
