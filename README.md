@@ -37,6 +37,8 @@ This is a static site with no build step, backend, API keys, or package installa
 
 GitHub Pages publishes the root of `main`. `.nojekyll` keeps this a static deployment. All module and asset paths work under the `/wiltobuild-portfolio/` project path.
 
+The shared-desktop entry point, changed stylesheets, and changed module dependencies carry a release query string. Bump these together when their interfaces change so returning visitors cannot combine cached files from incompatible releases.
+
 The workstation is modeled entirely in code. The concept was inspired by [Henry Heffernan’s portfolio](https://henryheffernan.com/); the geometry, screen art, arrangement, and interface here are original, and no reference-site assets are bundled.
 
 ## Verification

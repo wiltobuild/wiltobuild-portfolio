@@ -3,7 +3,7 @@ import {
   resizeWindow,
   normalizeRect,
   restoreRect,
-} from "./window-geometry.js";
+} from "./window-geometry.js?v=shared-20261016";
 
 const STORAGE = "wtb-desktop-layout-v2";
 const monitorIds = ["about", "projects", "contact"];
