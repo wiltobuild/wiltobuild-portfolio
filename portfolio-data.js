@@ -182,7 +182,7 @@ export const PROJECTS = [
     links: [
       {
         label: "Open live project",
-        url: "https://wiltobuild.github.io/SalesScope/",
+        url: "https://wiltobuild.github.io/SalesScope/legacy/",
       },
     ],
   },

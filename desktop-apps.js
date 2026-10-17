@@ -1,5 +1,25 @@
 // Only these known app destinations are embedded in the personal desktop.
 export const DESKTOP_APPS = {
+  cephalon: {
+    title: "Cephalon",
+    name: "Cephalon",
+    url: "https://cephalon.vercel.app/",
+  },
+  "rush-hour": {
+    title: "Rush Hour",
+    name: "Rush Hour",
+    url: "https://rush-hour-bay.vercel.app/",
+  },
+  gitfit: {
+    title: "GitFit",
+    name: "GitFit",
+    url: "https://gitfit-pursuit6.vercel.app/",
+  },
+  salesscope: {
+    title: "SalesScope — Reporting demo",
+    name: "SalesScope",
+    url: "https://wiltobuild.github.io/SalesScope/legacy/",
+  },
   runelord: {
     title: "Runelord.exe",
     name: "Runelord",
