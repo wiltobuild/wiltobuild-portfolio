@@ -1,8 +1,43 @@
 import { PROJECTS, AGENTS } from "./portfolio-data.js";
 import { createWindowManager } from "./window-manager.js";
 import { createBoot } from "./boot.js";
-const $ = (selector) => document.querySelector(selector);
-const screen = $("#monitor-screen");
+const template = document.querySelector("#monitor-screen");
+const screens = new Map();
+for (const id of ["about", "projects", "contact"]) {
+  const el = template.cloneNode(true);
+  el.id = "monitor-screen-" + id;
+  el.classList.add("monitor-screen");
+  el.dataset.screen = id;
+  el.setAttribute(
+    "aria-label",
+    id === "about"
+      ? "Left monitor"
+      : id === "projects"
+        ? "Middle monitor"
+        : "Right monitor",
+  );
+  el.querySelectorAll("[id]").forEach((child) => {
+    const role = child.id;
+    child.classList.add("role-" + role);
+    child.dataset.role = role;
+    child.id = id + "-" + role;
+  });
+  el.querySelector(".role-start").setAttribute(
+    "aria-controls",
+    id + "-start-menu",
+  );
+  el.querySelector(".role-window-help").id = id + "-window-help";
+  document.body.append(el);
+  screens.set(id, el);
+}
+template.remove();
+let screen = screens.get("projects");
+const $ = (selector) =>
+  /^#(start|start-menu|shutdown|restart-computer|show-desktop|clock)$/.test(
+    selector,
+  )
+    ? screen.querySelector('[data-role="' + selector.slice(1) + '"]')
+    : document.querySelector(selector);
 let workspace = null,
   projectIndex = 0,
   previousFocus = null,
@@ -15,7 +50,7 @@ let sceneSettled = false,
   requestedDesktop = false,
   navigationVersion = 0;
 const monitorNames = {
-  about: "01 / The person",
+  about: "01 / Runelord",
   projects: "02 / The work",
   contact: "03 / The connection",
 };
@@ -46,6 +81,7 @@ function setOverviewInert(value) {
     });
 }
 const files = {
+  runelord: "Runelord.exe",
   about: "Hello, world.txt",
   projects: "My Projects",
   experience: "Experience.txt",
@@ -89,6 +125,8 @@ function rows(items) {
   return `<div class="file-list">${items.map(([title, desc], i) => `<article class="file-row"><span class="file-number">0${i + 1}</span><div><h3>${title}</h3><p>${desc}</p></div></article>`).join("")}</div>`;
 }
 const pages = {
+  runelord: () =>
+    `<iframe class="runelord-game" src="https://wiltobuild.github.io/runelord/" title="Runelord playable game" allow="autoplay; gamepad" sandbox="allow-scripts allow-same-origin allow-pointer-lock"></iframe>`,
   about: () =>
     `<div class="about-grid"><div><p class="doc-kicker">01 / A LITTLE ABOUT ME</p><h3 class="doc-title">Hi, I’m Wil.<br>I connect the pieces.</h3><p class="doc-lede">I build software the way I approach a complex system: understand the people using it, trace the connections, and make it work.</p><p class="doc-lede">My background is in Crestron programming, AV automation, and systems integration. Today, I’m bringing that practical experience into AI and software development with Claude Code and Codex.</p><div class="doc-actions"><a class="doc-button" href="#projects">Explore my work ↗</a><a class="doc-button secondary" href="#contact">Say hello →</a></div></div><figure class="about-photo"><img src="./assets/wil-sheppard-headshot.png" alt="Wil Sheppard" width="380" height="440"><figcaption>WIL SHEPPARD<br>BUILT ON EXPERIENCE. DRIVEN BY CURIOSITY.</figcaption></figure></div><div class="fact-strip"><div><b>Since 2012</b><span>Independent AV integration<br>& project leadership</span></div><div><b>AI + software</b><span>Current direction<br>Pursuit Native AI Fellow</span></div><div><b>Human outcomes</b><span>Complex systems,<br>made useful for people</span></div></div>`,
   experience: () =>
@@ -202,6 +240,20 @@ function renderApp(entry) {
     /id="([^"]+)"/g,
     (_, id) => `id="${entry.key}-${id}" data-ui="${id}"`,
   );
+  if (entry.name === "runelord") {
+    entry.el.classList.add("game-window");
+    // Give the game a complete desktop viewport, then fit it inside any CRT
+    // window so its title controls and combat HUD cannot be cropped on phones.
+    const observer = new ResizeObserver(() => {
+      const scale = Math.min(
+        entry.content.clientWidth / 1280,
+        entry.content.clientHeight / 720,
+      );
+      entry.content.style.setProperty("--game-scale", String(scale));
+    });
+    observer.observe(entry.content);
+    entry.cleanup = () => observer.disconnect();
+  }
   if (entry.name === "projects") {
     renderProject(entry);
     entry.content.querySelectorAll("[data-project]").forEach((button) =>
@@ -232,10 +284,24 @@ function setStart(value) {
   $("#start").setAttribute("aria-expanded", String(value));
 }
 const windows = createWindowManager({
-  screen,
+  screens,
+  pointOnScreen: (id, x, y) => workspace?.pointOnScreen(id, x, y),
+  hitScreen: (x, y) => workspace?.hitScreen(x, y),
+  onArrange: () => arrangeWindows(true),
+  onTransfer: (entry) => {
+    toast("Moved to " + monitorNames[entry.monitor] + " · position saved");
+    if (!document.body.classList.contains("arrange-mode"))
+      enterMonitor(entry.monitor, entry.name);
+  },
   titles: files,
   render: renderApp,
   onActive: (entry) => {
+    if (!sceneSettled) return;
+    if (entry && currentMonitor) {
+      currentMonitor = entry.monitor;
+      screen = screens.get(entry.monitor);
+      updateMonitorControls();
+    }
     document.title = entry
       ? `${files[entry.name]} | WilToBuild`
       : "Desktop | WilToBuild";
@@ -259,6 +325,7 @@ function setSound(value) {
 }
 const boot = createBoot({
   onFinish: () => {
+    workspace?.startTour();
     routePage();
     if (!currentMonitor) $("#workspace-nav a").focus({ preventScroll: true });
   },
@@ -269,87 +336,145 @@ function navigate(name) {
   if (location.hash === `#${name}`) routePage();
   else location.hash = name;
 }
-function open(route) {
-  requestedMonitor = monitorFor(route);
-  requestedDesktop = route !== "snake" && windows.hasMonitor(requestedMonitor);
+function updateMonitorControls() {
+  document
+    .querySelectorAll("[data-monitor]")
+    .forEach((b) =>
+      b.setAttribute(
+        "aria-pressed",
+        String(b.dataset.monitor === currentMonitor),
+      ),
+    );
+  $("#monitor-caption").textContent = document.body.classList.contains(
+    "arrange-mode",
+  )
+    ? "Drag a title bar between screens"
+    : monitorNames[currentMonitor] || "Shared desktop";
+}
+function setScreensInteractive(id, all = false) {
+  screens.forEach((el, key) => {
+    el.hidden = false;
+    el.inert = !(all || key === id);
+    el.style.pointerEvents = el.inert ? "none" : "auto";
+  });
+}
+function enterMonitor(id, name) {
+  requestedMonitor = id;
+  requestedDesktop = !name;
   navigate(
-    route === "snake" ? route : windows.lastRoute(requestedMonitor) || route,
+    name ||
+      windows.lastRoute(id) ||
+      { about: "runelord", projects: "projects", contact: "contact" }[id],
   );
+}
+function open(route) {
+  if (["about", "projects", "contact"].includes(route)) enterMonitor(route);
+  else {
+    requestedMonitor = windows.monitorOf(route) || monitorFor(route);
+    navigate(route);
+  }
 }
 function close() {
   if (currentMonitor) location.hash = "home";
 }
+async function arrangeWindows(force = false) {
+  if (!workspace) return;
+  if (document.body.classList.contains("arrange-mode") && !force) {
+    enterMonitor(currentMonitor || "projects");
+    return;
+  }
+  const version = ++navigationVersion;
+  currentMonitor ||= "projects";
+  document.body.classList.add("monitor-mode", "arrange-mode");
+  setOverviewInert(true);
+  $("#monitor-controls").hidden = false;
+  $("#desktop-dock").hidden = false;
+  $("#arrange-windows").setAttribute("aria-pressed", "true");
+  $("#desktop-hint").textContent =
+    "Drag windows between screens · or drop on a monitor button";
+  updateMonitorControls();
+  setScreensInteractive(null, true);
+  await workspace.arrange();
+  if (version !== navigationVersion) return;
+  document.body.classList.remove("moving-camera");
+  setScreensInteractive(null, true);
+}
 async function routePage() {
   if (!sceneSettled || boot.isActive()) return;
-  const version = ++navigationVersion;
-  const name = location.hash.slice(1).split("/")[0];
+  const version = ++navigationVersion,
+    name = location.hash.slice(1).split("/")[0];
   if (!files[name]) {
     if (currentMonitor) {
       windows.suspend();
       setStart(false);
-      screen.inert = true;
-      screen.style.pointerEvents = "none";
+      setScreensInteractive(null);
       document.body.classList.add("moving-camera");
-      document.body.classList.remove("monitor-mode");
+      document.body.classList.remove("monitor-mode", "arrange-mode");
       $("#monitor-controls").hidden = true;
+      $("#desktop-dock").hidden = true;
       if (workspace) await workspace.leave();
       if (version !== navigationVersion) return;
-      screen.hidden = true;
       currentMonitor = null;
       requestedMonitor = null;
       document.body.classList.remove("moving-camera");
       document.body.style.overflow = "";
       setOverviewInert(false);
       previousFocus?.focus({ preventScroll: true });
-    }
+    } else setScreensInteractive(null);
     document.title = "WilToBuild — Wil Sheppard’s workspace";
     return;
   }
-  const monitor = requestedMonitor || currentMonitor || monitorFor(name),
-    resumeDesktop = requestedDesktop;
+  const id =
+      requestedMonitor ||
+      windows.monitorOf(name) ||
+      currentMonitor ||
+      monitorFor(name),
+    resume = requestedDesktop;
   requestedMonitor = null;
   requestedDesktop = false;
   const needsFlight =
-    currentMonitor !== monitor ||
+    currentMonitor !== id ||
     screen.inert ||
-    !document.body.classList.contains("monitor-mode");
+    !document.body.classList.contains("monitor-mode") ||
+    document.body.classList.contains("arrange-mode");
   if (!currentMonitor) {
     previousFocus = document.activeElement;
     document.body.style.overflow = "hidden";
   }
   if (needsFlight) windows.suspend();
-  currentMonitor = monitor;
+  currentMonitor = id;
+  screen = screens.get(id);
   document.body.classList.add("monitor-mode");
+  document.body.classList.remove("arrange-mode");
   setOverviewInert(true);
-  screen.hidden = false;
   $("#monitor-controls").hidden = false;
-  $("#monitor-caption").textContent = needsFlight
-    ? "Entering monitor…"
-    : monitorNames[monitor];
-  document
-    .querySelectorAll("[data-monitor]")
-    .forEach((b) =>
-      b.setAttribute("aria-pressed", String(b.dataset.monitor === monitor)),
-    );
+  $("#desktop-dock").hidden = false;
+  $("#arrange-windows").setAttribute("aria-pressed", "false");
+  $("#desktop-hint").textContent =
+    "Scroll outside a window to zoom · Alt + ← / → to pan";
+  updateMonitorControls();
   setStart(false);
   tone();
   let flight;
   if (needsFlight) {
-    screen.inert = true;
+    setScreensInteractive(null);
     document.body.classList.add("moving-camera");
-    if (workspace) flight = workspace.focus(monitor);
+    if (workspace) flight = workspace.focus(id);
   }
-  windows.setMonitor(monitor);
-  const entry = resumeDesktop ? windows.resume() : windows.open(name);
-  if (needsFlight) {
-    if (flight) await flight;
-    if (version !== navigationVersion) return;
-    document.body.classList.remove("moving-camera");
-    $("#monitor-caption").textContent = monitorNames[monitor];
-  }
-  screen.inert = false;
-  screen.style.pointerEvents = "auto";
+  windows.setMonitor(id);
+  const entry = resume ? windows.resume() : windows.open(name);
+  if (flight) await flight;
+  if (version !== navigationVersion) return;
+  document.body.classList.remove("moving-camera");
+  setScreensInteractive(id);
   (entry?.content || $("#start")).focus({ preventScroll: true });
+}
+function panMonitor(direction) {
+  const ids = ["about", "projects", "contact"],
+    index = ids.indexOf(currentMonitor);
+  enterMonitor(
+    ids[Math.max(0, Math.min(2, (index < 0 ? 1 : index) + direction))],
+  );
 }
 window.addEventListener("hashchange", routePage);
 document.addEventListener("keydown", (event) => {
@@ -358,29 +483,54 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     close();
   }
-});
-["leave-monitor", "shutdown"].forEach((id) =>
-  $("#" + id).addEventListener("click", close),
-);
-document
-  .querySelectorAll("[data-monitor]")
-  .forEach((button) =>
-    button.addEventListener("click", () => open(button.dataset.monitor)),
-  );
-screen.addEventListener("click", (event) => {
-  const link = event.target.closest('a[href^="#"]');
-  if (link) {
+  if (event.altKey && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
     event.preventDefault();
-    setStart(false);
-    navigate(link.hash.slice(1));
+    panMonitor(event.key === "ArrowLeft" ? -1 : 1);
   }
-  if (!event.target.closest("#start-menu,#start")) setStart(false);
 });
-$("#start").addEventListener("click", () => {
-  setStart($("#start-menu").hidden);
-  tone(320);
+$("#leave-monitor").addEventListener("click", close);
+$("#arrange-windows").addEventListener("click", () => arrangeWindows());
+document
+  .querySelectorAll("[data-monitor],[data-drop-monitor]")
+  .forEach((button) =>
+    button.addEventListener("click", () =>
+      enterMonitor(button.dataset.monitor || button.dataset.dropMonitor),
+    ),
+  );
+document
+  .querySelectorAll("[data-pan]")
+  .forEach((button) =>
+    button.addEventListener("click", () =>
+      panMonitor(Number(button.dataset.pan)),
+    ),
+  );
+screens.forEach((el, id) => {
+  el.addEventListener("click", (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (link) {
+      event.preventDefault();
+      currentMonitor = id;
+      screen = el;
+      setStart(false);
+      requestedMonitor = windows.monitorOf(link.hash.slice(1)) || id;
+      navigate(link.hash.slice(1));
+    }
+    if (!event.target.closest(".role-start-menu,.role-start"))
+      el.querySelector(".role-start-menu").hidden = true;
+  });
+  el.querySelector(".role-start").onclick = () => {
+    currentMonitor = id;
+    screen = el;
+    setStart($("#start-menu").hidden);
+    tone(320);
+  };
+  el.querySelector(".role-show-desktop").onclick = () => {
+    windows.setMonitor(id);
+    windows.showDesktop();
+  };
+  el.querySelector(".role-shutdown").onclick = close;
+  el.querySelector(".role-restart-computer").onclick = restartBoot;
 });
-$("#show-desktop").addEventListener("click", () => windows.showDesktop());
 function restartBoot() {
   windows.suspend();
   setStart(false);
@@ -388,7 +538,6 @@ function restartBoot() {
   boot.restart();
 }
 $("#replay-boot").addEventListener("click", restartBoot);
-$("#restart-computer").addEventListener("click", restartBoot);
 $("#sound").addEventListener("click", () => {
   setSound(!sound);
   tone(660);
@@ -409,11 +558,14 @@ $("#reset-view").addEventListener("click", () => {
 });
 function updateClock() {
   const now = new Date();
-  $("#clock").textContent = now.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
+  screens.forEach((el) => {
+    const clock = el.querySelector(".role-clock");
+    clock.textContent = now.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    clock.dateTime = now.toISOString();
   });
-  $("#clock").dateTime = now.toISOString();
   $("#year").textContent = now.getFullYear();
 }
 updateClock();
@@ -599,10 +751,11 @@ boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
   .then(({ createWorkspace }) => {
-    workspace = createWorkspace($("#scene"), open, screen);
+    workspace = createWorkspace($("#scene"), open, screens);
     workspace.setNight(document.body.classList.contains("night"));
     $("#load-status").hidden = true;
     $("#scene").setAttribute("aria-busy", "false");
+    windows.initialize();
     sceneSettled = true;
   })
   .catch((error) => {
@@ -612,8 +765,13 @@ const sceneReady = sceneModule
     $("#load-status").textContent =
       "The 3D workspace isn’t available here. Explore the portfolio with the three buttons below.";
     $("#reset-view").hidden = true;
-    document.body.append(screen);
-    screen.removeAttribute("style");
+    screens.forEach((el) => {
+      document.body.append(el);
+      el.removeAttribute("style");
+      el.hidden = false;
+    });
+    windows.initialize();
+    $("#arrange-windows").hidden = true;
     sceneSettled = true;
   });
 boot.track("workstation.3d", sceneReady);

@@ -1,11 +1,159 @@
 /* Window coordinates are local to the CRT desktop, not the browser viewport. */
-#monitor-screen .os-desktop {
+.monitor-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 17px 6px #051a1d60;
+  background: repeating-linear-gradient(
+    0deg,
+    #00000007 0 1px,
+    transparent 1px 3px
+  );
+}
+.monitor-screen.drop-target {
+  outline: 10px solid #b4dc91;
+}
+.monitor-screen .window-menubar label {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.monitor-screen .window-menubar select {
+  font: inherit;
+  padding: 1px;
+  background: #ddd;
+  border: 1px solid #888;
+  color: #111;
+}
+.monitor-screen .game-window .window-content {
+  position: relative;
+  padding: 0 !important;
+  overflow: hidden;
+  background: #09070d;
+}
+.runelord-game {
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1280px;
+  height: 720px;
+  transform: translate(-50%, -50%) scale(var(--game-scale, 0));
+  transform-origin: center;
+  border: 0;
+}
+.monitor-screen .game-window .window-status {
+  display: none;
+}
+#window-drag-ghost {
+  position: fixed;
+  z-index: 10001;
+  pointer-events: none;
+  background: #000080;
+  color: white;
+  border: 2px outset silver;
+  padding: 8px 12px;
+  box-shadow: 4px 5px #0004;
+  font: 12px Arial;
+  max-width: 260px;
+}
+#desktop-dock {
+  position: fixed;
+  z-index: 40;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px;
+  background: #f6f3e9ef;
+  border: 1px solid #9caa96;
+  box-shadow: 0 6px 24px #18271b14;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+#desktop-dock button {
+  background: #eeeade;
+  border: 1px solid #b9beae;
+  padding: 10px 13px;
+  color: #273b30;
+  font: 11px var(--mono);
+}
+#desktop-dock button:hover,
+#desktop-dock .drop-target {
+  background: #345b46;
+  color: white;
+}
+#desktop-hint {
+  font: 9px var(--mono);
+  color: #62705e;
+  margin: 0 8px;
+}
+#arrange-windows[aria-pressed="true"] {
+  background: #345b46;
+  color: white;
+}
+.dragging-window #desktop-dock {
+  outline: 2px dashed #698863;
+  outline-offset: 5px;
+}
+.dragging-window iframe {
+  pointer-events: none !important;
+}
+.no-webgl .monitor-screen[inert] {
+  display: none !important;
+}
+@media (max-width: 900px) {
+  #desktop-hint {
+    display: none;
+  }
+  #monitor-caption {
+    display: none;
+  }
+  #monitor-controls {
+    gap: 8px;
+  }
+}
+@media (max-width: 650px) {
+  #desktop-dock {
+    bottom: 12px;
+    max-width: 95vw;
+  }
+  #desktop-dock button {
+    padding: 9px 7px;
+    font-size: 9px;
+  }
+  #monitor-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #arrange-windows {
+    font-size: 9px;
+  }
+  .monitor-screen .window-menubar label {
+    display: flex;
+  }
+  .monitor-screen.compact-screen .window-menubar {
+    display: flex;
+    padding: 3px;
+  }
+  .monitor-screen.compact-screen .window-menubar > span,
+  .monitor-screen.compact-screen .window-menubar > [data-action="print"] {
+    display: none;
+  }
+}
+.monitor-screen .os-desktop {
   display: block;
   padding: 0 !important;
   isolation: isolate;
   overflow: hidden;
 }
-#monitor-screen .desktop-icons {
+.monitor-screen .desktop-icons {
   position: absolute;
   left: 10px;
   top: 12px;
@@ -15,18 +163,18 @@
   gap: 14px;
   z-index: 0;
 }
-#monitor-screen .desktop-icons a {
+.monitor-screen .desktop-icons a {
   font-size: 9px;
   min-height: 44px;
 }
-#monitor-screen .desktop-icons a[aria-current="page"] {
+.monitor-screen .desktop-icons a[aria-current="page"] {
   background: #00008055;
 }
-#monitor-screen.desktop-only .desktop-icons {
+.monitor-screen.desktop-only .desktop-icons {
   width: auto;
   bottom: auto;
 }
-#monitor-screen .os-desktop::after {
+.monitor-screen .os-desktop::after {
   content: "WilToBuild 95";
   position: absolute;
   right: 24px;
@@ -37,12 +185,12 @@
   pointer-events: none;
   z-index: -1;
 }
-#window-layer {
+.role-window-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
-#monitor-screen .app-window {
+.monitor-screen .app-window {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -54,7 +202,7 @@
   pointer-events: auto;
   overflow: visible;
 }
-#monitor-screen .window-titlebar {
+.monitor-screen .window-titlebar {
   background: #777b7b;
   padding: 3px 4px 3px 6px;
   cursor: grab;
@@ -63,10 +211,10 @@
   min-height: 27px;
   gap: 5px;
 }
-#monitor-screen .is-active .window-titlebar {
+.monitor-screen .is-active .window-titlebar {
   background: linear-gradient(90deg, #000080, #176b96);
 }
-#monitor-screen .window-titlebar h2 {
+.monitor-screen .window-titlebar h2 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -76,15 +224,15 @@
   letter-spacing: 0.2px;
   pointer-events: none;
 }
-#monitor-screen .window-titlebar:focus-visible {
+.monitor-screen .window-titlebar:focus-visible {
   outline: 1px dotted #fff;
   outline-offset: -3px;
 }
-#monitor-screen .window-buttons {
+.monitor-screen .window-buttons {
   flex-shrink: 0;
   gap: 2px;
 }
-#monitor-screen .window-buttons button {
+.monitor-screen .window-buttons button {
   border: 2px outset #eee;
   background: #c0c0c0;
   width: 21px;
@@ -92,32 +240,32 @@
   color: #111;
   font-weight: bold;
 }
-#monitor-screen .window-buttons button:active {
+.monitor-screen .window-buttons button:active {
   border-style: inset;
 }
-#monitor-screen .window-menubar {
+.monitor-screen .window-menubar {
   font-size: 8px;
   padding: 6px 9px;
 }
-#monitor-screen .window-content {
+.monitor-screen .window-content {
   min-width: 0;
   padding: 20px;
 }
-#monitor-screen .window-status {
+.monitor-screen .window-status {
   padding: 5px 8px;
   font-size: 7px;
   min-height: 20px;
 }
-#monitor-screen .window-status span:last-child {
+.monitor-screen .window-status span:last-child {
   white-space: nowrap;
 }
-#monitor-screen .is-moving .window-titlebar {
+.monitor-screen .is-moving .window-titlebar {
   cursor: grabbing;
 }
-#monitor-screen.manipulating-window {
+.monitor-screen.manipulating-window {
   user-select: none !important;
 }
-#monitor-screen.manipulating-window iframe {
+.monitor-screen.manipulating-window iframe {
   pointer-events: none;
 }
 .resize-handle {
@@ -193,7 +341,7 @@ button.resize-se {
 .is-maximized .resize-handle {
   display: none;
 }
-#monitor-screen .os-taskbar {
+.monitor-screen .os-taskbar {
   position: relative;
   z-index: 10;
   background: #c0c0c0;
@@ -201,18 +349,18 @@ button.resize-se {
   height: 34px;
   padding: 3px;
 }
-#monitor-screen .os-taskbar > button {
+.monitor-screen .os-taskbar > button {
   height: 26px;
   font-size: 11px;
   padding: 3px 8px;
   flex-shrink: 0;
 }
-#monitor-screen #show-desktop {
+.monitor-screen .role-show-desktop {
   width: 26px;
   padding: 2px;
   font-size: 18px;
 }
-#taskbar-windows {
+.role-taskbar-windows {
   display: flex;
   gap: 3px;
   flex: 1;
@@ -220,7 +368,7 @@ button.resize-se {
   min-width: 0;
   scrollbar-width: none;
 }
-#monitor-screen .os-taskbar .window-task {
+.monitor-screen .os-taskbar .window-task {
   display: block;
   flex: 1 1 110px;
   min-width: 55px;
@@ -235,137 +383,137 @@ button.resize-se {
   text-overflow: ellipsis;
   text-align: left;
 }
-#monitor-screen .window-task[aria-pressed="true"] {
+.monitor-screen .window-task[aria-pressed="true"] {
   border-style: inset;
   background: #deded2;
   font-weight: bold;
 }
-#monitor-screen .taskbar-right {
+.monitor-screen .taskbar-right {
   font-size: 9px;
   gap: 6px;
   padding: 4px 6px;
   white-space: nowrap;
 }
-#monitor-screen #start-menu {
+.monitor-screen .role-start-menu {
   z-index: 100;
   bottom: 33px;
   max-height: calc(100% - 38px);
 }
-#monitor-screen .app-window.compact-window .window-content {
+.monitor-screen .app-window.compact-window .window-content {
   padding: 13px;
 }
-#monitor-screen .app-window.compact-window .about-grid {
+.monitor-screen .app-window.compact-window .about-grid {
   grid-template-columns: 1fr;
   gap: 13px;
 }
-#monitor-screen .app-window.compact-window .about-photo {
+.monitor-screen .app-window.compact-window .about-photo {
   display: flex;
   gap: 12px;
   align-items: center;
   order: -1;
 }
-#monitor-screen .app-window.compact-window .about-photo img {
+.monitor-screen .app-window.compact-window .about-photo img {
   width: 64px;
   height: 68px;
   border-width: 3px;
 }
-#monitor-screen .app-window.compact-window .about-photo figcaption {
+.monitor-screen .app-window.compact-window .about-photo figcaption {
   font-size: 7px;
   line-height: 1.6;
   margin: 0;
 }
-#monitor-screen .app-window.compact-window .doc-title {
+.monitor-screen .app-window.compact-window .doc-title {
   font-size: 23px;
 }
-#monitor-screen .app-window.compact-window .doc-kicker {
+.monitor-screen .app-window.compact-window .doc-kicker {
   font-size: 7px;
   letter-spacing: 0.5px;
 }
-#monitor-screen .app-window.compact-window .project-grid {
+.monitor-screen .app-window.compact-window .project-grid {
   grid-template-columns: 1fr;
   gap: 14px;
 }
-#monitor-screen .app-window.compact-window .project-visual {
+.monitor-screen .app-window.compact-window .project-visual {
   height: 130px;
 }
-#monitor-screen .app-window.compact-window .fact-strip {
+.monitor-screen .app-window.compact-window .fact-strip {
   gap: 10px;
 }
-#monitor-screen .app-window.compact-window .fact-strip b {
+.monitor-screen .app-window.compact-window .fact-strip b {
   font-size: 14px;
 }
-#monitor-screen .app-window.compact-window .fact-strip span {
+.monitor-screen .app-window.compact-window .fact-strip span {
   font-size: 8px;
 }
-#monitor-screen .app-window.compact-window .agent-grid {
+.monitor-screen .app-window.compact-window .agent-grid {
   grid-template-columns: 1fr 1fr;
 }
-#monitor-screen .app-window.compact-window .agent-tree {
+.monitor-screen .app-window.compact-window .agent-tree {
   padding: 12px;
 }
-#monitor-screen .app-window.compact-window .credential img {
+.monitor-screen .app-window.compact-window .credential img {
   width: 55px;
 }
-#monitor-screen .app-window.compact-window .credential {
+.monitor-screen .app-window.compact-window .credential {
   gap: 12px;
 }
-#monitor-screen .app-window.compact-window .snake-wrap {
+.monitor-screen .app-window.compact-window .snake-wrap {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-#monitor-screen .app-window.compact-window .snake-wrap canvas {
+.monitor-screen .app-window.compact-window .snake-wrap canvas {
   width: 100%;
   max-width: 180px;
 }
-#monitor-screen .app-window.compact-window .snake-info {
+.monitor-screen .app-window.compact-window .snake-info {
   width: auto;
   font-size: 11px;
 }
-#monitor-screen .app-window.compact-window .snake-info p {
+.monitor-screen .app-window.compact-window .snake-info p {
   margin-top: 0;
 }
-#monitor-screen .app-window.compact-window .snake-pad button {
+.monitor-screen .app-window.compact-window .snake-pad button {
   width: 28px;
   height: 26px;
 }
-#monitor-screen.compact-screen .os-taskbar {
+.monitor-screen.compact-screen .os-taskbar {
   height: 30px;
 }
-#monitor-screen.compact-screen .os-taskbar > button,
-#monitor-screen.compact-screen .os-taskbar .window-task {
+.monitor-screen.compact-screen .os-taskbar > button,
+.monitor-screen.compact-screen .os-taskbar .window-task {
   height: 23px;
   font-size: 9px;
 }
-#monitor-screen.compact-screen .taskbar-right {
+.monitor-screen.compact-screen .taskbar-right {
   font-size: 7px;
   padding: 3px;
 }
-#monitor-screen.compact-screen #start-menu {
+.monitor-screen.compact-screen .role-start-menu {
   bottom: 29px;
   max-height: calc(100% - 34px);
 }
-#monitor-screen.compact-screen .window-titlebar {
+.monitor-screen.compact-screen .window-titlebar {
   min-height: 29px;
 }
-#monitor-screen.compact-screen .window-buttons button {
+.monitor-screen.compact-screen .window-buttons button {
   width: 24px;
   height: 23px;
 }
-#monitor-screen.compact-screen .resize-se {
+.monitor-screen.compact-screen .resize-se {
   width: 17px;
   height: 17px;
 }
 @media print {
-  #window-layer {
+  .role-window-layer {
     position: static !important;
   }
-  #monitor-screen .app-window:not(.is-active),
+  .monitor-screen .app-window:not(.is-active),
   .resize-handle,
-  #window-help {
+  .role-window-help {
     display: none !important;
   }
-  #monitor-screen .app-window.is-active {
+  .monitor-screen .app-window.is-active {
     position: static !important;
     width: 100% !important;
     height: auto !important;

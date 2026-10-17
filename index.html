@@ -121,7 +121,7 @@
         ><span class="brand-icon" aria-hidden="true">w<span>_</span></span
         >WilToBuild<span class="wordmark-dot">95</span></a
       >
-      <p class="header-note">A personal space on the internet.</p>
+      <p class="header-note">Not all who wander are lost.</p>
       <nav aria-label="Main navigation">
         <a href="#projects">Work <span>↗</span></a
         ><a href="#about">About</a
@@ -129,17 +129,7 @@
       </nav>
     </header>
     <main id="workspace">
-      <div class="intro">
-        <p class="eyebrow">
-          <span class="status-dot"></span> WIL SHEPPARD / SYSTEMS THINKER &
-          SOFTWARE BUILDER
-        </p>
-        <h1>A builder’s<br />natural habitat<span>.</span></h1>
-        <p class="intro-copy">
-          AV roots. AI future. Always building.<br />Welcome to my little corner
-          of the web.
-        </p>
-      </div>
+      <h1 class="sr-only">Wil Sheppard’s personal workspace</h1>
       <div class="workspace-stamp" aria-hidden="true">
         <span>PERSONAL WORKSTATION</span><b>WTB—003</b
         ><span>THREE SCREENS. ONE CURIOUS MIND.</span>
@@ -186,12 +176,12 @@
       </div>
       <div class="workspace-bottom">
         <p class="interaction-hint">
-          <span aria-hidden="true">↔</span> Drag to look around <i>·</i> Click
-          a monitor to explore
+          <span aria-hidden="true">↔</span> Drag to orbit <i>·</i> Scroll to
+          zoom <i>·</i> Click a screen
         </p>
         <nav id="workspace-nav" aria-label="Choose a monitor">
-          <a href="#about"
-            ><span class="mini-monitor"></span><small>01</small> The person
+          <a href="#runelord"
+            ><span class="mini-monitor"></span><small>01</small> Runelord
             <span>↗</span></a
           ><a href="#projects" class="primary-monitor"
             ><span class="mini-monitor"></span><small>02</small> The work
@@ -214,7 +204,7 @@
       <button id="leave-monitor">← Back to desk <kbd>Esc</kbd></button>
       <div class="monitor-switcher" role="group" aria-label="Choose a screen">
         <button data-monitor="about" aria-pressed="false">
-          01 <span>About</span>
+          01 <span>Runelord</span>
         </button>
         <button data-monitor="projects" aria-pressed="false">
           02 <span>Work</span>
@@ -223,12 +213,28 @@
           03 <span>Contact</span>
         </button>
       </div>
+      <button id="arrange-windows" aria-pressed="false">
+        ▥ Arrange windows
+      </button>
       <span id="monitor-caption" role="status">Connecting to monitor…</span>
     </nav>
+    <div id="desktop-dock" hidden>
+      <button data-pan="-1" aria-label="Pan to previous monitor">←</button
+      ><button data-drop-monitor="about">01 · Runelord</button
+      ><button data-drop-monitor="projects">02 · Work</button
+      ><button data-drop-monitor="contact">03 · Connect</button
+      ><button data-pan="1" aria-label="Pan to next monitor">→</button
+      ><span id="desktop-hint">Scroll to zoom · Alt + ← / → to pan</span>
+    </div>
+    <div id="window-drag-ghost" hidden aria-hidden="true"></div>
     <section id="monitor-screen" aria-label="WilToBuild desktop" hidden inert>
       <div class="os-frame">
         <div class="os-desktop">
           <nav class="desktop-icons" aria-label="Desktop applications">
+            <a href="#runelord"
+              ><span class="pixel-icon" aria-hidden="true">⚔</span
+              >Runelord.exe</a
+            >
             <a href="#about"
               ><span class="pixel-icon person-icon" aria-hidden="true">☺</span
               >About Wil</a
@@ -254,11 +260,14 @@
           <p id="window-help" class="sr-only">
             Drag a title bar to move a window. Drag an edge or corner to resize.
             With the title bar focused, arrow keys move; Shift and arrow keys
-            resize. Double-click a title bar to maximize or restore.
+            resize. Control, Shift and left or right move a window to another
+            monitor. Use Arrange windows to drag between screens. Double-click a
+            title bar to maximize or restore.
           </p>
         </div>
         <div id="start-menu" hidden>
-          <b>WilToBuild 95</b><a href="#projects">▰ &nbsp; My Projects</a
+          <b>WilToBuild 95</b><a href="#runelord">⚔ &nbsp; Runelord.exe</a
+          ><a href="#projects">▰ &nbsp; My Projects</a
           ><a href="#about">☺ &nbsp; About Wil</a
           ><a href="#contact">✉ &nbsp; Contact</a
           ><a href="#experience">▤ &nbsp; Experience</a

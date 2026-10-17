@@ -1,8 +1,24 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fitWindow, resizeWindow } from "../window-geometry.js";
+import {
+  fitWindow,
+  resizeWindow,
+  normalizeRect,
+  restoreRect,
+} from "../window-geometry.js";
 const desktop = { width: 960, height: 650 };
 const window = { x: 150, y: 80, w: 500, h: 360 };
+test("saved layouts restore at the same desktop size without pixel drift", () => {
+  const restored = restoreRect(normalizeRect(window, desktop), desktop);
+  for (const key of ["x", "y", "w", "h"])
+    assert(Math.abs(restored[key] - window[key]) < 1e-8);
+});
+test("saved layouts follow a new monitor resolution and remain reachable", () => {
+  const small = { width: 480, height: 310 };
+  inside(restoreRect(normalizeRect(window, desktop), small), small);
+  inside(restoreRect({ x: NaN, y: 0, w: Infinity, h: 1 }, small), small);
+  inside(restoreRect(null, small), small);
+});
 function inside(rect, bounds) {
   assert(rect.x >= 2 && rect.y >= 2);
   assert(rect.x + rect.w <= bounds.width - 2);

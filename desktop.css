@@ -569,7 +569,7 @@ h1 > span {
   display: flex;
   gap: 16px;
 }
-#start-menu {
+.role-start-menu {
   position: absolute;
   left: 4px;
   bottom: 38px;
@@ -580,18 +580,18 @@ h1 > span {
   z-index: 5;
   padding: 5px;
 }
-#start-menu[hidden] {
+.role-start-menu[hidden] {
   display: none;
 }
-#start-menu b {
+.role-start-menu b {
   display: block;
   background: #2c4c46;
   color: white;
   font: 14px var(--mono);
   padding: 15px;
 }
-#start-menu a,
-#start-menu button {
+.role-start-menu a,
+.role-start-menu button {
   display: block;
   text-align: left;
   text-decoration: none;
@@ -601,8 +601,8 @@ h1 > span {
   border: 0;
   background: none;
 }
-#start-menu a:hover,
-#start-menu button:hover {
+.role-start-menu a:hover,
+.role-start-menu button:hover {
   background: #203d46;
   color: #fff;
 }
@@ -1291,7 +1291,7 @@ h1 > span {
   .window-menubar,
   .window-status,
   .os-taskbar,
-  #start-menu {
+  .role-start-menu {
     display: none !important;
   }
   .project-visual,

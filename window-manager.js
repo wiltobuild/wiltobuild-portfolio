@@ -1,24 +1,60 @@
-import { fitWindow, resizeWindow } from "./window-geometry.js";
+import {
+  fitWindow,
+  resizeWindow,
+  normalizeRect,
+  restoreRect,
+} from "./window-geometry.js";
 
-export function createWindowManager({ screen, titles, render, onActive }) {
-  const layer = screen.querySelector("#window-layer");
-  const tasks = screen.querySelector("#taskbar-windows");
-  const entries = new Map();
-  const desktops = new Map();
-  let monitor = null,
+const STORAGE = "wtb-desktop-layout-v2";
+const monitorIds = ["about", "projects", "contact"];
+export function createWindowManager({
+  screens,
+  titles,
+  render,
+  onActive,
+  onTransfer,
+  onArrange,
+  pointOnScreen,
+  hitScreen,
+}) {
+  const entries = new Map(),
+    desktops = new Map();
+  let monitor = "projects",
     focused = null,
     z = 1,
-    gesture = null;
-  const bounds = () => ({
-    width: layer.clientWidth || 640,
-    height: layer.clientHeight || 420,
+    gesture = null,
+    restoring = false;
+  const screenFor = (id) => screens.get(id);
+  const layerFor = (id) => screenFor(id).querySelector(".role-window-layer");
+  const tasksFor = (id) => screenFor(id).querySelector(".role-taskbar-windows");
+  const bounds = (id) => ({
+    width: layerFor(id).clientWidth || 960,
+    height: layerFor(id).clientHeight || 640,
   });
-  const desktop = () => {
-    if (!desktops.has(monitor)) desktops.set(monitor, { last: null });
-    return desktops.get(monitor);
-  };
   const visibleEntries = () =>
     [...entries.values()].filter((e) => e.monitor === monitor && !e.minimized);
+  const ghost = document.querySelector("#window-drag-ghost");
+  function save() {
+    if (restoring) return;
+    try {
+      localStorage.setItem(
+        STORAGE,
+        JSON.stringify({
+          version: 2,
+          windows: [...entries.values()].map((e) => ({
+            name: e.name,
+            monitor: e.monitor,
+            rect: normalizeRect(e.rect, bounds(e.monitor)),
+            minimized: e.minimized,
+            maximized: e.maximized,
+            z: Number(e.el.style.zIndex) || 1,
+          })),
+        }),
+      );
+    } catch {
+      /* Private browsing can disable persistence; the desktop still works. */
+    }
+  }
   function deactivate(entry) {
     if (!entry) return;
     entry.el.classList.remove("is-active");
@@ -27,40 +63,36 @@ export function createWindowManager({ screen, titles, render, onActive }) {
     entry.task.setAttribute("aria-label", `Activate ${titles[entry.name]}`);
   }
   function focus(entry, moveFocus = true) {
-    if (!entry || entry.monitor !== monitor) return;
+    if (!entry) return;
     if (focused !== entry) deactivate(focused);
+    monitor = entry.monitor;
     focused = entry;
-    desktop().last = entry.name;
+    desktops.set(monitor, entry.name);
     entry.minimized = false;
     entry.el.hidden = false;
-    entry.el.inert = false;
     entry.el.classList.add("is-active");
     entry.el.style.zIndex = String(++z);
     entry.task.setAttribute("aria-pressed", "true");
     entry.task.setAttribute("aria-label", `Minimize ${titles[entry.name]}`);
-    screen.classList.remove("desktop-only");
+    screenFor(monitor).classList.remove("desktop-only");
     onActive(entry);
-    if (moveFocus) entry.content.focus({ preventScroll: true });
+    if (moveFocus && !screenFor(monitor).inert)
+      entry.content.focus({ preventScroll: true });
   }
   function focusNext() {
     const next = visibleEntries().sort(
-      (a, b) => Number(b.el.style.zIndex) - Number(a.el.style.zIndex),
+      (a, b) => +b.el.style.zIndex - +a.el.style.zIndex,
     )[0];
     if (next) focus(next);
     else {
       deactivate(focused);
       focused = null;
-      screen.classList.add("desktop-only");
+      screenFor(monitor).classList.add("desktop-only");
       onActive(null);
-      screen.querySelector("#start").focus({ preventScroll: true });
     }
   }
   function apply(entry) {
-    const b = bounds();
-    if (!entry.initialized && layer.clientWidth && layer.clientHeight) {
-      entry.rect = initialRect(entry.order, b);
-      entry.initialized = true;
-    }
+    const b = bounds(entry.monitor);
     const rect = entry.maximized
       ? { x: 2, y: 2, w: b.width - 4, h: b.height - 4 }
       : fitWindow(entry.rect, b);
@@ -80,122 +112,217 @@ export function createWindowManager({ screen, titles, render, onActive }) {
     );
     max.setAttribute("aria-pressed", String(entry.maximized));
     max.textContent = entry.maximized ? "❐" : "□";
+    entry.el.querySelector("[data-move-monitor]").value = entry.monitor;
   }
   function maximize(entry) {
     focus(entry, false);
     entry.maximized = !entry.maximized;
     apply(entry);
+    save();
   }
   function minimize(entry) {
     deactivate(entry);
     entry.minimized = true;
     entry.el.hidden = true;
-    entry.el.inert = true;
     entry.task.setAttribute("aria-label", `Restore ${titles[entry.name]}`);
     if (focused === entry) {
       focused = null;
       focusNext();
     }
+    save();
   }
   function close(entry) {
     deactivate(entry);
     entry.cleanup?.();
     entry.el.remove();
     entry.task.remove();
-    entries.delete(entry.key);
+    entries.delete(entry.name);
     if (focused === entry) {
       focused = null;
       focusNext();
     }
-    if (desktop().last === entry.name) desktop().last = focused?.name || null;
+    if (desktops.get(entry.monitor) === entry.name)
+      desktops.delete(entry.monitor);
+    save();
   }
-  function pointerPosition(event) {
-    const rect = layer.getBoundingClientRect();
+  function moveNode(parent, node) {
+    // moveBefore preserves iframe browsing contexts, including an in-progress game.
+    if (parent.moveBefore && node.isConnected) parent.moveBefore(node, null);
+    else parent.append(node);
+  }
+  function transfer(entry, id, rect = entry.rect) {
+    if (!screens.has(id)) return;
+    const old = entry.monitor;
+    entry.monitor = id;
+    entry.el.dataset.monitorWindow = id;
+    if (old !== id) {
+      moveNode(layerFor(id), entry.el);
+      moveNode(tasksFor(id), entry.task);
+    }
+    entry.rect = fitWindow(rect, bounds(id));
+    apply(entry);
+    focus(entry, false);
+    save();
+    if (old !== id) onTransfer(entry);
+  }
+  function point(event, id) {
+    const projected = pointOnScreen?.(id, event.clientX, event.clientY);
+    if (projected) return projected;
+    const layer = layerFor(id),
+      r = layer.getBoundingClientRect();
     return {
-      x: ((event.clientX - rect.left) * layer.clientWidth) / rect.width,
-      y: ((event.clientY - rect.top) * layer.clientHeight) / rect.height,
+      x: ((event.clientX - r.left) * layer.clientWidth) / r.width,
+      y: ((event.clientY - r.top) * layer.clientHeight) / r.height,
     };
   }
-  function endGesture() {
-    if (gesture) gesture.entry.el.classList.remove("is-moving");
+  function dropTarget(event) {
+    return (
+      document
+        .elementFromPoint(event.clientX, event.clientY)
+        ?.closest("[data-drop-monitor]")?.dataset.dropMonitor ||
+      hitScreen?.(event.clientX, event.clientY)
+    );
+  }
+  function endGesture(event) {
+    if (!gesture || (event && event.pointerId !== gesture.id)) return;
+    const g = gesture;
+    if (event?.type === "pointerup" && !g.edge) {
+      const id = dropTarget(event);
+      if (id && id !== g.entry.monitor) {
+        const p = point(event, id),
+          b = bounds(id);
+        g.entry.maximized = false;
+        transfer(g.entry, id, {
+          ...g.entry.rect,
+          x: Math.min(b.width, p.x) - g.offset.x,
+          y: Math.min(b.height, p.y) - g.offset.y,
+        });
+      }
+    }
+    g.entry.el.classList.remove("is-moving");
+    if (document.documentElement.hasPointerCapture(g.id))
+      document.documentElement.releasePointerCapture(g.id);
     gesture = null;
-    screen.classList.remove("manipulating-window");
+    ghost.hidden = true;
+    document.body.classList.remove("dragging-window");
+    screens.forEach((s) =>
+      s.classList.remove("manipulating-window", "drop-target"),
+    );
+    document
+      .querySelectorAll("[data-drop-monitor]")
+      .forEach((b) => b.classList.remove("drop-target"));
+    save();
   }
   function begin(event, entry, edge) {
-    if (event.button !== 0 || screen.inert || entry.maximized) return;
+    if (event.button !== 0 || screenFor(entry.monitor).inert) return;
+    if (edge && entry.maximized) return;
     event.preventDefault();
+    event.stopPropagation();
     focus(entry, false);
-    const point = pointerPosition(event);
+    const p = point(event, entry.monitor);
+    if (entry.maximized) {
+      entry.maximized = false;
+      entry.rect.x = Math.max(2, p.x - entry.rect.w / 2);
+      entry.rect.y = Math.max(2, p.y - 12);
+      apply(entry);
+    }
     gesture = {
       entry,
       edge,
-      point,
+      point: p,
       rect: { ...entry.rect },
+      offset: { x: p.x - entry.rect.x, y: p.y - entry.rect.y },
       id: event.pointerId,
+      arranged: document.body.classList.contains("arrange-mode"),
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    document.documentElement.setPointerCapture(event.pointerId);
     entry.el.classList.add("is-moving");
-    screen.classList.add("manipulating-window");
+    screens.forEach((s) => s.classList.add("manipulating-window"));
+    document.body.classList.add("dragging-window");
   }
-  layer.addEventListener("pointermove", (event) => {
+  window.addEventListener("pointermove", (event) => {
     if (!gesture || event.pointerId !== gesture.id) return;
-    const { entry, edge, point, rect } = gesture;
-    const current = pointerPosition(event),
-      dx = current.x - point.x,
-      dy = current.y - point.y;
-    entry.rect = edge
-      ? resizeWindow(rect, edge, dx, dy, bounds())
-      : fitWindow({ ...rect, x: rect.x + dx, y: rect.y + dy }, bounds());
-    apply(entry);
+    const g = gesture,
+      e = g.entry,
+      p = point(event, e.monitor),
+      b = bounds(e.monitor);
+    if (
+      !g.edge &&
+      !g.arranged &&
+      (p.x < 0 || p.x > b.width || p.y < -35 || p.y > b.height + 35)
+    ) {
+      g.arranged = true;
+      onArrange();
+    }
+    const id = !g.edge && dropTarget(event);
+    screens.forEach((s, key) =>
+      s.classList.toggle("drop-target", id === key && key !== e.monitor),
+    );
+    document
+      .querySelectorAll("[data-drop-monitor]")
+      .forEach((button) =>
+        button.classList.toggle(
+          "drop-target",
+          button.dataset.dropMonitor === id,
+        ),
+      );
+    if ((!g.edge && id && id !== e.monitor) || (!g.edge && g.arranged && !id)) {
+      ghost.textContent = `▰ ${titles[e.name]}${id ? " → Screen " + (monitorIds.indexOf(id) + 1) : " · drop on a screen"}`;
+      ghost.hidden = false;
+      ghost.style.left = `${event.clientX + 14}px`;
+      ghost.style.top = `${event.clientY + 14}px`;
+    } else {
+      ghost.hidden = true;
+      e.rect = g.edge
+        ? resizeWindow(g.rect, g.edge, p.x - g.point.x, p.y - g.point.y, b)
+        : fitWindow({ ...e.rect, x: p.x - g.offset.x, y: p.y - g.offset.y }, b);
+      apply(e);
+    }
   });
-  ["pointerup", "pointercancel", "lostpointercapture"].forEach((type) =>
-    layer.addEventListener(type, endGesture),
-  );
+  window.addEventListener("pointerup", endGesture);
+  window.addEventListener("pointercancel", endGesture);
+  window.addEventListener("blur", () => endGesture());
   function keyboard(event, entry, resize = false) {
     if (event.target !== event.currentTarget || !event.key.startsWith("Arrow"))
       return;
     event.preventDefault();
-    if (entry.maximized) return;
+    event.stopPropagation();
     const dx =
-      event.key === "ArrowRight" ? 10 : event.key === "ArrowLeft" ? -10 : 0;
-    const dy =
-      event.key === "ArrowDown" ? 10 : event.key === "ArrowUp" ? -10 : 0;
+        event.key === "ArrowRight" ? 10 : event.key === "ArrowLeft" ? -10 : 0,
+      dy = event.key === "ArrowDown" ? 10 : event.key === "ArrowUp" ? -10 : 0;
+    if (event.ctrlKey && event.shiftKey && dx) {
+      const next =
+        monitorIds[monitorIds.indexOf(entry.monitor) + Math.sign(dx)];
+      if (next) transfer(entry, next);
+      return;
+    }
+    if (entry.maximized) return;
     entry.rect =
       resize || event.shiftKey
-        ? resizeWindow(entry.rect, "se", dx, dy, bounds())
+        ? resizeWindow(entry.rect, "se", dx, dy, bounds(entry.monitor))
         : fitWindow(
             { ...entry.rect, x: entry.rect.x + dx, y: entry.rect.y + dy },
-            bounds(),
+            bounds(entry.monitor),
           );
     apply(entry);
+    save();
   }
-  function initialRect(count, b) {
-    const compact = b.width < 550;
-    return fitWindow(
-      {
-        x: compact ? 7 : 90 + (count % 4) * 25,
-        y: 12 + (count % 4) * 25,
-        w: compact ? b.width - 14 : b.width * 0.78,
-        h: compact ? b.height - 22 : b.height * 0.83,
-      },
-      b,
-    );
-  }
-  function open(name) {
-    const key = `${monitor}-${name}`;
-    if (entries.has(key)) {
-      const entry = entries.get(key);
-      focus(entry);
-      return entry;
+  function open(name, options = {}) {
+    if (entries.has(name)) {
+      const e = entries.get(name);
+      focus(e);
+      return e;
     }
-    const b = bounds(),
-      count = [...entries.values()].filter((e) => e.monitor === monitor).length;
+    const id = options.monitor || monitor,
+      b = bounds(id),
+      count = [...entries.values()].filter((e) => e.monitor === id).length,
+      key = `app-${name}`;
     const el = document.createElement("section");
     el.className = "app-window";
     el.dataset.app = name;
-    el.dataset.monitorWindow = monitor;
+    el.dataset.monitorWindow = id;
     el.setAttribute("aria-labelledby", `${key}-title`);
-    el.innerHTML = `<header class="window-titlebar" tabindex="0" aria-label="Move ${titles[name]} window" aria-describedby="window-help"><h2 id="${key}-title">${titles[name]}</h2><div class="window-buttons"><button data-action="minimize" aria-label="Minimize ${titles[name]}">_</button><button data-action="maximize" aria-label="Maximize ${titles[name]}" aria-pressed="false">□</button><button data-action="close" aria-label="Close ${titles[name]}">×</button></div></header><div class="window-menubar"><span>C:\\WIL\\${name.toUpperCase()}</span><button data-action="print">Print</button></div><div class="window-content" tabindex="0"></div><footer class="window-status"><span class="window-status-text">Ready</span><span>WilToBuild / Personal edition</span></footer>${["n", "s", "e", "w", "ne", "nw", "se", "sw"].map((edge) => `<${edge === "se" ? "button" : "span"} class="resize-handle resize-${edge}" data-resize="${edge}" ${edge === "se" ? `aria-label="Resize ${titles[name]} window" title="Drag to resize; arrow keys also resize"` : 'aria-hidden="true"'}></${edge === "se" ? "button" : "span"}>`).join("")}`;
+    el.innerHTML = `<header class="window-titlebar" tabindex="0" aria-label="Move ${titles[name]} window"><h2 id="${key}-title">${titles[name]}</h2><div class="window-buttons"><button data-action="minimize" aria-label="Minimize ${titles[name]}">_</button><button data-action="maximize" aria-label="Maximize ${titles[name]}" aria-pressed="false">□</button><button data-action="close" aria-label="Close ${titles[name]}">×</button></div></header><div class="window-menubar"><span>C:\\WIL\\${name.toUpperCase()}</span><label>Move to <select data-move-monitor aria-label="Move ${titles[name]} to monitor"><option value="about">01 · Left</option><option value="projects">02 · Middle</option><option value="contact">03 · Right</option></select></label><button data-action="print">Print</button></div><div class="window-content" tabindex="0"></div><footer class="window-status"><span class="window-status-text">Ready · positions saved automatically</span><span>WilToBuild / Personal edition</span></footer>${["n", "s", "e", "w", "ne", "nw", "se", "sw"].map((edge) => `<${edge === "se" ? "button" : "span"} class="resize-handle resize-${edge}" data-resize="${edge}" ${edge === "se" ? `aria-label="Resize ${titles[name]} window" title="Drag to resize; arrow keys also resize"` : 'aria-hidden="true"'}></${edge === "se" ? "button" : "span"}>`).join("")}`;
     const task = document.createElement("button");
     task.className = "window-task";
     task.textContent = titles[name];
@@ -203,21 +330,29 @@ export function createWindowManager({ screen, titles, render, onActive }) {
     const entry = {
       key,
       name,
-      monitor,
+      monitor: id,
       el,
       task,
       content: el.querySelector(".window-content"),
       minimized: false,
-      maximized: false,
+      maximized: !!options.maximized,
       cleanup: null,
       projectIndex: 0,
-      initialized: !!layer.clientWidth,
-      order: count,
-      rect: initialRect(count, b),
+      rect: options.rect
+        ? restoreRect(options.rect, b)
+        : fitWindow(
+            {
+              x: b.width < 550 ? 7 : 88 + (count % 4) * 25,
+              y: 14 + (count % 4) * 25,
+              w: b.width * (b.width < 550 ? 0.94 : 0.82),
+              h: b.height * 0.85,
+            },
+            b,
+          ),
     };
-    entries.set(key, entry);
-    layer.append(el);
-    tasks.append(task);
+    entries.set(name, entry);
+    layerFor(id).append(el);
+    tasksFor(id).append(task);
     render(entry);
     el.addEventListener("pointerdown", () => {
       if (focused !== entry) focus(entry, false);
@@ -225,82 +360,106 @@ export function createWindowManager({ screen, titles, render, onActive }) {
     el.addEventListener("focusin", () => {
       if (focused !== entry) focus(entry, false);
     });
-    const titlebar = el.querySelector(".window-titlebar");
-    titlebar.addEventListener("pointerdown", (e) => {
+    const bar = el.querySelector(".window-titlebar");
+    bar.addEventListener("pointerdown", (e) => {
       if (!e.target.closest("button")) begin(e, entry, null);
     });
-    titlebar.addEventListener("dblclick", (e) => {
+    bar.addEventListener("dblclick", (e) => {
       if (!e.target.closest("button")) maximize(entry);
     });
-    titlebar.addEventListener("keydown", (e) => keyboard(e, entry));
-    el.querySelectorAll("[data-resize]").forEach((handle) => {
-      handle.addEventListener("pointerdown", (e) =>
-        begin(e, entry, handle.dataset.resize),
+    bar.addEventListener("keydown", (e) => keyboard(e, entry));
+    el.querySelectorAll("[data-resize]").forEach((h) => {
+      h.addEventListener("pointerdown", (e) =>
+        begin(e, entry, h.dataset.resize),
       );
-      handle.addEventListener("keydown", (e) => keyboard(e, entry, true));
+      h.addEventListener("keydown", (e) => keyboard(e, entry, true));
     });
-    el.querySelector('[data-action="minimize"]').addEventListener("click", () =>
-      minimize(entry),
-    );
-    el.querySelector('[data-action="maximize"]').addEventListener("click", () =>
-      maximize(entry),
-    );
-    el.querySelector('[data-action="close"]').addEventListener("click", () =>
-      close(entry),
-    );
-    el.querySelector('[data-action="print"]').addEventListener("click", () => {
+    el.querySelector('[data-action="minimize"]').onclick = () =>
+      minimize(entry);
+    el.querySelector('[data-action="maximize"]').onclick = () =>
+      maximize(entry);
+    el.querySelector('[data-action="close"]').onclick = () => close(entry);
+    el.querySelector('[data-action="print"]').onclick = () => {
       focus(entry, false);
       window.print();
-    });
-    task.addEventListener("click", () =>
-      focused === entry && !entry.minimized ? minimize(entry) : focus(entry),
-    );
+    };
+    el.querySelector("[data-move-monitor]").onchange = (e) =>
+      transfer(entry, e.target.value);
+    task.onclick = () => {
+      focused === entry && !entry.minimized ? minimize(entry) : focus(entry);
+      save();
+    };
     apply(entry);
-    focus(entry);
+    focus(entry, !restoring);
+    if (options.minimized) minimize(entry);
+    save();
     return entry;
   }
+  const previousBounds = new Map();
   const observer = new ResizeObserver(() => {
-    if (!layer.clientWidth || !layer.clientHeight) return;
-    endGesture();
-    entries.forEach((entry) => {
-      if (entry.monitor === monitor) apply(entry);
-    });
+    for (const [id] of screens) {
+      if (!layerFor(id).clientWidth || !layerFor(id).clientHeight) continue;
+      const b = bounds(id),
+        old = previousBounds.get(id);
+      if (old && (old.width !== b.width || old.height !== b.height))
+        for (const e of entries.values())
+          if (e.monitor === id) {
+            e.rect = restoreRect(normalizeRect(e.rect, old), b);
+            apply(e);
+          }
+      previousBounds.set(id, b);
+    }
   });
-  observer.observe(layer);
+  screens.forEach((_, id) => observer.observe(layerFor(id)));
+  window.addEventListener("pagehide", save);
   return {
     open,
-    lastRoute: (id) => desktops.get(id)?.last,
-    hasMonitor: (id) => desktops.has(id),
-    resume() {
-      const entry = visibleEntries().sort(
-        (a, b) => Number(b.el.style.zIndex) - Number(a.el.style.zIndex),
-      )[0];
-      if (entry) focus(entry);
-      else {
-        focused = null;
-        screen.classList.add("desktop-only");
-        onActive(null);
-      }
-      return entry;
-    },
     active: () => focused,
+    monitorOf: (name) => entries.get(name)?.monitor,
+    lastRoute: (id) => desktops.get(id),
+    hasMonitor: (id) => desktops.has(id),
+    initialize() {
+      restoring = true;
+      // Hidden templates have no usable bounds. Establish the real screen size
+      // before restoring so the first observer callback cannot rescale it twice.
+      screens.forEach((_, id) => previousBounds.set(id, bounds(id)));
+      let saved;
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE));
+      } catch {}
+      if (saved?.version === 2 && Array.isArray(saved.windows)) {
+        saved.windows
+          .filter(
+            (e) => e && Object.hasOwn(titles, e.name) && screens.has(e.monitor),
+          )
+          .sort((a, b) => a.z - b.z)
+          .forEach((e) => open(e.name, e));
+      } else {
+        open("runelord", { monitor: "about", maximized: true });
+        open("projects", { monitor: "projects" });
+        open("contact", { monitor: "contact" });
+      }
+      restoring = false;
+      deactivate(focused);
+      focused = null;
+      screens.forEach((_, id) => previousBounds.set(id, bounds(id)));
+      save();
+    },
+    resume() {
+      focusNext();
+      return focused;
+    },
     isActive: (entry) =>
       focused === entry &&
       !entry.el.hidden &&
-      !screen.inert &&
+      !screenFor(entry.monitor).inert &&
       !document.body.classList.contains("booting"),
     setMonitor(id) {
-      if (monitor === id) return;
-      endGesture();
-      deactivate(focused);
-      focused = null;
-      monitor = id;
-      entries.forEach((entry) => {
-        entry.el.hidden = entry.monitor !== id || entry.minimized;
-        entry.el.inert = entry.el.hidden;
-        entry.task.hidden = entry.monitor !== id;
-        if (entry.monitor === id) apply(entry);
-      });
+      if (monitor !== id) {
+        deactivate(focused);
+        focused = null;
+        monitor = id;
+      }
     },
     suspend() {
       endGesture();

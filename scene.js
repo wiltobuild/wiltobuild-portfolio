@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { CSS3DObject, CSS3DRenderer } from "./assets/vendor/CSS3DRenderer.js";
 
 // Original, procedural workstation. All geometry and screen artwork is local.
-export function createWorkspace(container, onOpen, screenElement) {
+export function createWorkspace(container, onOpen, screens) {
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -21,9 +21,12 @@ export function createWorkspace(container, onOpen, screenElement) {
   cssRenderer.domElement.className = "screen-renderer";
   container.append(cssRenderer.domElement);
   const cssScene = new THREE.Scene();
-  const screenObject = new CSS3DObject(screenElement);
-  screenObject.visible = false;
-  cssScene.add(screenObject);
+  const screenObjects = new Map();
+  screens.forEach((element, id) => {
+    const object = new CSS3DObject(element);
+    cssScene.add(object);
+    screenObjects.set(id, object);
+  });
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
   const hemi = new THREE.HemisphereLight(0xfffaf0, 0x7b8270, 2.8);
@@ -67,6 +70,50 @@ export function createWorkspace(container, onOpen, screenElement) {
     metal = mat("#696e64", 0.4, 0.55),
     green = mat("#4d6950"),
     paper = mat("#e3dec4");
+  // Fine molded ABS grain, uneven yellowing, and a separate roughness/bump layer.
+  const plasticGrain = canvasTexture(512, 512, (c) => {
+    let seed = 1995;
+    const rand = () =>
+      ((seed = (Math.imul(seed, 1664525) + 1013904223) | 0) >>> 0) / 4294967296;
+    c.fillStyle = "#bcbcbc";
+    c.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 65000; i++) {
+      const v = 135 + Math.floor(rand() * 100);
+      c.fillStyle = "rgb(" + v + "," + v + "," + v + ")";
+      c.fillRect(rand() * 512, rand() * 512, 1 + rand(), 1 + rand());
+    }
+  });
+  plasticGrain.colorSpace = THREE.NoColorSpace;
+  plasticGrain.wrapS = plasticGrain.wrapT = THREE.RepeatWrapping;
+  plasticGrain.repeat.set(3, 3);
+  const aging = canvasTexture(512, 512, (c) => {
+    c.fillStyle = "#f4f0e6";
+    c.fillRect(0, 0, 512, 512);
+    const wash = c.createRadialGradient(256, 240, 100, 256, 240, 350);
+    wash.addColorStop(0, "#fffdf4");
+    wash.addColorStop(1, "#bcb69b");
+    c.fillStyle = wash;
+    c.fillRect(0, 0, 512, 512);
+    c.strokeStyle = "#655b4422";
+    c.lineWidth = 0.65;
+    for (let i = 0; i < 90; i++) {
+      const x = (i * 197) % 512,
+        y = (i * 71) % 512;
+      c.beginPath();
+      c.moveTo(x, y);
+      c.lineTo(x + 3 + (i % 13), y + 1);
+      c.stroke();
+    }
+  });
+  [cream, lightCream, darkCream].forEach((material) => {
+    material.map = aging;
+    material.bumpMap = plasticGrain;
+    material.bumpScale = 0.018;
+    material.roughnessMap = plasticGrain;
+    material.roughness = 0.92;
+  });
+  black.bumpMap = plasticGrain;
+  black.bumpScale = 0.008;
   const shapes = new Map();
   function rounded(w, h, d, r = 0.07) {
     const key = [w, h, d, r].join(",");
@@ -198,6 +245,8 @@ export function createWorkspace(container, onOpen, screenElement) {
   const woodMat = new THREE.MeshStandardMaterial({
     map: wood,
     roughness: 0.8,
+    bumpMap: wood,
+    bumpScale: 0.012,
     color: "#c2b6a6",
   });
   box(desk, 10.2, 0.22, 4.5, woodMat, 0, 2.2, 0, 0.11);
@@ -406,7 +455,7 @@ export function createWorkspace(container, onOpen, screenElement) {
     label(
       g,
       {
-        about: "01 / THE PERSON",
+        about: "01 / RUNELORD",
         projects: "02 / THE WORK",
         contact: "03 / CONNECT",
       }[type],
@@ -419,6 +468,99 @@ export function createWorkspace(container, onOpen, screenElement) {
       "#414d38",
       28,
     );
+    // Case joint, recessed screw heads, side ventilation and CRT adjustment buttons.
+    const recess = mat("#57584c");
+    for (const side of [-1, 1]) {
+      box(g, 0.012, 1.62, 1.03, recess, side * 1.288, 1.55, -0.42);
+      for (let row = 0; row < 12; row++)
+        box(
+          g,
+          0.018,
+          0.024,
+          0.65,
+          recess,
+          side * 1.3,
+          1.45 + row * 0.072,
+          -0.45,
+          0.006,
+        );
+      for (const yy of [0.68, 2.4]) {
+        const screw = cylinder(
+          g,
+          0.025,
+          0.025,
+          0.009,
+          metal,
+          side * 1.2,
+          yy,
+          0.409,
+          16,
+        );
+        screw.rotation.x = Math.PI / 2;
+        box(g, 0.031, 0.005, 0.012, black, side * 1.2, yy, 0.418);
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      box(
+        g,
+        0.085,
+        0.038,
+        0.028,
+        darkCream,
+        0.13 + i * 0.14,
+        0.65,
+        0.424,
+        0.012,
+      );
+      label(
+        g,
+        ["−", "+", "◁", "▷"][i],
+        0.05,
+        0.035,
+        0.13 + i * 0.14,
+        0.71,
+        0.422,
+        "#d7d0b8",
+        "#454d41",
+        60,
+      );
+    }
+    label(
+      g,
+      "MULTISYNC · 17 CRT",
+      0.75,
+      0.08,
+      0.35,
+      2.53,
+      0.411,
+      "#d7d0b8",
+      "#6c6c58",
+      21,
+    );
+    label(
+      g,
+      "WTB  /  PERSONAL COMPUTING",
+      1.05,
+      0.11,
+      0,
+      0.47,
+      0.414,
+      "#b5b29e",
+      "#4c5044",
+      22,
+    );
+    label(
+      g,
+      "SERIAL 95-003 · 60 Hz",
+      0.63,
+      0.09,
+      -0.68,
+      0.53,
+      -1.315,
+      "#dbd6bb",
+      "#686956",
+      24,
+    ).rotation.y = Math.PI;
     g.traverse((o) => {
       if (o.isMesh) {
         o.userData.route = type;
@@ -715,41 +857,49 @@ export function createWorkspace(container, onOpen, screenElement) {
   let yaw = 0.2,
     targetYaw = 0.2,
     pitch = 0.38,
-    targetPitch = 0.38;
+    targetPitch = 0.38,
+    zoom = 1,
+    targetZoom = 1;
   let drag = null,
     frame = 0,
     last = 0,
     dirty = true,
-    transition = null;
-  let focusedMonitor = null;
-  const poseCamera = new THREE.PerspectiveCamera();
-  const screenRatio = 2.14 / 1.53;
+    transition = null,
+    focusedMonitor = null,
+    arranging = false,
+    touring = false,
+    tourStopped = false,
+    tourStarted = 0;
+  const poseCamera = new THREE.PerspectiveCamera(),
+    screenRatio = 2.14 / 1.53;
   const hover = document.querySelector("#hover-label");
-
   function screenPixels() {
-    // One CSS pixel is approximately one rendered pixel when the camera lands.
     return Math.max(
       280,
-      Math.min(innerWidth * 0.86, innerHeight * 0.76 * screenRatio),
+      Math.min(innerWidth * 0.86, innerHeight * 0.74 * screenRatio),
     );
   }
-  function attachScreen(id) {
-    const monitor = monitors.find((m) => m.userData.route === id);
-    const width = Math.round(screenPixels());
-    screenElement.style.width = `${width}px`;
-    screenElement.style.height = `${width / screenRatio}px`;
-    screenElement.classList.toggle("compact-screen", width < 550);
-    monitor.updateWorldMatrix(true, false);
-    screenObject.position.copy(
-      monitor.localToWorld(new THREE.Vector3(0, 1.65, 0.57)),
-    );
-    monitor.getWorldQuaternion(screenObject.quaternion);
-    screenObject.scale.setScalar((2.14 * monitor.scale.x) / width);
-    screenObject.updateMatrixWorld(true);
+  function attachScreens() {
+    const width = Math.max(480, Math.min(960, Math.round(screenPixels())));
+    screens.forEach((element, id) => {
+      const monitor = monitors.find((m) => m.userData.route === id),
+        object = screenObjects.get(id);
+      element.style.width = `${width}px`;
+      element.style.height = `${width / screenRatio}px`;
+      element.classList.toggle("compact-screen", width < 550);
+      element.hidden = false;
+      monitor.updateWorldMatrix(true, false);
+      object.position.copy(
+        monitor.localToWorld(new THREE.Vector3(0, 1.65, 0.57)),
+      );
+      monitor.getWorldQuaternion(object.quaternion);
+      object.scale.setScalar((2.14 * monitor.scale.x) / width);
+      object.updateMatrixWorld(true);
+    });
   }
   function overviewPose() {
-    const mobile = container.clientWidth < 650;
-    const distance = mobile ? 42 : camera.aspect < 1.45 ? 23 : 20;
+    const mobile = container.clientWidth < 650,
+      distance = (mobile ? 42 : camera.aspect < 1.45 ? 23 : 20) * zoom;
     const target = new THREE.Vector3(
       mobile ? 0.6 : -0.25,
       mobile ? 3.05 : 2.4,
@@ -764,16 +914,29 @@ export function createWorkspace(container, onOpen, screenElement) {
     poseCamera.lookAt(target);
     return { position, quaternion: poseCamera.quaternion.clone() };
   }
+  function arrangePose() {
+    const distance =
+      Math.max(
+        8,
+        9.4 /
+          (2 * Math.tan(THREE.MathUtils.degToRad(16)) * camera.aspect * 0.9),
+      ) * zoom;
+    const position = new THREE.Vector3(0, 4.45, distance);
+    poseCamera.position.copy(position);
+    poseCamera.lookAt(0, 3.8, -0.45);
+    return { position, quaternion: poseCamera.quaternion.clone() };
+  }
   function monitorPose(id) {
-    const monitor = monitors.find((m) => m.userData.route === id);
-    const center = monitor.localToWorld(new THREE.Vector3(0, 1.65, 0.57));
+    const monitor = monitors.find((m) => m.userData.route === id),
+      center = monitor.localToWorld(new THREE.Vector3(0, 1.65, 0.57));
     const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(
       monitor.quaternion,
     );
     const focalPixels =
       container.clientHeight /
       (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)));
-    const distance = (2.14 * monitor.scale.x * focalPixels) / screenPixels();
+    const distance =
+      ((2.14 * monitor.scale.x * focalPixels) / screenPixels()) * zoom;
     const position = center.clone().addScaledVector(normal, distance);
     poseCamera.position.copy(position);
     poseCamera.lookAt(center);
@@ -786,7 +949,7 @@ export function createWorkspace(container, onOpen, screenElement) {
     cssRenderer.setSize(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    if (focusedMonitor) attachScreen(focusedMonitor);
+    attachScreens();
     dirty = true;
   }
   const ro = new ResizeObserver(resize);
@@ -795,24 +958,25 @@ export function createWorkspace(container, onOpen, screenElement) {
   const initialPose = overviewPose();
   camera.position.copy(initialPose.position);
   camera.quaternion.copy(initialPose.quaternion);
-
-  function flyTo(id) {
+  function stopTour() {
+    tourStopped = true;
+    touring = false;
+    container.dataset.touring = "false";
+  }
+  function flyTo(id, arrange = false) {
+    stopTour();
     transition?.resolve(false);
     focusedMonitor = id;
+    arranging = arrange;
     drag = null;
+    zoom = targetZoom = 1;
     hover.classList.remove("visible");
-    screenElement.style.pointerEvents = "none";
-    if (id) {
-      attachScreen(id);
-      screenObject.visible = true;
-      screenElement.hidden = false;
-    }
     return new Promise((resolve) => {
       transition = {
         fromPosition: camera.position.clone(),
         fromQuaternion: camera.quaternion.clone(),
         started: performance.now(),
-        duration: reduced.matches ? 0 : 1100,
+        duration: reduced.matches ? 0 : 850,
         resolve,
       };
       dirty = true;
@@ -820,17 +984,65 @@ export function createWorkspace(container, onOpen, screenElement) {
   }
   const raycaster = new THREE.Raycaster(),
     pointer = new THREE.Vector2();
-  function hit(e) {
+  function setRay(x, y) {
     const r = container.getBoundingClientRect();
     pointer.set(
-      ((e.clientX - r.left) / r.width) * 2 - 1,
-      (-(e.clientY - r.top) / r.height) * 2 + 1,
+      ((x - r.left) / r.width) * 2 - 1,
+      (-(y - r.top) / r.height) * 2 + 1,
     );
     raycaster.setFromCamera(pointer, camera);
+  }
+  function pointOnScreen(id, x, y) {
+    const object = screenObjects.get(id);
+    if (!object) return null;
+    setRay(x, y);
+    const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(
+        object.quaternion,
+      ),
+      plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
+        normal,
+        object.position,
+      ),
+      point = new THREE.Vector3();
+    if (!raycaster.ray.intersectPlane(plane, point)) return null;
+    object.worldToLocal(point);
+    const el = screens.get(id);
+    return {
+      x: point.x + el.clientWidth / 2,
+      y: el.clientHeight / 2 - point.y,
+    };
+  }
+  function hitScreen(x, y) {
+    for (const [id, el] of screens) {
+      const p = pointOnScreen(id, x, y);
+      if (
+        p &&
+        p.x >= 0 &&
+        p.y >= 0 &&
+        p.x <= el.clientWidth &&
+        p.y <= el.clientHeight
+      )
+        return id;
+    }
+    return null;
+  }
+  function hit(e) {
+    setRay(e.clientX, e.clientY);
     return raycaster.intersectObjects(hits, false)[0]?.object.userData.route;
   }
+  const stopOnInput = (e) => {
+    if (
+      !document.body.classList.contains("booting") &&
+      e.target.closest(
+        "#workspace,#monitor-controls,#desktop-dock,.site-header",
+      )
+    )
+      stopTour();
+  };
+  document.addEventListener("pointerdown", stopOnInput, { capture: true });
   renderer.domElement.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0 || focusedMonitor || transition) return;
+    if (e.button !== 0 || transition) return;
+    stopTour();
     drag = {
       x: e.clientX,
       y: e.clientY,
@@ -841,34 +1053,54 @@ export function createWorkspace(container, onOpen, screenElement) {
     renderer.domElement.setPointerCapture(e.pointerId);
   });
   renderer.domElement.addEventListener("pointermove", (e) => {
-    if (focusedMonitor || transition) return;
+    if (transition) return;
     if (drag) {
       const dx = e.clientX - drag.x,
         dy = e.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
-      targetYaw = THREE.MathUtils.clamp(drag.yaw - dx * 0.004, -0.65, 0.65);
-      targetPitch = THREE.MathUtils.clamp(drag.pitch + dy * 0.003, 0.21, 0.65);
-      dirty = true;
+      if (!focusedMonitor && !arranging) {
+        targetYaw = THREE.MathUtils.clamp(drag.yaw - dx * 0.004, -0.72, 0.72);
+        targetPitch = THREE.MathUtils.clamp(
+          drag.pitch + dy * 0.003,
+          0.18,
+          0.68,
+        );
+        dirty = true;
+      }
       hover.classList.remove("visible");
       return;
     }
     const route = hit(e);
     renderer.domElement.style.cursor = route ? "pointer" : "grab";
     hover.textContent =
-      {
-        about: "01 / Enter this monitor ↗",
-        projects: "02 / Enter this monitor ↗",
-        contact: "03 / Enter this monitor ↗",
-        snake: "Insert disk: Snake.exe ↗",
-      }[route] || "";
+      route === "snake"
+        ? "Insert disk: Snake.exe ↗"
+        : route
+          ? "Enter monitor " +
+            (["about", "projects", "contact"].indexOf(route) + 1) +
+            " ↗"
+          : "";
     hover.style.left = `${Math.min(e.clientX + 16, innerWidth - 210)}px`;
     hover.style.top = `${e.clientY + 16}px`;
     hover.classList.toggle("visible", !!route);
   });
   renderer.domElement.addEventListener("pointerup", (e) => {
-    if (drag && !drag.moved && !focusedMonitor && !transition) {
-      const route = hit(e);
-      if (route) onOpen(route);
+    if (drag && !transition) {
+      if (!drag.moved) {
+        const route = hit(e);
+        if (route) onOpen(route);
+      } else if (focusedMonitor && Math.abs(e.clientX - drag.x) > 65) {
+        const ids = ["about", "projects", "contact"],
+          next =
+            ids[
+              THREE.MathUtils.clamp(
+                ids.indexOf(focusedMonitor) + (e.clientX < drag.x ? 1 : -1),
+                0,
+                2,
+              )
+            ];
+        if (next !== focusedMonitor) onOpen(next);
+      }
     }
     drag = null;
     hover.classList.remove("visible");
@@ -879,28 +1111,71 @@ export function createWorkspace(container, onOpen, screenElement) {
   renderer.domElement.addEventListener("pointerleave", () =>
     hover.classList.remove("visible"),
   );
+  function zoomBy(delta) {
+    stopTour();
+    targetZoom = THREE.MathUtils.clamp(
+      targetZoom * Math.exp(delta),
+      focusedMonitor ? 0.82 : 0.5,
+      focusedMonitor ? 4.8 : 1.65,
+    );
+    dirty = true;
+  }
+  const wheel = (e) => {
+    // Documents keep their own scrolling. Wheel over the bezel/background controls the camera.
+    if (
+      document.body.classList.contains("booting") ||
+      e.ctrlKey ||
+      e.target.closest(".window-content,.role-start-menu")
+    )
+      return;
+    e.preventDefault();
+    zoomBy(
+      THREE.MathUtils.clamp(
+        e.deltaY * (e.deltaMode === 1 ? 16 : 1) * 0.001,
+        -0.22,
+        0.22,
+      ),
+    );
+  };
+  container.addEventListener("wheel", wheel, { passive: false });
   function draw(time) {
     frame = requestAnimationFrame(draw);
     if (document.hidden || time - last < 16) return;
     last = time;
-    const orbitMoving =
+    if (
+      touring &&
+      !tourStopped &&
+      !reduced.matches &&
       !focusedMonitor &&
-      !transition &&
-      Math.abs(yaw - targetYaw) + Math.abs(pitch - targetPitch) > 0.0001;
-    if (!dirty && !transition && !orbitMoving) return;
+      !arranging
+    ) {
+      const t = (time - tourStarted) / 1000;
+      targetYaw = 0.12 + Math.sin(t * 0.16) * 0.37;
+      targetPitch = 0.34 + Math.sin(t * 0.12) * 0.045;
+      dirty = true;
+    }
+    const orbitMoving =
+        !focusedMonitor &&
+        !transition &&
+        Math.abs(yaw - targetYaw) + Math.abs(pitch - targetPitch) > 0.0001,
+      zoomMoving = Math.abs(zoom - targetZoom) > 0.0001;
+    if (!dirty && !transition && !orbitMoving && !zoomMoving) return;
+    const factor = reduced.matches ? 1 : 0.1;
     if (orbitMoving) {
-      const factor = reduced.matches ? 1 : 0.09;
       yaw += (targetYaw - yaw) * factor;
       pitch += (targetPitch - pitch) * factor;
     }
-    const destination = focusedMonitor
-      ? monitorPose(focusedMonitor)
-      : overviewPose();
+    zoom += (targetZoom - zoom) * factor;
+    const destination = arranging
+      ? arrangePose()
+      : focusedMonitor
+        ? monitorPose(focusedMonitor)
+        : overviewPose();
     if (transition) {
       const t = transition.duration
-        ? Math.min(1, (time - transition.started) / transition.duration)
-        : 1;
-      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          ? Math.min(1, (time - transition.started) / transition.duration)
+          : 1,
+        ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       camera.position.lerpVectors(
         transition.fromPosition,
         destination.position,
@@ -914,10 +1189,6 @@ export function createWorkspace(container, onOpen, screenElement) {
       if (t === 1) {
         const done = transition.resolve;
         transition = null;
-        if (!focusedMonitor) {
-          screenObject.visible = false;
-          screenElement.hidden = true;
-        }
         done(true);
       }
     } else {
@@ -928,6 +1199,7 @@ export function createWorkspace(container, onOpen, screenElement) {
     renderer.render(scene, camera);
     cssRenderer.render(cssScene, camera);
     dirty = false;
+    container.dataset.zoom = zoom.toFixed(3);
   }
   draw(0);
   renderer.domElement.addEventListener("webglcontextlost", (e) => {
@@ -941,11 +1213,25 @@ export function createWorkspace(container, onOpen, screenElement) {
     document.querySelector("#load-status").hidden = true;
   });
   return {
-    focus: flyTo,
+    focus: (id) => flyTo(id),
     leave: () => flyTo(null),
+    arrange: () => flyTo(null, true),
+    pointOnScreen,
+    hitScreen,
+    zoom: zoomBy,
+    startTour() {
+      if (!tourStopped && !reduced.matches) {
+        touring = true;
+        tourStarted = performance.now();
+        container.dataset.touring = "true";
+        dirty = true;
+      }
+    },
     reset() {
+      stopTour();
       targetYaw = 0.2;
       targetPitch = 0.38;
+      targetZoom = 1;
       dirty = true;
     },
     setNight(value) {
@@ -961,6 +1247,9 @@ export function createWorkspace(container, onOpen, screenElement) {
       transition?.resolve(false);
       cancelAnimationFrame(frame);
       ro.disconnect();
+      document.removeEventListener("pointerdown", stopOnInput, {
+        capture: true,
+      });
       renderer.dispose();
       cssRenderer.domElement.remove();
     },
