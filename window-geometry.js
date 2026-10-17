@@ -1,5 +1,13 @@
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 
+// The pointer must travel toward an edge; merely picking up a window there
+// must not send it to a different monitor.
+export function monitorEdgeDirection(x, width, travel) {
+  if (x >= width - 12 && travel > 18) return 1;
+  if (x <= 12 && travel < -18) return -1;
+  return 0;
+}
+
 export function normalizeRect(rect, bounds) {
   return {
     x: rect.x / bounds.width,

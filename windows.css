@@ -175,7 +175,7 @@
   bottom: auto;
 }
 .monitor-screen .os-desktop::after {
-  content: "WilToBuild 95";
+  content: "Desktop 95";
   position: absolute;
   right: 24px;
   bottom: 24px;

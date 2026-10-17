@@ -5,9 +5,19 @@ import {
   resizeWindow,
   normalizeRect,
   restoreRect,
+  monitorEdgeDirection,
 } from "../window-geometry.js";
 const desktop = { width: 960, height: 650 };
 const window = { x: 150, y: 80, w: 500, h: 360 };
+
+test("a monitor handoff requires directed travel into a horizontal edge", () => {
+  assert.equal(monitorEdgeDirection(955, 960, 50), 1);
+  assert.equal(monitorEdgeDirection(5, 960, -50), -1);
+  assert.equal(monitorEdgeDirection(955, 960, 0), 0);
+  assert.equal(monitorEdgeDirection(955, 960, -50), 0);
+  assert.equal(monitorEdgeDirection(5, 960, 50), 0);
+  assert.equal(monitorEdgeDirection(500, 960, 100), 0);
+});
 test("saved layouts restore at the same desktop size without pixel drift", () => {
   const restored = restoreRect(normalizeRect(window, desktop), desktop);
   for (const key of ["x", "y", "w", "h"])

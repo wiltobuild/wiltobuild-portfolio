@@ -3,7 +3,8 @@ import {
   resizeWindow,
   normalizeRect,
   restoreRect,
-} from "./window-geometry.js?v=shared-20261016";
+  monitorEdgeDirection,
+} from "./window-geometry.js?v=seamless-20261016";
 
 const STORAGE = "wtb-desktop-layout-v2";
 const monitorIds = ["about", "projects", "contact"];
@@ -13,7 +14,7 @@ export function createWindowManager({
   render,
   onActive,
   onTransfer,
-  onArrange,
+  onFollow,
   pointOnScreen,
   hitScreen,
 }) {
@@ -150,7 +151,7 @@ export function createWindowManager({
     if (parent.moveBefore && node.isConnected) parent.moveBefore(node, null);
     else parent.append(node);
   }
-  function transfer(entry, id, rect = entry.rect) {
+  function transfer(entry, id, rect = entry.rect, following = false) {
     if (!screens.has(id)) return;
     const old = entry.monitor;
     entry.monitor = id;
@@ -163,7 +164,7 @@ export function createWindowManager({
     apply(entry);
     focus(entry, false);
     save();
-    if (old !== id) onTransfer(entry);
+    if (old !== id) onTransfer(entry, following);
   }
   function point(event, id) {
     const projected = pointOnScreen?.(id, event.clientX, event.clientY);
@@ -186,7 +187,8 @@ export function createWindowManager({
   function endGesture(event) {
     if (!gesture || (event && event.pointerId !== gesture.id)) return;
     const g = gesture;
-    if (event?.type === "pointerup" && !g.edge) {
+    cancelAnimationFrame(g.frame);
+    if (event?.type === "pointerup" && !g.edge && g.arranged) {
       const id = dropTarget(event);
       if (id && id !== g.entry.monitor) {
         const p = point(event, id),
@@ -234,11 +236,31 @@ export function createWindowManager({
       offset: { x: p.x - entry.rect.x, y: p.y - entry.rect.y },
       id: event.pointerId,
       arranged: document.body.classList.contains("arrange-mode"),
+      client: { clientX: event.clientX, clientY: event.clientY },
+      startX: event.clientX,
+      following: false,
+      edgeArmed: true,
+      frame: 0,
     };
     document.documentElement.setPointerCapture(event.pointerId);
     entry.el.classList.add("is-moving");
     screens.forEach((s) => s.classList.add("manipulating-window"));
     document.body.classList.add("dragging-window");
+  }
+  function followPointer(g) {
+    if (gesture !== g || !g.following) return;
+    const p = point(g.client, g.entry.monitor);
+    const b = bounds(g.entry.monitor);
+    // Until the new screen reaches the pointer, keep the entering edge and
+    // vertical position. Projecting onto a still-distant screen would jump.
+    if (p.x >= 0 && p.x <= b.width && p.y >= 0 && p.y <= b.height) {
+      g.entry.rect = fitWindow(
+        { ...g.entry.rect, x: p.x - g.offset.x, y: p.y - g.offset.y },
+        b,
+      );
+      apply(g.entry);
+    }
+    g.frame = requestAnimationFrame(() => followPointer(g));
   }
   window.addEventListener("pointermove", (event) => {
     if (!gesture || event.pointerId !== gesture.id) return;
@@ -246,13 +268,54 @@ export function createWindowManager({
       e = g.entry,
       p = point(event, e.monitor),
       b = bounds(e.monitor);
-    if (
-      !g.edge &&
-      !g.arranged &&
-      (p.x < 0 || p.x > b.width || p.y < -35 || p.y > b.height + 35)
-    ) {
-      g.arranged = true;
-      onArrange();
+    g.client = { clientX: event.clientX, clientY: event.clientY };
+    if (!g.edge && !g.arranged) {
+      if (g.following) return;
+      if (
+        !g.following &&
+        !g.edgeArmed &&
+        p.x > b.width * 0.18 &&
+        p.x < b.width * 0.82
+      ) {
+        g.edgeArmed = true;
+        g.startX = event.clientX;
+      }
+      const direction =
+        !g.following &&
+        g.edgeArmed &&
+        p.y > -24 &&
+        p.y < b.height + 24 &&
+        monitorEdgeDirection(p.x, b.width, event.clientX - g.startX);
+      const next =
+        direction && monitorIds[monitorIds.indexOf(e.monitor) + direction];
+      if (next) {
+        g.following = true;
+        g.edgeArmed = false;
+        transfer(
+          e,
+          next,
+          {
+            ...e.rect,
+            x: direction > 0 ? 2 : bounds(next).width - e.rect.w - 2,
+          },
+          true,
+        );
+        const flight = onFollow(e);
+        followPointer(g);
+        Promise.resolve(flight).finally(() => {
+          if (gesture !== g) return;
+          g.following = false;
+          cancelAnimationFrame(g.frame);
+          g.startX = g.client.clientX;
+        });
+        return;
+      }
+      e.rect = fitWindow(
+        { ...e.rect, x: p.x - g.offset.x, y: p.y - g.offset.y },
+        b,
+      );
+      apply(e);
+      return;
     }
     const id = !g.edge && dropTarget(event);
     screens.forEach((s, key) =>
@@ -322,7 +385,7 @@ export function createWindowManager({
     el.dataset.app = name;
     el.dataset.monitorWindow = id;
     el.setAttribute("aria-labelledby", `${key}-title`);
-    el.innerHTML = `<header class="window-titlebar" tabindex="0" aria-label="Move ${titles[name]} window"><h2 id="${key}-title">${titles[name]}</h2><div class="window-buttons"><button data-action="minimize" aria-label="Minimize ${titles[name]}">_</button><button data-action="maximize" aria-label="Maximize ${titles[name]}" aria-pressed="false">□</button><button data-action="close" aria-label="Close ${titles[name]}">×</button></div></header><div class="window-menubar"><span>C:\\WIL\\${name.toUpperCase()}</span><label>Move to <select data-move-monitor aria-label="Move ${titles[name]} to monitor"><option value="about">01 · Left</option><option value="projects">02 · Middle</option><option value="contact">03 · Right</option></select></label><button data-action="print">Print</button></div><div class="window-content" tabindex="0"></div><footer class="window-status"><span class="window-status-text">Ready · positions saved automatically</span><span>WilToBuild / Personal edition</span></footer>${["n", "s", "e", "w", "ne", "nw", "se", "sw"].map((edge) => `<${edge === "se" ? "button" : "span"} class="resize-handle resize-${edge}" data-resize="${edge}" ${edge === "se" ? `aria-label="Resize ${titles[name]} window" title="Drag to resize; arrow keys also resize"` : 'aria-hidden="true"'}></${edge === "se" ? "button" : "span"}>`).join("")}`;
+    el.innerHTML = `<header class="window-titlebar" tabindex="0" aria-label="Move ${titles[name]} window"><h2 id="${key}-title">${titles[name]}</h2><div class="window-buttons"><button data-action="minimize" aria-label="Minimize ${titles[name]}">_</button><button data-action="maximize" aria-label="Maximize ${titles[name]}" aria-pressed="false">□</button><button data-action="close" aria-label="Close ${titles[name]}">×</button></div></header><div class="window-menubar"><span>C:\\WIL\\${name.toUpperCase()}</span><label>Move to <select data-move-monitor aria-label="Move ${titles[name]} to monitor"><option value="about">01 · Left</option><option value="projects">02 · Middle</option><option value="contact">03 · Right</option></select></label><button data-action="print">Print</button></div><div class="window-content" tabindex="0"></div><footer class="window-status"><span class="window-status-text">Ready · positions saved automatically</span><span>Desktop 95 / Personal edition</span></footer>${["n", "s", "e", "w", "ne", "nw", "se", "sw"].map((edge) => `<${edge === "se" ? "button" : "span"} class="resize-handle resize-${edge}" data-resize="${edge}" ${edge === "se" ? `aria-label="Resize ${titles[name]} window" title="Drag to resize; arrow keys also resize"` : 'aria-hidden="true"'}></${edge === "se" ? "button" : "span"}>`).join("")}`;
     const task = document.createElement("button");
     task.className = "window-task";
     task.textContent = titles[name];

@@ -310,7 +310,7 @@ export function createWorkspace(container, onOpen, screens) {
         c.fillRect(68, 76, 888, 40);
         c.fillStyle = "#fff";
         c.font = "20px monospace";
-        c.fillText("My Projects — WilToBuild", 88, 103);
+        c.fillText("My Projects", 88, 103);
         c.fillStyle = "#aebca0";
         c.fillRect(916, 84, 28, 25);
         c.fillStyle = "#293b31";
@@ -363,7 +363,7 @@ export function createWorkspace(container, onOpen, screens) {
       } else {
         c.fillStyle = "#b8d58d";
         c.font = "20px monospace";
-        c.fillText("WILTOBUILD / CONNECTION TERMINAL", 55, 80);
+        c.fillText("CONNECTION TERMINAL", 55, 80);
         c.fillStyle = "#6b966c";
         c.fillText("────────────────────────────────────", 55, 114);
         c.fillStyle = "#d2e3b6";
@@ -385,7 +385,7 @@ export function createWorkspace(container, onOpen, screens) {
       c.font = "bold 24px Arial";
       c.fillText("▦ Start", 20, 749);
       c.font = "20px monospace";
-      c.fillText("WilToBuild OS 95", 165, 747);
+      c.fillText("Desktop 95", 165, 747);
       c.fillText("ONLINE", 910, 747);
       for (let y = 0; y < h; y += 4) {
         c.fillStyle = "rgba(0,0,0,.055)";
@@ -426,18 +426,7 @@ export function createWorkspace(container, onOpen, screens) {
     );
     display.position.set(0, 1.65, 0.505);
     g.add(display);
-    label(
-      g,
-      "WILTOBUILD",
-      0.68,
-      0.16,
-      -0.75,
-      0.65,
-      0.415,
-      "#d7d0b8",
-      "#636955",
-      29,
-    );
+
     box(g, 0.045, 0.035, 0.015, led, 0.88, 0.67, 0.417, 0.006);
     box(g, 0.15, 0.1, 0.025, darkCream, 1.08, 0.66, 0.42, 0.02);
     for (let i = 0; i < 12; i++) {
@@ -537,18 +526,7 @@ export function createWorkspace(container, onOpen, screens) {
       "#6c6c58",
       21,
     );
-    label(
-      g,
-      "WTB  /  PERSONAL COMPUTING",
-      1.05,
-      0.11,
-      0,
-      0.47,
-      0.414,
-      "#b5b29e",
-      "#4c5044",
-      22,
-    );
+
     label(
       g,
       "SERIAL 95-003 · 60 Hz",
@@ -726,26 +704,136 @@ export function createWorkspace(container, onOpen, screens) {
   lampLight.position.copy(bulb.position);
   scene.add(lampLight);
   // Coffee mug, floppy disk, notebook, pencil and sticky note.
-  cylinder(desk, 0.16, 0.14, 0.36, mat("#dfd6bd"), -3.47, 2.51, 1.5);
-  cylinder(desk, 0.137, 0.137, 0.008, mat("#34271d"), -3.47, 2.69, 1.5);
+  const mug = new THREE.Group();
+  mug.position.set(-3.47, 2.33, 1.5);
+  desk.add(mug);
+  const porcelain = new THREE.MeshStandardMaterial({
+    color: "#eee7d4",
+    roughness: 0.24,
+    metalness: 0.02,
+  });
+  // A continuous ceramic wall curls over the lip into a genuine hollow interior.
+  const profile = [
+    [0, 0.015],
+    [0.12, 0.015],
+    [0.143, 0.035],
+    [0.163, 0.32],
+    [0.16, 0.365],
+    [0.151, 0.375],
+    [0.14, 0.365],
+    [0.137, 0.33],
+    [0.118, 0.065],
+    [0, 0.065],
+  ].map(([x, y]) => new THREE.Vector2(x, y));
+  const cup = new THREE.Mesh(new THREE.LatheGeometry(profile, 64), porcelain);
+  cup.castShadow = cup.receiveShadow = true;
+  mug.add(cup);
   const handle = new THREE.Mesh(
-    new THREE.TorusGeometry(0.12, 0.035, 8, 20),
-    cream,
+    new THREE.TubeGeometry(
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-0.145, 0.29, 0),
+        new THREE.Vector3(-0.245, 0.3, 0),
+        new THREE.Vector3(-0.31, 0.23, 0),
+        new THREE.Vector3(-0.3, 0.13, 0),
+        new THREE.Vector3(-0.23, 0.085, 0),
+        new THREE.Vector3(-0.14, 0.1, 0),
+      ]),
+      48,
+      0.026,
+      12,
+      false,
+    ),
+    porcelain,
   );
-  handle.position.set(-3.68, 2.53, 1.5);
-  desk.add(handle);
-  label(
-    desk,
-    "BUILD.",
-    0.21,
-    0.09,
-    -3.47,
-    2.52,
-    1.658,
-    "#dfd6bd",
-    "#42533e",
-    70,
+  handle.castShadow = true;
+  mug.add(handle);
+  const coffee = cylinder(
+    mug,
+    0.137,
+    0.137,
+    0.006,
+    new THREE.MeshPhysicalMaterial({
+      color: "#27140b",
+      roughness: 0.16,
+      clearcoat: 1,
+      clearcoatRoughness: 0.2,
+    }),
+    0,
+    0.331,
+    0,
+    64,
   );
+  const coffeeRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.131, 0.0025, 8, 64),
+    mat("#9c6637"),
+  );
+  coffeeRing.rotation.x = Math.PI / 2;
+  coffeeRing.position.y = 0.336;
+  mug.add(coffeeRing);
+  mug.traverse((o) => {
+    if (o.isMesh) {
+      o.userData.route = "coffee";
+      hits.push(o);
+    }
+  });
+  // Wisps use soft, tapered ribbons instead of billboard smoke puffs.
+  const steam = Array.from({ length: 4 }, (_, index) => {
+    const geometry = new THREE.PlaneGeometry(1, 1, 1, 32);
+    const positions = geometry.attributes.position;
+    const colors = new Float32Array(positions.count * 3);
+    for (let i = 0; i < positions.count; i++) colors.set([1, 1, 1], i * 3);
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    const steamMap = canvasTexture(32, 128, (ctx, w, h) => {
+      const gradient = ctx.createLinearGradient(0, 0, w, 0);
+      gradient.addColorStop(0, "rgba(255,255,255,0)");
+      gradient.addColorStop(0.5, "rgba(255,255,255,.75)");
+      gradient.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = "destination-in";
+      const fade = ctx.createLinearGradient(0, 0, 0, h);
+      fade.addColorStop(0, "transparent");
+      fade.addColorStop(0.45, "white");
+      fade.addColorStop(0.9, "white");
+      fade.addColorStop(1, "transparent");
+      ctx.fillStyle = fade;
+      ctx.fillRect(0, 0, w, h);
+    });
+    const material = new THREE.MeshBasicMaterial({
+      map: steamMap,
+      transparent: true,
+      opacity: 0.22,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      toneMapped: false,
+    });
+    const ribbon = new THREE.Mesh(geometry, material);
+    ribbon.frustumCulled = false;
+    mug.add(ribbon);
+    return { ribbon, index };
+  });
+  function animateCoffee(time) {
+    const t = reduced.matches ? 0 : time / 1000;
+    coffeeRing.scale.setScalar(1 + Math.sin(t * 1.4) * 0.016);
+    for (const { ribbon, index } of steam) {
+      const p = ribbon.geometry.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const h = 1 - Math.floor(i / 2) / 32,
+          side = i % 2 ? 1 : -1;
+        const curl =
+          Math.sin(h * 8 - t * 1.1 + index * 1.7) * (0.012 + h * 0.042);
+        const width = 0.018 + Math.sin(h * Math.PI) * 0.032;
+        p.setXYZ(
+          i,
+          (index - 1.5) * 0.042 + curl + side * width,
+          0.345 + h * (0.6 + index * 0.07),
+          Math.cos(h * 6 - t * 0.8 + index) * h * 0.035,
+        );
+      }
+      p.needsUpdate = true;
+      ribbon.material.opacity = 0.34 + Math.sin(t * 0.7 + index) * 0.06;
+    }
+  }
   const notebook = new THREE.Group();
   notebook.position.set(-2.6, 2.37, 1.45);
   notebook.rotation.y = -0.13;
@@ -867,6 +955,7 @@ export function createWorkspace(container, onOpen, screens) {
     transition = null,
     focusedMonitor = null,
     arranging = false,
+    inspectingCoffee = false,
     touring = false,
     tourStopped = false,
     tourStarted = 0;
@@ -942,6 +1031,31 @@ export function createWorkspace(container, onOpen, screens) {
     poseCamera.lookAt(center);
     return { position, quaternion: poseCamera.quaternion.clone() };
   }
+  function coffeePose() {
+    const mobile = container.clientWidth < 650;
+    const target = new THREE.Vector3(-3.47, mobile ? 2.23 : 2.64, 1.5);
+    const position = target
+      .clone()
+      .add(
+        (mobile
+          ? new THREE.Vector3(0.7, 1.08, 2.38)
+          : new THREE.Vector3(0.55, 0.48, 1.42)
+        ).multiplyScalar(zoom),
+      );
+    poseCamera.position.copy(position);
+    poseCamera.lookAt(target);
+    // Leave quiet space beside the cup for the tasting notes.
+    poseCamera.rotateY(mobile ? 0 : -0.13);
+    return { position, quaternion: poseCamera.quaternion.clone() };
+  }
+  const destinationPose = () =>
+    inspectingCoffee
+      ? coffeePose()
+      : arranging
+        ? arrangePose()
+        : focusedMonitor
+          ? monitorPose(focusedMonitor)
+          : overviewPose();
   function resize() {
     const w = container.clientWidth,
       h = container.clientHeight;
@@ -950,6 +1064,7 @@ export function createWorkspace(container, onOpen, screens) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     attachScreens();
+    if (transition) transition.destination = destinationPose();
     dirty = true;
   }
   const ro = new ResizeObserver(resize);
@@ -963,20 +1078,24 @@ export function createWorkspace(container, onOpen, screens) {
     touring = false;
     container.dataset.touring = "false";
   }
-  function flyTo(id, arrange = false) {
+  function flyTo(id, arrange = false, follow = false) {
     stopTour();
     transition?.resolve(false);
-    focusedMonitor = id;
+    inspectingCoffee = id === "coffee";
+    focusedMonitor = inspectingCoffee ? null : id;
     arranging = arrange;
     drag = null;
-    zoom = targetZoom = 1;
+    zoom = targetZoom = follow ? Math.min(zoom, 1.25) : 1;
+    container.dataset.cameraState = "moving";
+    container.dataset.cameraTarget = id || (arrange ? "arrange" : "desk");
     hover.classList.remove("visible");
     return new Promise((resolve) => {
       transition = {
         fromPosition: camera.position.clone(),
         fromQuaternion: camera.quaternion.clone(),
         started: performance.now(),
-        duration: reduced.matches ? 0 : 850,
+        duration: reduced.matches ? 0 : follow ? 900 : 1250,
+        destination: destinationPose(),
         resolve,
       };
       dirty = true;
@@ -1058,7 +1177,7 @@ export function createWorkspace(container, onOpen, screens) {
       const dx = e.clientX - drag.x,
         dy = e.clientY - drag.y;
       if (Math.abs(dx) + Math.abs(dy) > 6) drag.moved = true;
-      if (!focusedMonitor && !arranging) {
+      if (!focusedMonitor && !arranging && !inspectingCoffee) {
         targetYaw = THREE.MathUtils.clamp(drag.yaw - dx * 0.004, -0.72, 0.72);
         targetPitch = THREE.MathUtils.clamp(
           drag.pitch + dy * 0.003,
@@ -1073,13 +1192,15 @@ export function createWorkspace(container, onOpen, screens) {
     const route = hit(e);
     renderer.domElement.style.cursor = route ? "pointer" : "grab";
     hover.textContent =
-      route === "snake"
-        ? "Insert disk: Snake.exe ↗"
-        : route
-          ? "Enter monitor " +
-            (["about", "projects", "contact"].indexOf(route) + 1) +
-            " ↗"
-          : "";
+      route === "coffee"
+        ? "Inspect coffee ↗"
+        : route === "snake"
+          ? "Insert disk: Snake.exe ↗"
+          : route
+            ? "Enter monitor " +
+              (["about", "projects", "contact"].indexOf(route) + 1) +
+              " ↗"
+            : "";
     hover.style.left = `${Math.min(e.clientX + 16, innerWidth - 210)}px`;
     hover.style.top = `${e.clientY + 16}px`;
     hover.classList.toggle("visible", !!route);
@@ -1140,14 +1261,16 @@ export function createWorkspace(container, onOpen, screens) {
   container.addEventListener("wheel", wheel, { passive: false });
   function draw(time) {
     frame = requestAnimationFrame(draw);
-    if (document.hidden || time - last < 16) return;
+    if (document.hidden) return;
+    const dt = Math.min(64, Math.max(0, time - last));
     last = time;
     if (
       touring &&
       !tourStopped &&
       !reduced.matches &&
       !focusedMonitor &&
-      !arranging
+      !arranging &&
+      !inspectingCoffee
     ) {
       const t = (time - tourStarted) / 1000;
       targetYaw = 0.12 + Math.sin(t * 0.16) * 0.37;
@@ -1156,26 +1279,34 @@ export function createWorkspace(container, onOpen, screens) {
     }
     const orbitMoving =
         !focusedMonitor &&
+        !inspectingCoffee &&
         !transition &&
         Math.abs(yaw - targetYaw) + Math.abs(pitch - targetPitch) > 0.0001,
       zoomMoving = Math.abs(zoom - targetZoom) > 0.0001;
-    if (!dirty && !transition && !orbitMoving && !zoomMoving) return;
-    const factor = reduced.matches ? 1 : 0.1;
+    const coffeeVisible = !focusedMonitor && !arranging;
+    if (coffeeVisible) animateCoffee(time);
+    if (
+      !dirty &&
+      !transition &&
+      !orbitMoving &&
+      !zoomMoving &&
+      !(coffeeVisible && !reduced.matches)
+    )
+      return;
+    const factor = reduced.matches ? 1 : 1 - Math.exp(-dt / 130);
     if (orbitMoving) {
       yaw += (targetYaw - yaw) * factor;
       pitch += (targetPitch - pitch) * factor;
     }
-    zoom += (targetZoom - zoom) * factor;
-    const destination = arranging
-      ? arrangePose()
-      : focusedMonitor
-        ? monitorPose(focusedMonitor)
-        : overviewPose();
+    // Wheel input during a flight is applied after landing, so it cannot
+    // disagree with the captured destination and snap on the final frame.
+    if (!transition) zoom += (targetZoom - zoom) * factor;
+    const destination = transition?.destination || destinationPose();
     if (transition) {
       const t = transition.duration
           ? Math.min(1, (time - transition.started) / transition.duration)
           : 1,
-        ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        ease = t * t * t * (t * (t * 6 - 15) + 10);
       camera.position.lerpVectors(
         transition.fromPosition,
         destination.position,
@@ -1189,6 +1320,7 @@ export function createWorkspace(container, onOpen, screens) {
       if (t === 1) {
         const done = transition.resolve;
         transition = null;
+        container.dataset.cameraState = "settled";
         done(true);
       }
     } else {
@@ -1214,6 +1346,8 @@ export function createWorkspace(container, onOpen, screens) {
   });
   return {
     focus: (id) => flyTo(id),
+    follow: (id) => flyTo(id, false, true),
+    inspectCoffee: () => flyTo("coffee"),
     leave: () => flyTo(null),
     arrange: () => flyTo(null, true),
     pointOnScreen,

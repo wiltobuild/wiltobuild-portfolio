@@ -1,5 +1,88 @@
 export const PROJECTS = [
   {
+    id: "runelord",
+    status: "Public / Playable demo",
+    kind: "Browser deckbuilding roguelike",
+    title: "Runelord",
+    description:
+      "An original deckbuilding roguelike where every hero leads a warband. Build a deck, choose a pact, and fight through encounters with animated allies at your side. Play it right here on the left monitor.",
+    visual: "assets/project-identities/index.html?project=runelord",
+    labels: ["Combat", "Characters", "Play anywhere"],
+    evidence: [
+      "Tactical cards, pacts, and allied warbands",
+      "Original animated heroes and enemies",
+      "Playable directly in your browser",
+    ],
+    links: [
+      { label: "Play Runelord", url: "https://wiltobuild.github.io/runelord/" },
+      {
+        label: "View repository",
+        url: "https://github.com/wiltobuild/runelord",
+      },
+    ],
+  },
+  {
+    id: "vexa",
+    status: "Public / Active build",
+    kind: "Community workspace for gamers",
+    title: "Vexa",
+    description:
+      "A gamer-focused community workspace with channels, messaging, customizable avatars, and on-device voice transcription. The public demo keeps its data locally in your browser.",
+    visual: "assets/project-identities/index.html?project=vexa",
+    labels: ["Interface", "Community tools", "Voice"],
+    evidence: [
+      "Responsive React and TypeScript workspace",
+      "Local demo channels, messages, reactions, and avatars",
+      "On-device Whisper transcription",
+    ],
+    links: [
+      { label: "Open Vexa", url: "https://vexa-livid.vercel.app/" },
+      { label: "View repository", url: "https://github.com/wiltobuild/Vexa" },
+    ],
+  },
+  {
+    id: "runespeak",
+    status: "Public / Playable demo",
+    kind: "Spanish-learning dungeon crawler",
+    title: "RuneSpeak",
+    description:
+      "Learn Spanish one encounter at a time. Vocabulary, grammar, and word-order challenges become spells as you explore branching dungeons with illustrated heroes and creatures.",
+    visual: "assets/project-identities/index.html?project=runespeak",
+    labels: ["Learning", "Exploration", "Progress"],
+    evidence: [
+      "52 authored beginner Spanish challenges",
+      "Seeded nine-room dungeon runs",
+      "Local autosave, vocabulary journal, and optional pronunciation",
+    ],
+    links: [
+      {
+        label: "Play RuneSpeak",
+        url: "https://wiltobuild.github.io/RuneSpeak/",
+      },
+      {
+        label: "View repository",
+        url: "https://github.com/wiltobuild/RuneSpeak",
+      },
+    ],
+  },
+  {
+    id: "triagepilot",
+    status: "Private / Active build",
+    kind: "AI support-ticket triage agent",
+    title: "TriagePilot",
+    description:
+      "An AI agent that triages SaaS support tickets and explains every decision. Built around making the reasoning behind support triage understandable.",
+    visual: "assets/project-identities/index.html?project=triagepilot",
+    labels: ["Input", "Agent", "Transparency"],
+    evidence: [
+      "SaaS support tickets",
+      "AI-assisted ticket triage",
+      "An explanation for every decision",
+    ],
+    access:
+      "Private repository and access-controlled preview during active development",
+  },
+  {
     id: "irys",
     status: "Private / Active build",
     kind: "Windows desktop companion",

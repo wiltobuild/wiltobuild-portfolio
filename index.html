@@ -35,9 +35,9 @@
       href="https://wiltobuild.github.io/wiltobuild-portfolio/"
     />
     <link rel="icon" href="./assets/desktop-icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./desktop.css?v=shared-20261016" />
-    <link rel="stylesheet" href="./monitor.css?v=shared-20261016" />
-    <link rel="stylesheet" href="./windows.css?v=shared-20261016" />
+    <link rel="stylesheet" href="./desktop.css?v=seamless-20261016" />
+    <link rel="stylesheet" href="./monitor.css?v=seamless-20261016" />
+    <link rel="stylesheet" href="./windows.css?v=seamless-20261016" />
     <link rel="stylesheet" href="./boot.css" />
     <title>WilToBuild — Wil Sheppard’s workspace</title>
     <script type="importmap">
@@ -146,6 +146,13 @@
       <span id="hover-label" aria-hidden="true"></span>
       <div class="scene-tools" aria-label="Workspace controls">
         <button
+          id="inspect-coffee"
+          title="Inspect the coffee"
+          aria-label="Inspect the coffee"
+        >
+          ☕
+        </button>
+        <button
           id="reset-view"
           title="Reset camera view"
           aria-label="Reset camera view"
@@ -200,6 +207,21 @@
         OPPORTUNITIES</span
       ><a href="./classic.html">Classic portfolio ↗</a>
     </footer>
+    <div id="coffee-controls" hidden>
+      <button id="leave-coffee">← Back to desk · Esc</button>
+    </div>
+    <aside id="coffee-card" aria-labelledby="coffee-name" hidden>
+      <span class="coffee-eyebrow">A MOMENT BETWEEN BUILDS</span>
+      <h2 id="coffee-name">Starbucks<br />Pike Place® Roast</h2>
+      <p>Warm mug. Fresh ideas. A little fuel for the next build.</p>
+      <p class="coffee-notes">MEDIUM ROAST<br />COCOA &amp; PRALINE NOTES</p>
+      <a
+        href="https://www.starbucks.com/menu/product/480/hot"
+        target="_blank"
+        rel="noopener noreferrer"
+        >About the roast ↗</a
+      >
+    </aside>
     <nav id="monitor-controls" aria-label="Monitor controls" hidden>
       <button id="leave-monitor">← Back to desk <kbd>Esc</kbd></button>
       <div class="monitor-switcher" role="group" aria-label="Choose a screen">
@@ -227,7 +249,7 @@
       ><span id="desktop-hint">Scroll to zoom · Alt + ← / → to pan</span>
     </div>
     <div id="window-drag-ghost" hidden aria-hidden="true"></div>
-    <section id="monitor-screen" aria-label="WilToBuild desktop" hidden inert>
+    <section id="monitor-screen" aria-label="Personal desktop" hidden inert>
       <div class="os-frame">
         <div class="os-desktop">
           <nav class="desktop-icons" aria-label="Desktop applications">
@@ -261,12 +283,13 @@
             Drag a title bar to move a window. Drag an edge or corner to resize.
             With the title bar focused, arrow keys move; Shift and arrow keys
             resize. Control, Shift and left or right move a window to another
-            monitor. Use Arrange windows to drag between screens. Double-click a
-            title bar to maximize or restore.
+            monitor. Drag a title bar to either screen edge to move to the next
+            monitor; the camera follows. Double-click a title bar to maximize or
+            restore.
           </p>
         </div>
         <div id="start-menu" hidden>
-          <b>WilToBuild 95</b><a href="#runelord">⚔ &nbsp; Runelord.exe</a
+          <b>Desktop 95</b><a href="#runelord">⚔ &nbsp; Runelord.exe</a
           ><a href="#projects">▰ &nbsp; My Projects</a
           ><a href="#about">☺ &nbsp; About Wil</a
           ><a href="#contact">✉ &nbsp; Contact</a
@@ -321,6 +344,6 @@
         </p>
       </div></noscript
     >
-    <script type="module" src="./desktop.js?v=shared-20261016"></script>
+    <script type="module" src="./desktop.js?v=seamless-20261016"></script>
   </body>
 </html>
