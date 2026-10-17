@@ -1,5 +1,5 @@
 import { PROJECTS, AGENTS } from "./portfolio-data.js";
-import { createWindowManager } from "./window-manager.js";
+import { createWindowManager } from "./window-manager.js?v=shared-20261016";
 import { createBoot } from "./boot.js";
 const template = document.querySelector("#monitor-screen");
 const screens = new Map();
@@ -746,7 +746,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js");
+const sceneModule = import("./scene.js?v=shared-20261016");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
