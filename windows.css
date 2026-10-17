@@ -1,0 +1,376 @@
+/* Window coordinates are local to the CRT desktop, not the browser viewport. */
+#monitor-screen .os-desktop {
+  display: block;
+  padding: 0 !important;
+  isolation: isolate;
+  overflow: hidden;
+}
+#monitor-screen .desktop-icons {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  bottom: 8px;
+  width: 70px;
+  display: flex;
+  gap: 14px;
+  z-index: 0;
+}
+#monitor-screen .desktop-icons a {
+  font-size: 9px;
+  min-height: 44px;
+}
+#monitor-screen .desktop-icons a[aria-current="page"] {
+  background: #00008055;
+}
+#monitor-screen.desktop-only .desktop-icons {
+  width: auto;
+  bottom: auto;
+}
+#monitor-screen .os-desktop::after {
+  content: "WilToBuild 95";
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  color: #d1e4c34d;
+  font: 500 27px var(--sans);
+  letter-spacing: -1px;
+  pointer-events: none;
+  z-index: -1;
+}
+#window-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+#monitor-screen .app-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: 3px outset #d5d5d5;
+  background: #c0c0c0;
+  box-shadow: 3px 4px #0006;
+  pointer-events: auto;
+  overflow: visible;
+}
+#monitor-screen .window-titlebar {
+  background: #777b7b;
+  padding: 3px 4px 3px 6px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  min-height: 27px;
+  gap: 5px;
+}
+#monitor-screen .is-active .window-titlebar {
+  background: linear-gradient(90deg, #000080, #176b96);
+}
+#monitor-screen .window-titlebar h2 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font:
+    700 11px Arial,
+    sans-serif;
+  letter-spacing: 0.2px;
+  pointer-events: none;
+}
+#monitor-screen .window-titlebar:focus-visible {
+  outline: 1px dotted #fff;
+  outline-offset: -3px;
+}
+#monitor-screen .window-buttons {
+  flex-shrink: 0;
+  gap: 2px;
+}
+#monitor-screen .window-buttons button {
+  border: 2px outset #eee;
+  background: #c0c0c0;
+  width: 21px;
+  height: 20px;
+  color: #111;
+  font-weight: bold;
+}
+#monitor-screen .window-buttons button:active {
+  border-style: inset;
+}
+#monitor-screen .window-menubar {
+  font-size: 8px;
+  padding: 6px 9px;
+}
+#monitor-screen .window-content {
+  min-width: 0;
+  padding: 20px;
+}
+#monitor-screen .window-status {
+  padding: 5px 8px;
+  font-size: 7px;
+  min-height: 20px;
+}
+#monitor-screen .window-status span:last-child {
+  white-space: nowrap;
+}
+#monitor-screen .is-moving .window-titlebar {
+  cursor: grabbing;
+}
+#monitor-screen.manipulating-window {
+  user-select: none !important;
+}
+#monitor-screen.manipulating-window iframe {
+  pointer-events: none;
+}
+.resize-handle {
+  position: absolute;
+  z-index: 5;
+  touch-action: none;
+  user-select: none;
+}
+.resize-n,
+.resize-s {
+  height: 7px;
+  left: 9px;
+  right: 9px;
+  cursor: ns-resize;
+}
+.resize-n {
+  top: -3px;
+}
+.resize-s {
+  bottom: -3px;
+}
+.resize-e,
+.resize-w {
+  width: 7px;
+  top: 9px;
+  bottom: 9px;
+  cursor: ew-resize;
+}
+.resize-e {
+  right: -3px;
+}
+.resize-w {
+  left: -3px;
+}
+.resize-ne,
+.resize-nw,
+.resize-se,
+.resize-sw {
+  width: 13px;
+  height: 13px;
+}
+.resize-ne {
+  right: -3px;
+  top: -3px;
+  cursor: nesw-resize;
+}
+.resize-nw {
+  left: -3px;
+  top: -3px;
+  cursor: nwse-resize;
+}
+.resize-se {
+  right: -3px;
+  bottom: -3px;
+  cursor: nwse-resize;
+}
+.resize-sw {
+  left: -3px;
+  bottom: -3px;
+  cursor: nesw-resize;
+}
+button.resize-se {
+  padding: 0;
+  border: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 3px,
+    #777 3px 4px,
+    #eee 4px 5px
+  );
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+}
+.is-maximized .resize-handle {
+  display: none;
+}
+#monitor-screen .os-taskbar {
+  position: relative;
+  z-index: 10;
+  background: #c0c0c0;
+  gap: 4px;
+  height: 34px;
+  padding: 3px;
+}
+#monitor-screen .os-taskbar > button {
+  height: 26px;
+  font-size: 11px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+}
+#monitor-screen #show-desktop {
+  width: 26px;
+  padding: 2px;
+  font-size: 18px;
+}
+#taskbar-windows {
+  display: flex;
+  gap: 3px;
+  flex: 1;
+  overflow-x: auto;
+  min-width: 0;
+  scrollbar-width: none;
+}
+#monitor-screen .os-taskbar .window-task {
+  display: block;
+  flex: 1 1 110px;
+  min-width: 55px;
+  max-width: 160px;
+  height: 26px;
+  padding: 4px 7px;
+  font:
+    10px Arial,
+    sans-serif;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+#monitor-screen .window-task[aria-pressed="true"] {
+  border-style: inset;
+  background: #deded2;
+  font-weight: bold;
+}
+#monitor-screen .taskbar-right {
+  font-size: 9px;
+  gap: 6px;
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+#monitor-screen #start-menu {
+  z-index: 100;
+  bottom: 33px;
+  max-height: calc(100% - 38px);
+}
+#monitor-screen .app-window.compact-window .window-content {
+  padding: 13px;
+}
+#monitor-screen .app-window.compact-window .about-grid {
+  grid-template-columns: 1fr;
+  gap: 13px;
+}
+#monitor-screen .app-window.compact-window .about-photo {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  order: -1;
+}
+#monitor-screen .app-window.compact-window .about-photo img {
+  width: 64px;
+  height: 68px;
+  border-width: 3px;
+}
+#monitor-screen .app-window.compact-window .about-photo figcaption {
+  font-size: 7px;
+  line-height: 1.6;
+  margin: 0;
+}
+#monitor-screen .app-window.compact-window .doc-title {
+  font-size: 23px;
+}
+#monitor-screen .app-window.compact-window .doc-kicker {
+  font-size: 7px;
+  letter-spacing: 0.5px;
+}
+#monitor-screen .app-window.compact-window .project-grid {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+#monitor-screen .app-window.compact-window .project-visual {
+  height: 130px;
+}
+#monitor-screen .app-window.compact-window .fact-strip {
+  gap: 10px;
+}
+#monitor-screen .app-window.compact-window .fact-strip b {
+  font-size: 14px;
+}
+#monitor-screen .app-window.compact-window .fact-strip span {
+  font-size: 8px;
+}
+#monitor-screen .app-window.compact-window .agent-grid {
+  grid-template-columns: 1fr 1fr;
+}
+#monitor-screen .app-window.compact-window .agent-tree {
+  padding: 12px;
+}
+#monitor-screen .app-window.compact-window .credential img {
+  width: 55px;
+}
+#monitor-screen .app-window.compact-window .credential {
+  gap: 12px;
+}
+#monitor-screen .app-window.compact-window .snake-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+#monitor-screen .app-window.compact-window .snake-wrap canvas {
+  width: 100%;
+  max-width: 180px;
+}
+#monitor-screen .app-window.compact-window .snake-info {
+  width: auto;
+  font-size: 11px;
+}
+#monitor-screen .app-window.compact-window .snake-info p {
+  margin-top: 0;
+}
+#monitor-screen .app-window.compact-window .snake-pad button {
+  width: 28px;
+  height: 26px;
+}
+#monitor-screen.compact-screen .os-taskbar {
+  height: 30px;
+}
+#monitor-screen.compact-screen .os-taskbar > button,
+#monitor-screen.compact-screen .os-taskbar .window-task {
+  height: 23px;
+  font-size: 9px;
+}
+#monitor-screen.compact-screen .taskbar-right {
+  font-size: 7px;
+  padding: 3px;
+}
+#monitor-screen.compact-screen #start-menu {
+  bottom: 29px;
+  max-height: calc(100% - 34px);
+}
+#monitor-screen.compact-screen .window-titlebar {
+  min-height: 29px;
+}
+#monitor-screen.compact-screen .window-buttons button {
+  width: 24px;
+  height: 23px;
+}
+#monitor-screen.compact-screen .resize-se {
+  width: 17px;
+  height: 17px;
+}
+@media print {
+  #window-layer {
+    position: static !important;
+  }
+  #monitor-screen .app-window:not(.is-active),
+  .resize-handle,
+  #window-help {
+    display: none !important;
+  }
+  #monitor-screen .app-window.is-active {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    border: 0;
+    box-shadow: none;
+  }
+}

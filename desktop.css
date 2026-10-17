@@ -512,7 +512,7 @@ h1 > span {
   border: 0;
   font: 10px var(--mono);
 }
-#window-content {
+.window-content {
   background: #f6f5ed;
   flex: 1;
   overflow: auto;
@@ -1011,7 +1011,7 @@ h1 > span {
     padding: 17px;
     gap: 14px;
   }
-  #window-content {
+  .window-content {
     padding: 25px;
   }
   .about-grid {
@@ -1160,7 +1160,7 @@ h1 > span {
   .app-window {
     min-height: 0;
   }
-  #window-content {
+  .window-content {
     padding: 21px;
   }
   .doc-title {
@@ -1276,7 +1276,7 @@ h1 > span {
   .os-frame,
   .os-desktop,
   .app-window,
-  #window-content {
+  .window-content {
     display: block;
     height: auto;
     overflow: visible;
@@ -1302,7 +1302,7 @@ h1 > span {
 #workspace {
   min-height: 500px;
 }
-#window-content:focus-visible {
+.window-content:focus-visible {
   outline: 1px dotted #6c8056;
   outline-offset: -5px;
 }

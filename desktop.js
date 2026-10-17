@@ -1,18 +1,18 @@
 import { PROJECTS, AGENTS } from "./portfolio-data.js";
+import { createWindowManager } from "./window-manager.js";
+import { createBoot } from "./boot.js";
 const $ = (selector) => document.querySelector(selector);
-const screen = $("#monitor-screen"),
-  content = $("#window-content");
+const screen = $("#monitor-screen");
 let workspace = null,
-  active = "",
   projectIndex = 0,
   previousFocus = null,
-  cleanup = () => {},
   sound = false,
   audio = null,
   toastTimer;
 let sceneSettled = false,
   currentMonitor = null,
   requestedMonitor = null,
+  requestedDesktop = false,
   navigationVersion = 0;
 const monitorNames = {
   about: "01 / The person",
@@ -182,42 +182,111 @@ const pages = {
       `<div class="snake-wrap"><canvas id="snake" width="360" height="360" role="img" aria-label="Snake game board"></canvas><div class="snake-info"><p>Score: <strong id="snake-score">0</strong><br>Best: <strong id="snake-best">0</strong></p><p id="snake-status" role="status">Ready when you are.</p><button id="snake-start" class="doc-button">Start game</button><p class="small-note">Arrow keys or WASD to move.<br>Space to pause. Escape to leave.</p><div class="snake-pad" aria-label="Snake direction controls"><button data-direction="up" aria-label="Move up">↑</button><button data-direction="left" aria-label="Move left">←</button><button data-direction="down" aria-label="Move down">↓</button><button data-direction="right" aria-label="Move right">→</button></div></div></div>`,
     ),
 };
-function renderProject() {
-  const p = projects[projectIndex];
-  $("#project-detail").innerHTML =
+function renderProject(entry) {
+  const p = projects[entry.projectIndex];
+  entry.content.querySelector('[data-ui="project-detail"]').innerHTML =
     `<iframe class="project-visual" src="./${p.visual}" title="${p.title} animated project preview" loading="lazy" sandbox="allow-scripts"></iframe><div class="project-grid"><div><span class="tag">${p.status.toUpperCase()}</span><h3>${p.title}</h3><p>${p.description}</p><div class="doc-actions">${(p.links || []).map((link, i) => `<a class="doc-button ${i ? "secondary" : ""}" href="${link.url}" target="_blank" rel="noopener noreferrer">${link.label} ↗</a>`).join("")}</div>${p.access ? `<p class="small-note">${p.access}</p>` : ""}</div><ul class="evidence-list">${p.evidence.map((e, i) => `<li><b>${p.labels[i]}</b>${e}</li>`).join("")}</ul></div>`;
-  document
+  entry.content
     .querySelectorAll("[data-project]")
-    .forEach((b) =>
-      b.setAttribute(
+    .forEach((button) =>
+      button.setAttribute(
         "aria-pressed",
-        String(Number(b.dataset.project) === projectIndex),
+        String(Number(button.dataset.project) === entry.projectIndex),
       ),
     );
-  $("#window-status").textContent =
-    `${projectIndex + 1} of ${projects.length} projects / ${p.title}`;
+  entry.el.querySelector(".window-status-text").textContent =
+    `${entry.projectIndex + 1} of ${projects.length} projects / ${p.title}`;
 }
-function setStart(open) {
-  $("#start-menu").hidden = !open;
-  $("#start").setAttribute("aria-expanded", String(open));
+function renderApp(entry) {
+  entry.content.innerHTML = pages[entry.name]().replace(
+    /id="([^"]+)"/g,
+    (_, id) => `id="${entry.key}-${id}" data-ui="${id}"`,
+  );
+  if (entry.name === "projects") {
+    renderProject(entry);
+    entry.content.querySelectorAll("[data-project]").forEach((button) =>
+      button.addEventListener("click", () => {
+        entry.projectIndex = Number(button.dataset.project);
+        renderProject(entry);
+        tone(560);
+      }),
+    );
+  }
+  if (entry.name === "contact") {
+    const copy = entry.content.querySelector('[data-ui="copy-email"]');
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText("wil.sheppard@gmail.com");
+        copy.textContent = "Copied ✓";
+        tone(660);
+      } catch {
+        copy.textContent = "wil.sheppard@gmail.com";
+      }
+    });
+  }
+  if (entry.name === "snake")
+    entry.cleanup = initSnake(entry.content, () => windows.isActive(entry));
+}
+function setStart(value) {
+  $("#start-menu").hidden = !value;
+  $("#start").setAttribute("aria-expanded", String(value));
+}
+const windows = createWindowManager({
+  screen,
+  titles: files,
+  render: renderApp,
+  onActive: (entry) => {
+    document.title = entry
+      ? `${files[entry.name]} | WilToBuild`
+      : "Desktop | WilToBuild";
+    if (entry && currentMonitor)
+      history.replaceState(null, "", `#${entry.name}`);
+    document.querySelectorAll(".desktop-icons a").forEach((link) => {
+      if (entry && link.hash === `#${entry.name}`)
+        link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+  },
+});
+function setSound(value) {
+  sound = value;
+  $("#sound").setAttribute("aria-pressed", String(sound));
+  $("#sound").setAttribute(
+    "aria-label",
+    sound ? "Disable interface sound" : "Enable interface sound",
+  );
+  boot.setSound(value);
+}
+const boot = createBoot({
+  onFinish: () => {
+    routePage();
+    if (!currentMonitor) $("#workspace-nav a").focus({ preventScroll: true });
+  },
+  onSound: setSound,
+  tone,
+});
+function navigate(name) {
+  if (location.hash === `#${name}`) routePage();
+  else location.hash = name;
 }
 function open(route) {
   requestedMonitor = monitorFor(route);
-  if (location.hash === `#${route}`) routePage();
-  else location.hash = route;
+  requestedDesktop = route !== "snake" && windows.hasMonitor(requestedMonitor);
+  navigate(
+    route === "snake" ? route : windows.lastRoute(requestedMonitor) || route,
+  );
 }
 function close() {
-  if (!currentMonitor) return;
-  location.hash = "home";
+  if (currentMonitor) location.hash = "home";
 }
 async function routePage() {
-  if (!sceneSettled) return;
+  if (!sceneSettled || boot.isActive()) return;
   const version = ++navigationVersion;
-  let name = location.hash.slice(1).split("/")[0];
-  if (name === "home" || !name || !files[name]) {
+  const name = location.hash.slice(1).split("/")[0];
+  if (!files[name]) {
     if (currentMonitor) {
-      cleanup();
-      cleanup = () => {};
+      windows.suspend();
+      setStart(false);
       screen.inert = true;
       screen.style.pointerEvents = "none";
       document.body.classList.add("moving-camera");
@@ -226,8 +295,6 @@ async function routePage() {
       if (workspace) await workspace.leave();
       if (version !== navigationVersion) return;
       screen.hidden = true;
-      content.innerHTML = "";
-      active = "";
       currentMonitor = null;
       requestedMonitor = null;
       document.body.classList.remove("moving-camera");
@@ -238,21 +305,19 @@ async function routePage() {
     document.title = "WilToBuild — Wil Sheppard’s workspace";
     return;
   }
-  const monitor = requestedMonitor || currentMonitor || monitorFor(name);
+  const monitor = requestedMonitor || currentMonitor || monitorFor(name),
+    resumeDesktop = requestedDesktop;
   requestedMonitor = null;
+  requestedDesktop = false;
   const needsFlight =
     currentMonitor !== monitor ||
     screen.inert ||
     !document.body.classList.contains("monitor-mode");
-  screen.classList.remove("desktop-only");
-  $(".app-window").hidden = false;
-  if (active === name && !needsFlight) return;
-  cleanup();
-  cleanup = () => {};
   if (!currentMonitor) {
     previousFocus = document.activeElement;
     document.body.style.overflow = "hidden";
   }
+  if (needsFlight) windows.suspend();
   currentMonitor = monitor;
   document.body.classList.add("monitor-mode");
   setOverviewInert(true);
@@ -266,105 +331,66 @@ async function routePage() {
     .forEach((b) =>
       b.setAttribute("aria-pressed", String(b.dataset.monitor === monitor)),
     );
-  active = name;
   setStart(false);
   tone();
-  $("#window-title").textContent = files[name];
-  $("#taskbar-app").textContent = files[name];
-  $("#window-location").textContent = `C:\\WIL\\${name.toUpperCase()}`;
-  $("#window-status").textContent = "Ready";
-  document.title = `${files[name]} | WilToBuild`;
-  content.innerHTML = pages[name]();
-  content.scrollTop = 0;
-  document.querySelectorAll(".desktop-icons a").forEach((a) => {
-    if (a.hash === `#${name}`) a.setAttribute("aria-current", "page");
-    else a.removeAttribute("aria-current");
-  });
-  if (name === "projects") {
-    renderProject();
-    document.querySelectorAll("[data-project]").forEach((b) =>
-      b.addEventListener("click", () => {
-        projectIndex = Number(b.dataset.project);
-        renderProject();
-        tone(560);
-      }),
-    );
-  }
-  if (name === "contact")
-    $("#copy-email").addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText("wil.sheppard@gmail.com");
-        $("#copy-email").textContent = "Copied ✓";
-        tone(660);
-      } catch {
-        $("#copy-email").textContent = "wil.sheppard@gmail.com";
-      }
-    });
-  if (name === "snake") cleanup = initSnake();
+  let flight;
   if (needsFlight) {
     screen.inert = true;
     document.body.classList.add("moving-camera");
-    if (workspace) await workspace.focus(monitor);
+    if (workspace) flight = workspace.focus(monitor);
+  }
+  windows.setMonitor(monitor);
+  const entry = resumeDesktop ? windows.resume() : windows.open(name);
+  if (needsFlight) {
+    if (flight) await flight;
     if (version !== navigationVersion) return;
     document.body.classList.remove("moving-camera");
     $("#monitor-caption").textContent = monitorNames[monitor];
   }
   screen.inert = false;
   screen.style.pointerEvents = "auto";
-  content.focus({ preventScroll: true });
+  (entry?.content || $("#start")).focus({ preventScroll: true });
 }
 window.addEventListener("hashchange", routePage);
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && currentMonitor) {
-    e.preventDefault();
+document.addEventListener("keydown", (event) => {
+  if (boot.isActive()) return;
+  if (event.key === "Escape" && currentMonitor) {
+    event.preventDefault();
     close();
   }
 });
-["exit-desktop", "leave-monitor", "shutdown"].forEach((id) =>
+["leave-monitor", "shutdown"].forEach((id) =>
   $("#" + id).addEventListener("click", close),
 );
 document
   .querySelectorAll("[data-monitor]")
-  .forEach((b) => b.addEventListener("click", () => open(b.dataset.monitor)));
-$("#close-window").addEventListener("click", () => {
-  cleanup();
-  cleanup = () => {};
-  active = "";
-  $(".app-window").hidden = true;
-  screen.classList.add("desktop-only");
-  $("#taskbar-app").textContent = "Desktop";
-  $(".desktop-icons a").focus({ preventScroll: true });
-});
-screen.addEventListener("click", (e) => {
-  const link = e.target.closest('a[href^="#"]');
+  .forEach((button) =>
+    button.addEventListener("click", () => open(button.dataset.monitor)),
+  );
+screen.addEventListener("click", (event) => {
+  const link = event.target.closest('a[href^="#"]');
   if (link) {
-    if (link.hash === location.hash) routePage();
+    event.preventDefault();
     setStart(false);
+    navigate(link.hash.slice(1));
   }
+  if (!event.target.closest("#start-menu,#start")) setStart(false);
 });
 $("#start").addEventListener("click", () => {
   setStart($("#start-menu").hidden);
   tone(320);
 });
-screen.addEventListener("click", (e) => {
-  if (!e.target.closest("#start-menu,#start")) setStart(false);
-});
-$("#maximize").addEventListener("click", () => {
-  const max = screen.classList.toggle("app-maximized");
-  $("#maximize").setAttribute("aria-pressed", String(max));
-  $("#maximize").setAttribute(
-    "aria-label",
-    max ? "Restore portfolio window size" : "Maximize portfolio window",
-  );
-});
-$("#print-profile").addEventListener("click", () => window.print());
+$("#show-desktop").addEventListener("click", () => windows.showDesktop());
+function restartBoot() {
+  windows.suspend();
+  setStart(false);
+  location.hash = "home";
+  boot.restart();
+}
+$("#replay-boot").addEventListener("click", restartBoot);
+$("#restart-computer").addEventListener("click", restartBoot);
 $("#sound").addEventListener("click", () => {
-  sound = !sound;
-  $("#sound").setAttribute("aria-pressed", String(sound));
-  $("#sound").setAttribute(
-    "aria-label",
-    sound ? "Disable interface sound" : "Enable interface sound",
-  );
+  setSound(!sound);
   tone(660);
   toast(sound ? "Interface sound on" : "Interface sound off");
 });
@@ -392,7 +418,10 @@ function updateClock() {
 }
 updateClock();
 setInterval(updateClock, 30000);
-function initSnake() {
+
+function initSnake(root, isActive) {
+  const $ = (selector) =>
+    root.querySelector(`[data-ui="${selector.slice(1)}"]`);
   const canvas = $("#snake"),
     ctx = canvas.getContext("2d");
   let snake = [
@@ -519,6 +548,7 @@ function initSnake() {
       next = proposed;
   };
   const key = (e) => {
+    if (!isActive()) return;
     const d = {
       ArrowUp: "up",
       ArrowDown: "down",
@@ -541,10 +571,14 @@ function initSnake() {
   const visibility = () => {
     if (document.hidden && running) pause();
   };
+  const deactivate = () => {
+    if (running) pause();
+  };
+  root.parentElement.addEventListener("desktop:deactivate", deactivate);
   document.addEventListener("keydown", key);
   document.addEventListener("visibilitychange", visibility);
   $("#snake-start").addEventListener("click", start);
-  document
+  root
     .querySelectorAll("[data-direction]")
     .forEach((b) =>
       b.addEventListener("click", () => turn(b.dataset.direction)),
@@ -552,19 +586,24 @@ function initSnake() {
   draw();
   return () => {
     clearInterval(timer);
+    root.parentElement.removeEventListener("desktop:deactivate", deactivate);
     document.removeEventListener("keydown", key);
     document.removeEventListener("visibilitychange", visibility);
   };
 }
-// The content remains usable even when WebGL is blocked or the 3D module fails.
-import("./scene.js")
+// Begin real resource checks behind the Start prompt; the BIOS animates their results.
+boot.track("portfolio.dat", Promise.resolve(PROJECTS));
+boot.track("desktop.sys", Promise.resolve(windows));
+const sceneModule = import("./scene.js");
+boot.track("three.dll", sceneModule);
+boot.track("crt-driver.sys", sceneModule);
+const sceneReady = sceneModule
   .then(({ createWorkspace }) => {
     workspace = createWorkspace($("#scene"), open, screen);
     workspace.setNight(document.body.classList.contains("night"));
     $("#load-status").hidden = true;
     $("#scene").setAttribute("aria-busy", "false");
     sceneSettled = true;
-    routePage();
   })
   .catch((error) => {
     console.warn("3D workspace unavailable:", error.message);
@@ -576,5 +615,38 @@ import("./scene.js")
     document.body.append(screen);
     screen.removeAttribute("style");
     sceneSettled = true;
-    routePage();
   });
+boot.track("workstation.3d", sceneReady);
+function preloadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image(),
+      timer = setTimeout(() => reject(new Error("Image timeout")), 8000);
+    img.onload = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    img.onerror = () => {
+      clearTimeout(timer);
+      reject(new Error("Image unavailable"));
+    };
+    img.src = url;
+  });
+}
+boot.track(
+  "wil-sheppard.bmp",
+  preloadImage("./assets/wil-sheppard-headshot.png"),
+);
+boot.track("crestron.bmp", preloadImage("./assets/credential-crestron.png"));
+boot.track("cts.bmp", preloadImage("./assets/credential-cts.png"));
+for (const project of projects)
+  boot.track(
+    `${project.title.toLowerCase()}.app`,
+    fetch(`./${project.visual}`, { signal: AbortSignal.timeout(8000) }).then(
+      (response) => {
+        if (!response.ok) throw new Error("Preview unavailable");
+        return response.text();
+      },
+    ),
+  );
+boot.track("snake.exe", Promise.resolve());
+boot.setReady(sceneReady);
