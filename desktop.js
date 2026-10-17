@@ -1,6 +1,6 @@
 import { PROJECTS, AGENTS } from "./portfolio-data.js";
 const $ = (selector) => document.querySelector(selector);
-const dialog = $("#portfolio-dialog"),
+const screen = $("#monitor-screen"),
   content = $("#window-content");
 let workspace = null,
   active = "",
@@ -10,6 +10,41 @@ let workspace = null,
   sound = false,
   audio = null,
   toastTimer;
+let sceneSettled = false,
+  currentMonitor = null,
+  requestedMonitor = null,
+  navigationVersion = 0;
+const monitorNames = {
+  about: "01 / The person",
+  projects: "02 / The work",
+  contact: "03 / The connection",
+};
+const monitorFor = (name) =>
+  name === "contact"
+    ? "contact"
+    : ["projects", "snake"].includes(name)
+      ? "projects"
+      : "about";
+function placeStage() {
+  const rect = $("#workspace").getBoundingClientRect();
+  document.documentElement.style.setProperty("--stage-top", `${rect.top}px`);
+  document.documentElement.style.setProperty(
+    "--stage-height",
+    `${rect.height}px`,
+  );
+}
+placeStage();
+window.addEventListener("resize", placeStage);
+window.addEventListener("scroll", placeStage, { passive: true });
+function setOverviewInert(value) {
+  document
+    .querySelectorAll(
+      ".skip-link,.site-header,.site-footer,.intro,.workspace-stamp,.workspace-bottom,.scene-tools",
+    )
+    .forEach((el) => {
+      el.inert = value;
+    });
+}
 const files = {
   about: "Hello, world.txt",
   projects: "My Projects",
@@ -167,37 +202,70 @@ function setStart(open) {
   $("#start").setAttribute("aria-expanded", String(open));
 }
 function open(route) {
-  location.hash = route;
+  requestedMonitor = monitorFor(route);
+  if (location.hash === `#${route}`) routePage();
+  else location.hash = route;
 }
 function close() {
-  if (!dialog.open) return;
+  if (!currentMonitor) return;
   location.hash = "home";
 }
-function route() {
+async function routePage() {
+  if (!sceneSettled) return;
+  const version = ++navigationVersion;
   let name = location.hash.slice(1).split("/")[0];
   if (name === "home" || !name || !files[name]) {
-    if (dialog.open) {
+    if (currentMonitor) {
       cleanup();
       cleanup = () => {};
-      dialog.close();
+      screen.inert = true;
+      screen.style.pointerEvents = "none";
+      document.body.classList.add("moving-camera");
+      document.body.classList.remove("monitor-mode");
+      $("#monitor-controls").hidden = true;
+      if (workspace) await workspace.leave();
+      if (version !== navigationVersion) return;
+      screen.hidden = true;
       content.innerHTML = "";
       active = "";
+      currentMonitor = null;
+      requestedMonitor = null;
+      document.body.classList.remove("moving-camera");
       document.body.style.overflow = "";
-      workspace?.pause(false);
+      setOverviewInert(false);
       previousFocus?.focus({ preventScroll: true });
     }
     document.title = "WilToBuild — Wil Sheppard’s workspace";
     return;
   }
-  if (active === name) return;
+  const monitor = requestedMonitor || currentMonitor || monitorFor(name);
+  requestedMonitor = null;
+  const needsFlight =
+    currentMonitor !== monitor ||
+    screen.inert ||
+    !document.body.classList.contains("monitor-mode");
+  screen.classList.remove("desktop-only");
+  $(".app-window").hidden = false;
+  if (active === name && !needsFlight) return;
   cleanup();
   cleanup = () => {};
-  if (!dialog.open) {
+  if (!currentMonitor) {
     previousFocus = document.activeElement;
-    dialog.showModal();
     document.body.style.overflow = "hidden";
-    workspace?.pause(true);
   }
+  currentMonitor = monitor;
+  document.body.classList.add("monitor-mode");
+  setOverviewInert(true);
+  screen.hidden = false;
+  $("#monitor-controls").hidden = false;
+  $("#monitor-caption").textContent = needsFlight
+    ? "Entering monitor…"
+    : monitorNames[monitor];
+  document
+    .querySelectorAll("[data-monitor]")
+    .forEach((b) =>
+      b.setAttribute("aria-pressed", String(b.dataset.monitor === monitor)),
+    );
   active = name;
   setStart(false);
   tone();
@@ -233,25 +301,56 @@ function route() {
       }
     });
   if (name === "snake") cleanup = initSnake();
+  if (needsFlight) {
+    screen.inert = true;
+    document.body.classList.add("moving-camera");
+    if (workspace) await workspace.focus(monitor);
+    if (version !== navigationVersion) return;
+    document.body.classList.remove("moving-camera");
+    $("#monitor-caption").textContent = monitorNames[monitor];
+  }
+  screen.inert = false;
+  screen.style.pointerEvents = "auto";
   content.focus({ preventScroll: true });
 }
-window.addEventListener("hashchange", route);
-dialog.addEventListener("cancel", (e) => {
-  e.preventDefault();
-  close();
+window.addEventListener("hashchange", routePage);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && currentMonitor) {
+    e.preventDefault();
+    close();
+  }
 });
-["exit-desktop", "close-window", "shutdown"].forEach((id) =>
+["exit-desktop", "leave-monitor", "shutdown"].forEach((id) =>
   $("#" + id).addEventListener("click", close),
 );
+document
+  .querySelectorAll("[data-monitor]")
+  .forEach((b) => b.addEventListener("click", () => open(b.dataset.monitor)));
+$("#close-window").addEventListener("click", () => {
+  cleanup();
+  cleanup = () => {};
+  active = "";
+  $(".app-window").hidden = true;
+  screen.classList.add("desktop-only");
+  $("#taskbar-app").textContent = "Desktop";
+  $(".desktop-icons a").focus({ preventScroll: true });
+});
+screen.addEventListener("click", (e) => {
+  const link = e.target.closest('a[href^="#"]');
+  if (link) {
+    if (link.hash === location.hash) routePage();
+    setStart(false);
+  }
+});
 $("#start").addEventListener("click", () => {
   setStart($("#start-menu").hidden);
   tone(320);
 });
-dialog.addEventListener("click", (e) => {
+screen.addEventListener("click", (e) => {
   if (!e.target.closest("#start-menu,#start")) setStart(false);
 });
 $("#maximize").addEventListener("click", () => {
-  const max = dialog.classList.toggle("maximized");
+  const max = screen.classList.toggle("app-maximized");
   $("#maximize").setAttribute("aria-pressed", String(max));
   $("#maximize").setAttribute(
     "aria-label",
@@ -457,15 +556,15 @@ function initSnake() {
     document.removeEventListener("visibilitychange", visibility);
   };
 }
-route();
 // The content remains usable even when WebGL is blocked or the 3D module fails.
 import("./scene.js")
   .then(({ createWorkspace }) => {
-    workspace = createWorkspace($("#scene"), open);
+    workspace = createWorkspace($("#scene"), open, screen);
     workspace.setNight(document.body.classList.contains("night"));
     $("#load-status").hidden = true;
     $("#scene").setAttribute("aria-busy", "false");
-    if (dialog.open) workspace.pause(true);
+    sceneSettled = true;
+    routePage();
   })
   .catch((error) => {
     console.warn("3D workspace unavailable:", error.message);
@@ -474,4 +573,8 @@ import("./scene.js")
     $("#load-status").textContent =
       "The 3D workspace isn’t available here. Explore the portfolio with the three buttons below.";
     $("#reset-view").hidden = true;
+    document.body.append(screen);
+    screen.removeAttribute("style");
+    sceneSettled = true;
+    routePage();
   });

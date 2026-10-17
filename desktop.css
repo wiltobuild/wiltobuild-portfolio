@@ -372,21 +372,6 @@ h1 > span {
 .night #workspace-nav a > span:last-child {
   color: #b9c5ac;
 }
-dialog {
-  padding: 0;
-  border: 0;
-  max-width: none;
-  max-height: none;
-  background: transparent;
-  width: min(1160px, 94vw);
-  height: min(760px, 91svh);
-  color: #20282b;
-  overflow: visible;
-}
-dialog::backdrop {
-  background: #202824a8;
-  backdrop-filter: blur(7px);
-}
 .os-frame {
   height: 100%;
   display: flex;
@@ -620,16 +605,6 @@ dialog::backdrop {
 #start-menu button:hover {
   background: #203d46;
   color: #fff;
-}
-.maximized {
-  width: 100vw;
-  height: 100svh;
-}
-.maximized .os-frame {
-  border-radius: 0;
-}
-.maximized .os-desktop {
-  padding: 15px;
 }
 .doc-kicker {
   font: 9px var(--mono);
@@ -1153,10 +1128,6 @@ dialog::backdrop {
   .footer-center {
     display: none;
   }
-  dialog {
-    width: 97vw;
-    height: 94svh;
-  }
   .os-top {
     padding: 0 10px;
     font-size: 9px;
@@ -1302,13 +1273,6 @@ dialog::backdrop {
   body > * {
     display: none !important;
   }
-  #portfolio-dialog {
-    display: block !important;
-    position: static;
-    width: 100%;
-    height: auto;
-    margin: 0;
-  }
   .os-frame,
   .os-desktop,
   .app-window,
@@ -1345,20 +1309,5 @@ dialog::backdrop {
 @media (max-width: 650px) {
   #workspace {
     min-height: 650px;
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  dialog[open] .os-frame {
-    animation: desktop-open 0.22s ease-out;
-  }
-  @keyframes desktop-open {
-    from {
-      opacity: 0;
-      transform: scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
   }
 }
