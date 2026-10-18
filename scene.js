@@ -6,7 +6,7 @@ import {
   floppyEjectFrame,
   DISK_HOME,
   DISK_INSERTED,
-} from "./floppy-drive.js?v=doom-menu2-20261018";
+} from "./floppy-drive.js?v=doom-mouse-20261018";
 
 // Original, procedural workstation. All geometry and screen artwork is local.
 export function createWorkspace(container, onOpen, screens) {
@@ -1671,4 +1671,3 @@ export function createWorkspace(container, onOpen, screens) {
     },
   };
 }
-

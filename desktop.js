@@ -1,24 +1,24 @@
-import { aboutPage } from "./about-page.js?v=doom-menu2-20261018";
-import { createFloppySound } from "./floppy-drive.js?v=doom-menu2-20261018";
-import { mountDoomWindow } from "./doom-window.js?v=doom-menu2-20261018";
+import { aboutPage } from "./about-page.js?v=doom-mouse-20261018";
+import { createFloppySound } from "./floppy-drive.js?v=doom-mouse-20261018";
+import { mountDoomWindow } from "./doom-window.js?v=doom-mouse-20261018";
 import {
   createEasterEggs,
   EGG_TITLES,
   eggPage,
-} from "./easter-eggs.js?v=doom-menu2-20261018";
+} from "./easter-eggs.js?v=doom-mouse-20261018";
 import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=doom-menu2-20261018";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=doom-menu2-20261018";
-import { createWindowManager } from "./window-manager.js?v=doom-menu2-20261018";
+} from "./desktop-apps.js?v=doom-mouse-20261018";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=doom-mouse-20261018";
+import { createWindowManager } from "./window-manager.js?v=doom-mouse-20261018";
 import { createBoot } from "./boot.js";
-import { arrangeDesktopIcons } from "./icon-layout.js?v=doom-menu2-20261018";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=doom-mouse-20261018";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=doom-menu2-20261018";
+} from "./desktop-icons.js?v=doom-mouse-20261018";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -982,7 +982,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=doom-menu2-20261018");
+const sceneModule = import("./scene.js?v=doom-mouse-20261018");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
@@ -1046,4 +1046,3 @@ for (const project of projects.filter((p) => p.visual))
   );
 boot.track("snake.exe", Promise.resolve());
 boot.setReady(sceneReady);
-

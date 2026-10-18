@@ -3,7 +3,7 @@ export const DESKTOP_APPS = {
   doom: {
     title: "DOOM.exe — Shareware",
     name: "DOOM",
-    url: "./doom.html?v=doom-menu2-20261018",
+    url: "./doom.html?v=doom-mouse-20261018",
     game: true,
   },
   cephalon: {
@@ -128,5 +128,3 @@ export function mountDesktopApp(entry) {
     clearTimeout(connectionTimer);
   };
 }
-
-

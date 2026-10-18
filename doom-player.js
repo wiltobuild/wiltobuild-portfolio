@@ -37,6 +37,53 @@ try {
 function notice(text) {
   saveLabel.textContent = text;
 }
+function releaseMouse() {
+  for (const button of [0, 1, 2]) ci?.sendMouseButton(button, false);
+  if (document.pointerLockElement) document.exitPointerLock();
+}
+function captureMouse() {
+  if (!ready || !active || !picker.hidden || saving) return;
+  const overlay = player?.layers.mouseOverlay;
+  if (!overlay?.requestPointerLock) {
+    $("#mouse-status").textContent =
+      "Mouse capture unavailable · use arrow keys to turn";
+    return;
+  }
+  try {
+    document.body.focus({ preventScroll: true });
+    const request = overlay.requestPointerLock();
+    request?.catch((error) => {
+      console.warn("Doom mouse capture:", error.name, error.message);
+      $("#mouse-status").textContent =
+        "Click the game to capture the mouse · Esc releases";
+    });
+  } catch {
+    $("#mouse-status").textContent =
+      "Click the game to capture the mouse · Esc releases";
+  }
+}
+let mouseWasLocked = false;
+document.addEventListener("pointerlockchange", () => {
+  const locked = !!document.pointerLockElement;
+  $("#mouse-status").textContent = locked
+    ? "Mouse captured · move to turn · left-click fires · Esc releases"
+    : "Click the game to capture the mouse · Esc releases";
+  document.body.dataset.mouseCaptured = String(locked);
+  if (mouseWasLocked && !locked) {
+    for (const button of [0, 1, 2]) ci?.sendMouseButton(button, false);
+    if (ready && picker.hidden && !stopped) {
+      showMaps();
+      checkpoint();
+    }
+  }
+  mouseWasLocked = locked;
+});
+document.addEventListener("pointerlockerror", () => {
+  $("#mouse-status").textContent =
+    "Click the game to capture the mouse · keyboard controls still work";
+});
+$("#capture-mouse").onclick = captureMouse;
+window.addEventListener("blur", releaseMouse);
 function state() {
   if (!ci) return;
   const running = (active && !document.hidden && picker.hidden) || !!saving;
@@ -118,6 +165,7 @@ async function launch(resume = false, level = 1) {
   $("#maps").disabled = true;
   if (saving) await saving;
   ready = false;
+  releaseMouse();
   quickSlot = false;
   picker.hidden = true;
   status.hidden = false;
@@ -166,6 +214,7 @@ async function launch(resume = false, level = 1) {
       style: "none",
     });
     ci = await player.run(bundleUrl);
+    await player.setAutolock(true);
     if (stopped) {
       await player.stop();
       return;
@@ -191,6 +240,7 @@ async function launch(resume = false, level = 1) {
 }
 function showMaps() {
   picker.hidden = false;
+  releaseMouse();
   state();
   const runs = [];
   for (const key of [
@@ -217,8 +267,8 @@ function showMaps() {
   document.body.dataset.gameState = "map-select";
 }
 $("#maps").onclick = async () => {
-  if (ready && !(await checkpoint())) return;
   showMaps();
+  if (ready) await checkpoint();
 };
 $("#resume").onclick = () => launch(true);
 $("#continue").onclick = () => {
@@ -226,6 +276,7 @@ $("#continue").onclick = () => {
     picker.hidden = true;
     state();
     document.body.focus();
+    captureMouse();
   }
 };
 $("#save").onclick = async () => {
@@ -243,19 +294,22 @@ $("#map-list").replaceChildren(
 window.addEventListener(
   "keydown",
   (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (picker.hidden) $("#maps").click();
+      else releaseMouse();
+      return;
+    }
     if (saving) {
       event.preventDefault();
       event.stopImmediatePropagation();
       return;
     }
-    if (event.key === "Escape" || /^F\d+$/.test(event.key)) {
+    if (/^F\d+$/.test(event.key)) {
       event.preventDefault();
       event.stopImmediatePropagation();
       if (event.key === "F6") checkpoint();
-      else if (event.key === "Escape") {
-        if (picker.hidden) $("#maps").click();
-        else if (ready) $("#continue").click();
-      }
     }
   },
   true,
@@ -274,6 +328,7 @@ window.addEventListener("message", async (event) => {
   const wasActive = active;
   active = event.data.active === true;
   sound = event.data.sound === true;
+  if (!active) releaseMouse();
   if (wasActive && !active && ready) await checkpoint();
   state();
   if (active && picker.hidden) {
@@ -285,11 +340,13 @@ setInterval(() => {
   if (ready && active && !document.hidden && picker.hidden) checkpoint();
 }, 15000);
 document.addEventListener("visibilitychange", () => {
+  if (document.hidden) releaseMouse();
   if (document.hidden && ready) checkpoint();
   state();
 });
 window.addEventListener("pagehide", () => {
   stopped = true;
+  releaseMouse();
   player?.stop();
   if (bundleUrl) URL.revokeObjectURL(bundleUrl);
 });

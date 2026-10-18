@@ -166,16 +166,20 @@
       <div>
         <button id="maps">Maps / Pause</button>
         <button id="save">Save now</button>
+        <button id="capture-mouse">Capture mouse</button>
         <span id="save-status" role="status"></span>
       </div>
       <p>
         W/S move · A/D strafe · ←/→ turn · Space fire · Ctrl use · Shift run ·
-        1–7 weapons · Tab map · Esc pause · F6 save
+        1–7 weapons · Tab map · Esc releases mouse / pauses · F6 save<br />
+        <span id="mouse-status" role="status"
+          >Click the game to capture the mouse · mouse turns · left-click
+          fires</span
+        >
       </p>
     </footer>
     <div id="status" role="status" hidden>Choose a map to begin.</div>
     <script src="./assets/vendor/js-dos/js-dos.js"></script>
-    <script type="module" src="./doom-player.js?v=doom-menu2-20261018"></script>
+    <script type="module" src="./doom-player.js?v=doom-mouse-20261018"></script>
   </body>
 </html>
-
