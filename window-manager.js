@@ -4,7 +4,7 @@ import {
   normalizeRect,
   restoreRect,
   monitorEdgeDirection,
-} from "./window-geometry.js?v=doom-mouse-20261018";
+} from "./window-geometry.js?v=doom-compact-20261018";
 
 const STORAGE = "wtb-desktop-layout-v2";
 const monitorIds = ["about", "projects", "contact"];
