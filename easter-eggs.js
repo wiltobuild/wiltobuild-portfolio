@@ -1,11 +1,11 @@
 import {
   createDiscoveryStore,
   STICKERS,
-} from "./discovery-state.js?v=disk-20261017";
+} from "./discovery-state.js?v=doom-20261018";
 
 export const EGG_TITLES = {
   terminal: "MS-DOS Prompt",
-  floppy: "A:\\ — Definitely not a game",
+  floppy: "Rune archive — The forgotten rune",
   incident: "Pager 95 — Demo rescue",
   stickers: "My sticker album",
 };
@@ -125,8 +125,10 @@ export function createEasterEggs({ navigate, toast, onChange, onReadDisk }) {
       while (output.children.length > 80) output.firstElementChild.remove();
     };
     const routes = {
-      "a:": "floppy",
-      floppy: "floppy",
+      "a:": "doom",
+      floppy: "doom",
+      "doom.exe": "doom",
+      "rune.exe": "floppy",
       "incident.exe": "incident",
       stickers: "stickers",
       projects: "projects",
@@ -194,7 +196,9 @@ export function createEasterEggs({ navigate, toast, onChange, onReadDisk }) {
         root.querySelector(".rune-sprite").innerHTML =
           `<svg viewBox="0 0 48 56" aria-hidden="true" shape-rendering="crispEdges"><path fill="#7890a8" d="M12 4h24v6h4v15h-4v4h7v17h-7v7H24v-9h-4v9H8V35h4V25H8V10h4z"/><path fill="#aab9ca" d="M14 7h18v5H14zm-1 21h21v13H13z"/><path fill="#152b40" d="M13 14h22v8H13zm5 10h12v3H18z"/><path fill="#baffed" d="M16 16h5v4h-5zm11 0h5v4h-5z"/><path fill="#243c51" d="M21 30h3v10h-3zm3 0h5v3h-5zm2 4h3v2h-3zm3 2h3v4h-3z"/><path fill="#4b627b" d="M4 32h8v14H4zm32 0h8v14h-8z"/></svg>`;
       root.querySelector('[data-egg="load"]')?.addEventListener("click", () => {
-        onReadDisk();
+        loaded = true;
+        render();
+        focusFirst(root);
       });
       root
         .querySelector('[data-egg="replay"]')
@@ -269,6 +273,10 @@ export function createEasterEggs({ navigate, toast, onChange, onReadDisk }) {
   }
   return {
     mount,
+    discoverDisk() {
+      store.discover("floppy");
+      award("floppy");
+    },
     snapshot: store.snapshot,
     diskReady() {
       diskLoaded = true;

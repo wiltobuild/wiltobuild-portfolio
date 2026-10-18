@@ -4,7 +4,7 @@ import {
   normalizeRect,
   restoreRect,
   monitorEdgeDirection,
-} from "./window-geometry.js?v=disk-20261017";
+} from "./window-geometry.js?v=doom-20261018";
 
 const STORAGE = "wtb-desktop-layout-v2";
 const monitorIds = ["about", "projects", "contact"];
@@ -477,6 +477,10 @@ export function createWindowManager({
   window.addEventListener("pagehide", save);
   return {
     open,
+    closeApp(name) {
+      const entry = entries.get(name);
+      if (entry) close(entry);
+    },
     active: () => focused,
     monitorOf: (name) => entries.get(name)?.monitor,
     lastRoute: (id) => desktops.get(id),

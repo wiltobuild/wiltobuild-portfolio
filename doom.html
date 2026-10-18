@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>DOOM — Shareware</title>
+    <link rel="stylesheet" href="./assets/vendor/js-dos/js-dos.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #000;
+        color: #ddd;
+        font: 14px monospace;
+      }
+      #dos {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #status {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        background: #080808;
+        padding: 24px;
+        text-align: center;
+        z-index: 50;
+      }
+      #status[hidden] {
+        display: none;
+      }
+      #dos canvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        position: absolute !important;
+        inset: 0 !important;
+        object-fit: fill;
+        image-rendering: pixelated;
+      }
+      #dos .dos-ui {
+        width: 100%;
+        height: 100%;
+      }
+      #dos .flex-grow-0 {
+        display: none !important;
+      }
+      #dos .dos-ui .dos-ui-container {
+        width: 100%;
+        height: 100%;
+      }
+      button {
+        background: #c0c0c0;
+        color: #111;
+        border: 2px outset white;
+        padding: 8px;
+        font: inherit;
+      }
+    </style>
+  </head>
+  <body tabindex="0">
+    <div id="dos" aria-label="Doom game"></div>
+    <div id="status" role="status">
+      Booting DOOM…<br />No start button needed.
+    </div>
+    <script src="./assets/vendor/js-dos/js-dos.js"></script>
+    <script type="module" src="./doom-player.js?v=doom-20261018"></script>
+  </body>
+</html>

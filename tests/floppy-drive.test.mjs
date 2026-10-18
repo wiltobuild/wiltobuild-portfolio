@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   floppyFrame,
+  floppyEjectFrame,
   DISK_HOME,
   DISK_INSERTED,
   createFloppySound,
@@ -77,9 +78,19 @@ test("sound is opt-in, can be muted mid-read, and cannot restart after stopping"
   audio.setEnabled(false);
   const before = starts;
   assert.ok(stops >= 2);
-  audio.setPhase("inserting");
+  audio.setPhase("ejecting");
   assert.equal(starts, before);
   audio.stop();
   audio.setEnabled(true);
   assert.equal(starts, before);
+});
+
+test("eject clears the desk and returns the disk to its original pose", () => {
+  assert.deepEqual(floppyEjectFrame(0).position, DISK_INSERTED);
+  assert.ok(floppyEjectFrame(1200).position[2] > 2.25);
+  assert.ok(floppyEjectFrame(1800).position[1] > 2.5);
+  assert.deepEqual(floppyEjectFrame(2400).position, DISK_HOME);
+  assert.equal(floppyEjectFrame(2400).done, true);
+  assert.equal(floppyEjectFrame(2400).light, false);
+  assert.equal(floppyEjectFrame(300, { reduced: true }).done, true);
 });

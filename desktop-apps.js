@@ -1,5 +1,11 @@
 // Only these known app destinations are embedded in the personal desktop.
 export const DESKTOP_APPS = {
+  doom: {
+    title: "DOOM.exe — Shareware",
+    name: "DOOM",
+    url: "./doom.html",
+    game: true,
+  },
   cephalon: {
     title: "Cephalon",
     name: "Cephalon",
