@@ -1,24 +1,24 @@
-import { aboutPage } from "./about-page.js?v=doom-20261018";
-import { createFloppySound } from "./floppy-drive.js?v=doom-20261018";
-import { mountDoomWindow } from "./doom-window.js?v=doom-20261018";
+import { aboutPage } from "./about-page.js?v=doom-save-20261018";
+import { createFloppySound } from "./floppy-drive.js?v=doom-save-20261018";
+import { mountDoomWindow } from "./doom-window.js?v=doom-save-20261018";
 import {
   createEasterEggs,
   EGG_TITLES,
   eggPage,
-} from "./easter-eggs.js?v=doom-20261018";
+} from "./easter-eggs.js?v=doom-save-20261018";
 import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=doom-20261018";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=doom-20261018";
-import { createWindowManager } from "./window-manager.js?v=doom-20261018";
+} from "./desktop-apps.js?v=doom-save-20261018";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=doom-save-20261018";
+import { createWindowManager } from "./window-manager.js?v=doom-save-20261018";
 import { createBoot } from "./boot.js";
-import { arrangeDesktopIcons } from "./icon-layout.js?v=doom-20261018";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=doom-save-20261018";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=doom-20261018";
+} from "./desktop-icons.js?v=doom-save-20261018";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -444,7 +444,17 @@ async function loadFloppy(eject = false) {
   const version = ++diskLoadVersion;
   ++navigationVersion;
   previousFocus = document.activeElement;
-  if (eject) windows.closeApp("doom");
+  if (eject) {
+    const game = windows.get("doom");
+    if (game?.saveGame && !(await game.saveGame())) {
+      diskLoading = false;
+      toast(
+        "The disk could not save. Keep it inserted and try Save now in Doom.",
+      );
+      return;
+    }
+    windows.closeApp("doom");
+  }
   windows.suspend();
   setStart(false);
   setScreensInteractive(null);
@@ -972,7 +982,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=doom-20261018");
+const sceneModule = import("./scene.js?v=doom-save-20261018");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule
