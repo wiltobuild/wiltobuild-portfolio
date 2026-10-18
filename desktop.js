@@ -1,23 +1,24 @@
-import { aboutPage } from "./about-page.js?v=disk-20261017";
-import { createFloppySound } from "./floppy-drive.js?v=disk-20261017";
+import { aboutPage } from "./about-page.js?v=doom-20261018";
+import { createFloppySound } from "./floppy-drive.js?v=doom-20261018";
+import { mountDoomWindow } from "./doom-window.js?v=doom-20261018";
 import {
   createEasterEggs,
   EGG_TITLES,
   eggPage,
-} from "./easter-eggs.js?v=disk-20261017";
+} from "./easter-eggs.js?v=doom-20261018";
 import {
   DESKTOP_APPS,
   appMarkup,
   mountDesktopApp,
-} from "./desktop-apps.js?v=disk-20261017";
-import { PROJECTS, AGENTS } from "./portfolio-data.js?v=disk-20261017";
-import { createWindowManager } from "./window-manager.js?v=disk-20261017";
+} from "./desktop-apps.js?v=doom-20261018";
+import { PROJECTS, AGENTS } from "./portfolio-data.js?v=doom-20261018";
+import { createWindowManager } from "./window-manager.js?v=doom-20261018";
 import { createBoot } from "./boot.js";
-import { arrangeDesktopIcons } from "./icon-layout.js?v=disk-20261017";
+import { arrangeDesktopIcons } from "./icon-layout.js?v=doom-20261018";
 import {
   decorateDesktop,
   desktopIcon,
-} from "./desktop-icons.js?v=disk-20261017";
+} from "./desktop-icons.js?v=doom-20261018";
 const template = document.querySelector("#monitor-screen");
 decorateDesktop(template);
 const screens = new Map();
@@ -277,6 +278,14 @@ function renderApp(entry) {
     );
   }
   if (DESKTOP_APPS[entry.name]) mountDesktopApp(entry);
+  if (entry.name === "doom") {
+    workspace?.restoreFloppy();
+    mountDoomWindow(entry, {
+      getSound: () => sound,
+      isActive: (e) => windows.isActive(e),
+      eject: () => loadFloppy(true),
+    });
+  }
   if (EGG_TITLES[entry.name]) eggs.mount(entry);
   if (entry.name === "projects") {
     renderProject(entry);
@@ -310,7 +319,6 @@ function setStart(value) {
 const eggs = createEasterEggs({
   navigate,
   toast,
-  onReadDisk: loadFloppy,
   onChange: (state) => workspace?.setDiscoveries(state),
 });
 const windows = createWindowManager({
@@ -347,6 +355,7 @@ const windows = createWindowManager({
 });
 function setSound(value) {
   sound = value;
+  window.dispatchEvent(new Event("desktop-sound-change"));
   diskSound.setEnabled(value && !document.hidden);
   $("#disk-sound").textContent = value ? "Sound: ON" : "Sound: OFF";
   $("#disk-sound").setAttribute("aria-pressed", String(value));
@@ -403,6 +412,10 @@ function enterMonitor(id, name) {
   );
 }
 function open(route) {
+  if (route === "eject") {
+    loadFloppy(true);
+    return;
+  }
   if (route === "floppy") {
     loadFloppy();
     return;
@@ -417,17 +430,21 @@ function open(route) {
     navigate(route);
   }
 }
-async function loadFloppy() {
+async function loadFloppy(eject = false) {
   if (diskLoading) return;
+  if (eject && !workspace?.isDiskInserted()) {
+    toast("The floppy drive is empty.");
+    return;
+  }
   if (!workspace) {
-    eggs.diskReady();
-    navigate("floppy");
+    navigate("doom");
     return;
   }
   diskLoading = true;
   const version = ++diskLoadVersion;
   ++navigationVersion;
   previousFocus = document.activeElement;
+  if (eject) windows.closeApp("doom");
   windows.suspend();
   setStart(false);
   setScreensInteractive(null);
@@ -445,14 +462,18 @@ async function loadFloppy() {
   setOverviewInert(false);
   $("#disk-loading").hidden = false;
   $("#cancel-disk").focus({ preventScroll: true });
-  const completed = await workspace.readFloppy((phase) => {
+  const completed = await (
+    eject ? workspace.ejectFloppy : workspace.readFloppy
+  )((phase) => {
     diskSound.setPhase(phase);
     $("#disk-progress").textContent =
       {
         positioning: "A: Preparing floppy drive…",
         inserting: "A: Inserting disk…",
-        reading: "A: Reading rune archive…",
-        ready: "A: Archive ready.",
+        reading: "A: Reading DOOM…",
+        ready: "A: DOOM ready.",
+        ejecting: "A: Ejecting disk…",
+        ejected: "A: Disk returned to desk.",
       }[phase] || "A: Read cancelled.";
   });
   if (version !== diskLoadVersion) return;
@@ -464,9 +485,18 @@ async function loadFloppy() {
   diskSound.stop();
   $("#disk-loading").hidden = true;
   document.body.classList.remove("disk-mode");
-  eggs.diskReady();
-  requestedMonitor = windows.monitorOf("floppy") || monitorFor("floppy");
-  navigate("floppy");
+  if (eject) {
+    document.body.style.overflow = "";
+    history.replaceState(null, "", "#home");
+    await workspace.leave();
+    document
+      .querySelector('[data-discover="floppy"]')
+      .focus({ preventScroll: true });
+    return;
+  }
+  eggs.discoverDisk();
+  requestedMonitor = windows.monitorOf("doom") || monitorFor("doom");
+  navigate("doom");
 }
 function cancelDiskLoad(returnHome = true) {
   if (!diskLoading) return;
@@ -480,7 +510,9 @@ function cancelDiskLoad(returnHome = true) {
   workspace?.leave();
   if (returnHome) {
     history.replaceState(null, "", "#home");
-    document.querySelector('[data-discover="floppy"]').focus({ preventScroll: true });
+    document
+      .querySelector('[data-discover="floppy"]')
+      .focus({ preventScroll: true });
   }
 }
 function close() {
@@ -623,7 +655,9 @@ async function routePage() {
     if (workspace) flight = workspace.focus(id);
   }
   windows.setMonitor(id);
-  const entry = resume ? windows.resume() : windows.open(name);
+  const entry = resume
+    ? windows.resume()
+    : windows.open(name, name === "doom" ? { maximized: true } : {});
   if (name === "projects" && projectId && entry) {
     const selected = projects.findIndex((p) => p.id === projectId);
     if (selected >= 0) {
@@ -637,6 +671,8 @@ async function routePage() {
   document.body.classList.remove("moving-camera");
   setScreensInteractive(id);
   (entry?.content || $("#start")).focus({ preventScroll: true });
+  if (name === "doom")
+    entry?.content.querySelector("iframe")?.focus({ preventScroll: true });
 }
 function panMonitor(direction) {
   const ids = ["about", "projects", "contact"],
@@ -936,7 +972,7 @@ function initSnake(root, isActive) {
 // Begin real resource checks behind the Start prompt; the BIOS animates their results.
 boot.track("portfolio.dat", Promise.resolve(PROJECTS));
 boot.track("desktop.sys", Promise.resolve(windows));
-const sceneModule = import("./scene.js?v=disk-20261017");
+const sceneModule = import("./scene.js?v=doom-20261018");
 boot.track("three.dll", sceneModule);
 boot.track("crt-driver.sys", sceneModule);
 const sceneReady = sceneModule

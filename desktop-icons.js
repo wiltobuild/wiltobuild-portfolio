@@ -126,6 +126,7 @@ icons.cephalon = icons.agents;
 icons["rush-hour"] = icons.projects;
 icons.gitfit = icons.about;
 icons.salesscope = icons.experience;
+icons.doom = icons.snake;
 icons.terminal =
   rect(2, 3, 28, 25, "#c0c0c0") +
   rect(4, 5, 24, 20, "#000") +

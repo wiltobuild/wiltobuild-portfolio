@@ -36,6 +36,18 @@ export function floppyFrame(
       (reduced || Math.floor((elapsed - travel) / 180) % 3 !== 2),
   };
 }
+export function floppyEjectFrame(elapsed, { reduced = false } = {}) {
+  const done = elapsed >= (reduced ? 300 : 2400);
+  const pose = floppyFrame(reduced ? 0 : Math.max(0, 2400 - elapsed));
+  return {
+    ...pose,
+    position: done ? DISK_HOME : pose.position,
+    yaw: done ? 0.21 : pose.yaw,
+    done,
+    light: false,
+    phase: done ? "ejected" : "ejecting",
+  };
+}
 
 // Small synthesized motor / head-seek sounds. No downloaded audio or autoplay.
 export function createFloppySound(getContext) {
@@ -65,7 +77,8 @@ export function createFloppySound(getContext) {
   }
   function play() {
     stop();
-    if (!enabled || !["inserting", "reading"].includes(phase)) return;
+    if (!enabled || !["inserting", "reading", "ejecting"].includes(phase))
+      return;
     try {
       const context = getContext();
       context.resume().catch(() => {});

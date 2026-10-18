@@ -3,9 +3,10 @@ import { CSS3DObject, CSS3DRenderer } from "./assets/vendor/CSS3DRenderer.js";
 import { createLavaLamp } from "./lava-lamp.js?v=lava-20261017";
 import {
   floppyFrame,
+  floppyEjectFrame,
   DISK_HOME,
   DISK_INSERTED,
-} from "./floppy-drive.js?v=disk-20261017";
+} from "./floppy-drive.js?v=doom-20261018";
 
 // Original, procedural workstation. All geometry and screen artwork is local.
 export function createWorkspace(container, onOpen, screens) {
@@ -285,6 +286,16 @@ export function createWorkspace(container, onOpen, screens) {
   const floppyBay = box(tower, 0.67, 0.25, 0.04, darkCream, 0, 0.19, 0.98);
   const floppySlot = box(tower, 0.48, 0.075, 0.04, black, -0.05, 0.2, 1.01);
   const driveLight = new THREE.MeshBasicMaterial({ color: "#344226" });
+  const ejectButton = box(
+    tower,
+    0.09,
+    0.045,
+    0.04,
+    lightCream,
+    0.24,
+    0.23,
+    1.04,
+  );
   box(tower, 0.055, 0.025, 0.025, driveLight, 0.23, 0.14, 1.02);
   for (let i = 0; i < 10; i++)
     box(tower, 0.56, 0.018, 0.025, black, 0, -0.26 - i * 0.045, 0.98);
@@ -941,6 +952,8 @@ export function createWorkspace(container, onOpen, screens) {
     mesh.userData.route = "floppy";
     hits.push(mesh);
   });
+  ejectButton.userData.route = "eject";
+  hits.push(ejectButton);
   let diskJob = null,
     diskInserted = false;
   function diskHitTargets(visible) {
@@ -959,14 +972,16 @@ export function createWorkspace(container, onOpen, screens) {
     diskGroup.visible = !diskInserted;
     diskHitTargets(!diskInserted);
     driveLight.color.set("#344226");
+    ejectButton.position.z = 1.04;
     container.dataset.diskPhase = "idle";
     container.dataset.driveLight = "off";
     job.onPhase("idle");
     job.resolve(false);
     dirty = true;
   }
-  function readFloppy(onPhase) {
+  function readFloppy(onPhase, eject = false) {
     if (diskJob) return diskJob.promise;
+    if (eject && !diskInserted) return Promise.resolve(false);
     let resolve;
     const promise = new Promise((done) => {
       resolve = done;
@@ -979,6 +994,7 @@ export function createWorkspace(container, onOpen, screens) {
       phase: "positioning",
       reduced: reduced.matches,
       inserted: diskInserted,
+      eject,
     };
     diskJob = job;
     diskHitTargets(false);
@@ -998,10 +1014,16 @@ export function createWorkspace(container, onOpen, screens) {
   function animateFloppy(time) {
     if (!diskJob || diskJob.started === null) return;
     const job = diskJob,
-      state = floppyFrame(time - job.started, job);
+      state = job.eject
+        ? floppyEjectFrame(time - job.started, job)
+        : floppyFrame(time - job.started, job);
     diskGroup.position.fromArray(state.position);
     diskGroup.rotation.y = state.yaw;
-    diskGroup.visible = state.phase === "inserting";
+    diskGroup.visible = ["inserting", "ejecting", "ejected"].includes(
+      state.phase,
+    );
+    ejectButton.position.z =
+      job.eject && time - job.started < 220 ? 1.02 : 1.04;
     driveLight.color.set(state.light ? "#caff57" : "#344226");
     container.dataset.driveLight = state.light ? "on" : "off";
     container.dataset.diskPhase = state.phase;
@@ -1010,7 +1032,9 @@ export function createWorkspace(container, onOpen, screens) {
       job.onPhase(state.phase);
     }
     if (state.done) {
-      diskInserted = true;
+      diskInserted = !job.eject;
+      diskHitTargets(job.eject);
+      container.dataset.diskInserted = String(diskInserted);
       diskJob = null;
       job.resolve(true);
     }
@@ -1427,17 +1451,19 @@ export function createWorkspace(container, onOpen, screens) {
     hover.textContent =
       route === "coffee"
         ? "Inspect coffee ↗"
-        : route === "floppy"
-          ? "Read mysterious floppy ↗"
-          : route === "incident"
-            ? "Check the pager ↗"
-            : route === "stickers"
-              ? "Inspect your stickers ↗"
-              : route
-                ? "Enter monitor " +
-                  (["about", "projects", "contact"].indexOf(route) + 1) +
-                  " ↗"
-                : "";
+        : route === "eject"
+          ? "Eject floppy disk ↗"
+          : route === "floppy"
+            ? "Read mysterious floppy ↗"
+            : route === "incident"
+              ? "Check the pager ↗"
+              : route === "stickers"
+                ? "Inspect your stickers ↗"
+                : route
+                  ? "Enter monitor " +
+                    (["about", "projects", "contact"].indexOf(route) + 1) +
+                    " ↗"
+                  : "";
     hover.style.left = `${Math.min(e.clientX + 16, innerWidth - 210)}px`;
     hover.style.top = `${e.clientY + 16}px`;
     hover.classList.toggle("visible", !!route);
@@ -1587,6 +1613,17 @@ export function createWorkspace(container, onOpen, screens) {
   });
   return {
     readFloppy,
+    restoreFloppy() {
+      if (diskJob) return;
+      diskInserted = true;
+      diskGroup.visible = false;
+      diskGroup.position.fromArray(DISK_INSERTED);
+      diskHitTargets(false);
+      container.dataset.diskInserted = "true";
+      dirty = true;
+    },
+    ejectFloppy: (onPhase) => readFloppy(onPhase, true),
+    isDiskInserted: () => diskInserted,
     cancelFloppy,
     setDiscoveries,
     focus: (id) => flyTo(id),
