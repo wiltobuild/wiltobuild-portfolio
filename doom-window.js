@@ -1,5 +1,30 @@
 export function mountDoomWindow(entry, { getSound, isActive, eject }) {
   const frame = entry.content.querySelector("iframe");
+  let sequence = 0;
+  entry.saveGame = () =>
+    new Promise((resolve) => {
+      const id = ++sequence;
+      const finish = (ok) => {
+        clearTimeout(timer);
+        window.removeEventListener("message", reply);
+        resolve(ok);
+      };
+      const reply = (event) => {
+        if (
+          event.source === frame.contentWindow &&
+          event.origin === location.origin &&
+          event.data?.type === "doom-saved" &&
+          event.data.id === id
+        )
+          finish(event.data.ok === true);
+      };
+      const timer = setTimeout(() => finish(false), 12000);
+      window.addEventListener("message", reply);
+      frame.contentWindow?.postMessage(
+        { type: "doom-save-request", id },
+        location.origin,
+      );
+    });
   const send = () =>
     frame.contentWindow?.postMessage(
       { type: "doom-state", sound: getSound(), active: isActive(entry) },
@@ -20,14 +45,12 @@ export function mountDoomWindow(entry, { getSound, isActive, eject }) {
     attributes: true,
     attributeFilter: ["class", "hidden"],
   });
-  document
-    .querySelectorAll(".monitor-screen")
-    .forEach((screen) =>
-      observer.observe(screen, {
-        attributes: true,
-        attributeFilter: ["inert"],
-      }),
-    );
+  document.querySelectorAll(".monitor-screen").forEach((screen) =>
+    observer.observe(screen, {
+      attributes: true,
+      attributeFilter: ["inert"],
+    }),
+  );
   window.addEventListener("message", ready);
   window.addEventListener("desktop-sound-change", send);
   frame.addEventListener("load", send);

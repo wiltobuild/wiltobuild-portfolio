@@ -4,7 +4,7 @@ import {
   normalizeRect,
   restoreRect,
   monitorEdgeDirection,
-} from "./window-geometry.js?v=doom-20261018";
+} from "./window-geometry.js?v=doom-save-20261018";
 
 const STORAGE = "wtb-desktop-layout-v2";
 const monitorIds = ["about", "projects", "contact"];
@@ -481,6 +481,7 @@ export function createWindowManager({
       const entry = entries.get(name);
       if (entry) close(entry);
     },
+    get: (name) => entries.get(name),
     active: () => focused,
     monitorOf: (name) => entries.get(name)?.monitor,
     lastRoute: (id) => desktops.get(id),
