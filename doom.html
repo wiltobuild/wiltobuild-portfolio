@@ -139,6 +139,11 @@
     <section id="picker" aria-label="Doom map selection" hidden>
       <h1>DOOM / Choose a map</h1>
       <p>Knee-Deep in the Dead · Shareware episode</p>
+      <label id="saved-choice" hidden
+        >Saved run
+        <select id="saved-run"></select
+      ></label>
+      <button id="continue" hidden>Continue current game</button>
       <button id="resume" hidden>Resume saved game</button>
       <label
         >Difficulty
@@ -152,8 +157,9 @@
       >
       <div id="map-list"></div>
       <p>
-        Choosing a map starts a new run and replaces your checkpoint. Saves stay
-        in this browser.
+        Each map keeps its own checkpoint. Your original saved run stays safe.
+        Restarting a map replaces only its own checkpoint. Saves stay in this
+        browser.
       </p>
     </section>
     <footer id="toolbar">
@@ -163,12 +169,12 @@
         <span id="save-status" role="status"></span>
       </div>
       <p>
-        W/S move · A/D strafe · ←/→ turn · Ctrl fire · Space use · Shift run ·
+        W/S move · A/D strafe · ←/→ turn · Space fire · Ctrl use · Shift run ·
         1–7 weapons · Tab map · Esc pause · F6 save
       </p>
     </footer>
     <div id="status" role="status" hidden>Choose a map to begin.</div>
     <script src="./assets/vendor/js-dos/js-dos.js"></script>
-    <script type="module" src="./doom-player.js?v=doom-save-20261018"></script>
+    <script type="module" src="./doom-player.js?v=doom-menu-20261018"></script>
   </body>
 </html>

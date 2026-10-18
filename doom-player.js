@@ -19,6 +19,7 @@ let player,
   ci,
   bundleUrl,
   saved,
+  saveKey = DOOM_SAVE_KEY,
   filesPromise,
   saving,
   launching = false,
@@ -76,7 +77,7 @@ async function checkpoint() {
       );
     const value = encodeSave(bytes, { map, skill, savedAt: Date.now() });
     quickSlot = true;
-    localStorage.setItem(DOOM_SAVE_KEY, value);
+    localStorage.setItem(saveKey, value);
     saved = decodeSave(value);
     quickSlot = true;
     notice(
@@ -126,6 +127,14 @@ async function launch(resume = false, level = 1) {
   try {
     await player?.stop();
     ci = null;
+    saveKey = resume ? $("#saved-run").value : `${DOOM_SAVE_KEY}.map.${level}`;
+    try {
+      saved = decodeSave(localStorage.getItem(saveKey));
+    } catch {
+      saved = null;
+    }
+    if (resume && !saved)
+      throw new Error("That save is unavailable. Choose a map to begin.");
     if (bundleUrl) URL.revokeObjectURL(bundleUrl);
     const files = { ...(await (filesPromise ||= gameFiles())) };
     map = resume ? saved.map : level;
@@ -136,9 +145,9 @@ async function launch(resume = false, level = 1) {
       `[sdl]\nautolock=false\n[dosbox]\nmachine=svga_s3\nmemsize=16\n[render]\naspect=false\nscaler=none\n[cpu]\ncore=auto\ncycles=auto\n[mixer]\nrate=22050\n[sblaster]\nsbtype=sb16\nsbbase=220\nirq=7\ndma=1\nhdma=5\n[autoexec]\n@echo off\nmount c .\nc:\nDOOM.EXE ${resume ? "-loadgame 0" : `-warp 1 ${map} -skill ${skill}`}\n`,
     );
     files["DEFAULT.CFG"] = strToU8(
-      "mouse_sensitivity 5\nsfx_volume 8\nmusic_volume 6\nshow_messages 1\nscreenblocks 10\ndetaillevel 0\nsnd_channels 8\nsnd_musicdevice 3\nsnd_sfxdevice 3\nsnd_sbport 544\nsnd_sbirq 7\nsnd_sbdma 1\nuse_mouse 1\nuse_joystick 0\nkey_right 77\nkey_left 75\nkey_up 17\nkey_down 31\nkey_strafeleft 30\nkey_straferight 32\nkey_fire 29\nkey_use 57\nkey_strafe 56\nkey_speed 42\n",
+      "mouse_sensitivity 5\nsfx_volume 8\nmusic_volume 6\nshow_messages 1\nscreenblocks 10\ndetaillevel 0\nsnd_channels 8\nsnd_musicdevice 3\nsnd_sfxdevice 3\nsnd_sbport 544\nsnd_sbirq 7\nsnd_sbdma 1\nuse_mouse 1\nuse_joystick 0\nkey_right 77\nkey_left 75\nkey_up 17\nkey_down 31\nkey_strafeleft 30\nkey_straferight 32\nkey_fire 57\nkey_use 29\nkey_strafe 56\nkey_speed 42\n",
     );
-    // Starting a selected map replaces the checkpoint only after its first save succeeds.
+    // Each selected map has its own checkpoint; the original save stays intact.
     if (!resume && saved) files["doomsav0.dsg"] = saved.bytes;
     bundleUrl = URL.createObjectURL(
       new Blob([zipSync(files, { level: 0 })], { type: "application/zip" }),
@@ -183,20 +192,41 @@ async function launch(resume = false, level = 1) {
 function showMaps() {
   picker.hidden = false;
   state();
-  $("#resume").hidden = !saved;
-  $("#resume").textContent = ready ? "Continue game" : "Resume saved game";
+  const runs = [];
+  for (const key of [
+    DOOM_SAVE_KEY,
+    ...maps.map((_, i) => `${DOOM_SAVE_KEY}.map.${i + 1}`),
+  ]) {
+    try {
+      const run = decodeSave(localStorage.getItem(key));
+      if (run) runs.push({ key, run });
+    } catch {}
+  }
+  $("#saved-run").replaceChildren(
+    ...runs.map(({ key, run }) => {
+      const option = document.createElement("option");
+      option.value = key;
+      option.textContent = `${key === DOOM_SAVE_KEY ? "Original run · " : ""}${maps[run.map - 1]} · ${new Date(run.savedAt).toLocaleString()}`;
+      option.selected = key === saveKey;
+      return option;
+    }),
+  );
+  $("#saved-choice").hidden = runs.length === 0;
+  $("#resume").hidden = runs.length === 0;
+  $("#continue").hidden = !ready;
   document.body.dataset.gameState = "map-select";
 }
 $("#maps").onclick = async () => {
   if (ready && !(await checkpoint())) return;
   showMaps();
 };
-$("#resume").onclick = () => {
+$("#resume").onclick = () => launch(true);
+$("#continue").onclick = () => {
   if (ready) {
     picker.hidden = true;
     state();
     document.body.focus();
-  } else launch(true);
+  }
 };
 $("#save").onclick = async () => {
   await checkpoint();
@@ -224,7 +254,7 @@ window.addEventListener(
       if (event.key === "F6") checkpoint();
       else if (event.key === "Escape") {
         if (picker.hidden) $("#maps").click();
-        else if (ready) $("#resume").click();
+        else if (ready) $("#continue").click();
       }
     }
   },
@@ -265,8 +295,7 @@ window.addEventListener("pagehide", () => {
 });
 notice(
   saved
-    ? "Saved game found · resumes automatically"
+    ? "Saved game available · choose Resume saved game"
     : "Autosaves every 15 seconds · saved on this browser",
 );
-if (saved) launch(true);
-else showMaps();
+showMaps();

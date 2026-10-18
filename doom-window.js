@@ -60,7 +60,7 @@ export function mountDoomWindow(entry, { getSound, isActive, eject }) {
   button.onclick = eject;
   entry.el.querySelector(".window-menubar").append(button);
   entry.el.querySelector(".window-status-text").textContent =
-    "WASD move · ←/→ turn · Ctrl fire · Space use · Esc menu";
+    "WASD move · ←/→ turn · Space fire · Ctrl use · Esc menu";
   const previous = entry.cleanup;
   entry.cleanup = () => {
     previous?.();
